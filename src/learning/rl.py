@@ -1,11 +1,70 @@
 from tqdm import tqdm
 from utils.read_config import config
+from mcts.mcts import MCTS
+import gym
+
 
 class RL:
-    
+
     def learn(self):
+
+        # Setting the activation of default policy network and critic network
+        epsilon = config.epsilon
+        sigma = config.sigma
+
+        # Set the number of simulations and c constant
+        simulations = config.simulations
+        c = config.c
+
         # Loop through the number of episodes
-        for episode in tqdm(range(config.episodes)):
-            # Play a game
-            self.play_game()
-            
+        for _ in tqdm(range(config.episodes)):
+
+            # Create the environment
+            go_env: gym.Env = gym.make('gym_go:go-v0', size=config.board_size)
+
+            # Reset the environment
+            go_env.reset()
+
+            # Get the initial state
+            game_state = go_env.canonical_state()
+
+            # Create the initial tree
+            tree = MCTS(game_state, epsilon, sigma, simulations, c)
+
+            # Keep track of the root node for testing purposes
+            root_node = tree.root
+
+            # Play a game until termination
+            terminated = False
+
+            while not terminated:
+                best_action_node, player, game_state, distribution = tree.search(
+                    player)
+
+                # TODO add to rbuf (replay buffer)
+
+                # Apply the action to the environment
+                observation, reward, terminated, info = go_env.step(
+                    best_action_node.state.get_last_action())
+
+                # Render the board
+                go_env.render()
+
+                # Update the root node of the mcts tree
+                tree.root = best_action_node
+
+            # Visualize the tree
+            if config.visualize_tree:
+                graph = root_node.visualize_tree()
+
+                graph.render('./visualization/tree', view=True)
+
+            tree.reset()
+
+            # Updating sigma and epsilon
+            epsilon = epsilon * config.epsilon_decay
+            sigma = sigma * config.sigma_decay
+
+            # TODO train the networks
+
+        print("Finished training")

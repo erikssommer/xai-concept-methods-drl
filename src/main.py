@@ -19,6 +19,11 @@ def setup():
     # Create the folder containing the models if it doesn't exist
     if not os.path.exists('../models'):
         os.makedirs('../models')
+    
+    # Create the folder containing the visualizations if it doesn't exist
+    if not os.path.exists('./visualization'):
+        os.makedirs('./visualization')
+
 
 
 # Main method
