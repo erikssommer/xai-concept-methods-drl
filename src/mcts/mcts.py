@@ -18,38 +18,37 @@ class MCTS:
         Rollout function using epsilon-greedy strategy with default policy
         """
 
-        while not node.state.is_game_over():
+        while not node.is_game_over():
             pivot = random.random()
 
             if pivot < self.epsilon:
                 # Random rollout
-                node = node.apply_action(random.choice(
-                    node.state.get_legal_actions()))
+                node = node.apply_random_move()
             else:
                 # Rollout using default policy
-                action = self.dp_nn.rollout_action(node.state)
+                action = self.dp_nn.rollout_action(node)
                 try:
                     node = node.apply_action_without_adding_child(action)
                 except:
                     self.dp_nn.debug(node.state)
 
                     node = node.apply_action(random.choice(
-                        node.state.get_legal_actions()))
+                        node.get_legal_actions()))
                     raise Exception("Invalid action")
 
         # Return the reward of the node given the player using node class
-        return node.state.get_reward()
+        return node.winning()
 
     def __calculate_ucb1(self, node: Node) -> float:
         """
         Calculate UCB1 value for a given node and child
         """
-        if node.visits == 0 and node.parent.state.get_player() == 1:
+        if node.visits == 0 and node.parent.get_player() == 0:
             return np.inf
-        elif node.visits == 0 and node.parent.state.get_player() == 2:
+        elif node.visits == 0 and node.parent.get_player() == 1:
             return -np.inf
 
-        elif node.parent.state.get_player() == 1:
+        elif node.parent.get_player() == 0:
             return self.__get_max_value_move(node)
         else:
             return self.__get_min_value_move(node)
@@ -86,7 +85,7 @@ class MCTS:
         ucb1_scores = [self.__calculate_ucb1(child) for child in node.children]
 
         best_idx = np.argmax(ucb1_scores) \
-            if node.state.get_player() == 1 \
+            if node.get_player() == 0 \
             else np.argmin(ucb1_scores)
 
         val = ucb1_scores[best_idx]
@@ -102,11 +101,7 @@ class MCTS:
     def __node_expansion(self, node: Node) -> Node:
         # Expand node by adding one of its unexpanded children
         # Get the legal moves from the current state
-        legal_moves = node.state.get_legal_actions()
-
-        # Expand the node by creating child nodes for each legal move
-        for move in legal_moves:
-            node.apply_action(move)
+        node.make_children()
 
         # Tree policy: return the first child node
         return random.choice(node.children)
@@ -135,7 +130,7 @@ class MCTS:
             node = self.__select_best_child(node)
 
         # Test if node is terminal
-        if node.state.is_game_over():
+        if node.is_game_over():
             return node
 
         # Test if node has been visited before or if it is the root node
@@ -156,23 +151,14 @@ class MCTS:
         total_visits = sum(child.visits for child in self.root.children)
         dist = [(child.visits / total_visits) for child in self.root.children]
 
-        validity = self.root.state.state.get_validity_of_children()
-
-        distribution = []
-        for i in validity:
-            if i:
-                distribution.append(dist.pop(0))
-            else:
-                distribution.append(0)
-
-        return distribution
+        return dist
 
     def set_root(self, state) -> None:
         self.root = Node(state)
 
     def search(self, starting_player) -> Tuple[Any, Any, List[Union[float, Any]], Any]:
         node: Node = self.root
-        node.state.player = starting_player
+        node.player = starting_player
 
         for _ in range(self.iterations):
             leaf_node = self.__tree_search(node)  # Tree policy
@@ -183,7 +169,7 @@ class MCTS:
         best_move = self.__get_best_move()
         distribution = self.__get_distribution()
 
-        return best_move, best_move.state.get_player(), copy.deepcopy(best_move.state.state.game_state), distribution
+        return best_move, best_move.get_player(), copy.deepcopy(best_move.state), distribution
 
     def reset(self) -> None:
         self.root = None
