@@ -32,7 +32,7 @@ class RL:
             curr_player = go_env.turn()
 
             # Create the initial tree
-            tree = MCTS(game_state, epsilon, sigma, simulations, c)
+            tree = MCTS(epsilon, sigma, simulations, c)
 
             # Set the root node of the tree
             tree.set_root(game_state)
@@ -51,7 +51,7 @@ class RL:
 
                 # Apply the action to the environment
                 observation, reward, terminated, info = go_env.step(
-                    best_action_node.state.get_last_action())
+                    best_action_node.action)
 
                 # Render the board
                 go_env.render()
