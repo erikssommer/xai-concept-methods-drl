@@ -5,8 +5,7 @@ from mcts.node import Node
 from typing import Tuple, List, Any, Union
 
 class MCTS:
-    def __init__(self, root_state: np.array, epsilon, sigma, iterations, c, c_nn=None, dp_nn=None):
-        self.root = Node(None, root_node=True, game_state=root_state)
+    def __init__(self, epsilon, sigma, iterations, c, c_nn=None, dp_nn=None):
         self.iterations = iterations
         self.epsilon = epsilon
         self.sigma = sigma
@@ -167,6 +166,9 @@ class MCTS:
                 distribution.append(0)
 
         return distribution
+
+    def set_root(self, state) -> None:
+        self.root = Node(state)
 
     def search(self, starting_player) -> Tuple[Any, Any, List[Union[float, Any]], Any]:
         node: Node = self.root

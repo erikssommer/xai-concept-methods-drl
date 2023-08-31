@@ -28,8 +28,14 @@ class RL:
             # Get the initial state
             game_state = go_env.canonical_state()
 
+            # Get the player
+            curr_player = go_env.turn()
+
             # Create the initial tree
             tree = MCTS(game_state, epsilon, sigma, simulations, c)
+
+            # Set the root node of the tree
+            tree.set_root(game_state)
 
             # Keep track of the root node for testing purposes
             root_node = tree.root
@@ -39,7 +45,7 @@ class RL:
 
             while not terminated:
                 best_action_node, player, game_state, distribution = tree.search(
-                    player)
+                    curr_player)
 
                 # TODO add to rbuf (replay buffer)
 

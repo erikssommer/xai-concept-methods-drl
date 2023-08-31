@@ -1,25 +1,24 @@
 import graphviz
 
 class Node:
-    def __init__(self, state, parent=None, root_node=False, game_state=None):
-        if root_node:
-            self.state = self.create_root_node_with_state(game_state)
-        else:
-            self.state = state
-
+    def __init__(self, state, parent=None):
+        
+        self.state = state
         self.parent = parent
-        self.children = []
+        self.child_states = None
+
         self.visits = 0
         self.rewards = 0
+
+        # Level
+        if parent is None:
+            self.level = 0
+        else:
+            self.level = parent.level + 1
 
     def update(self, reward):
         self.visits += 1
         self.rewards += reward
-
-    def create_root_node_with_state(self, state):
-        state_manager = None
-        state_manager.state.game_state = state
-        return state_manager
 
     def apply_action(self, action):
         """
