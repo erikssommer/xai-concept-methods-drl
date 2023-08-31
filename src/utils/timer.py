@@ -19,6 +19,6 @@ class Timer:
         total_datetime = datetime.strptime(
             self.end_datetime, self.fmt) - datetime.strptime(self.start_datetime, self.fmt)
         print(
-            f"Played {config.episodes} {config.game} games with {config.simulations} simulations per move")
+            f"Played {config.episodes} GO games with {config.simulations} simulations per move")
         print(
             f"Started: {self.start_datetime}\nFinished: {self.end_datetime}\nTotal: {total_datetime}")
