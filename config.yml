@@ -1,6 +1,6 @@
 # MCTS config
 episodes: 1
-simulations: 100 # m
+simulations: 10 # m
 epsilon: 1
 epsilon_decay: 1
 sigma: 2
@@ -23,10 +23,10 @@ plot_accuracy: false
 starting_player: 1
 
 # GO config
-board_size: 4 # k
+board_size: 5 # k
 
 # Debug config
-visualize_tree: true
+visualize_tree: false
 
 # Topp config
 nr_of_topp_games: 25 # g
