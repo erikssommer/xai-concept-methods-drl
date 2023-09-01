@@ -37,15 +37,17 @@ class RL:
             # Set the root node of the tree
             tree.set_root(game_state)
 
-            # Keep track of the root node for testing purposes
-            root_node = tree.root
-
             # Play a game until termination
             terminated = False
 
             while not terminated:
                 best_action_node, player, game_state, distribution = tree.search(
                     curr_player)
+                
+                # Visualize the tree
+                if config.visualize_tree:
+                    graph = best_action_node.visualize_tree()
+                    graph.render('./visualization/tree', view=True)
 
                 # TODO add to rbuf (replay buffer)
 
@@ -58,12 +60,6 @@ class RL:
 
                 # Update the root node of the mcts tree
                 tree.root = best_action_node
-
-            # Visualize the tree
-            if config.visualize_tree:
-                graph = root_node.visualize_tree()
-
-                graph.render('./visualization/tree', view=True)
 
             tree.reset()
 

@@ -5,7 +5,7 @@ from mcts.node import Node
 from typing import Tuple, List, Any, Union
 
 class MCTS:
-    def __init__(self, epsilon, sigma, iterations, c, c_nn=None, dp_nn=None):
+    def __init__(self, epsilon, sigma, iterations, c=1.3, c_nn=None, dp_nn=None):
         self.iterations = iterations
         self.epsilon = epsilon
         self.sigma = sigma
