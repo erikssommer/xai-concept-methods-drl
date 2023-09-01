@@ -5,6 +5,8 @@ import sys
 sys.path.insert(0, 'src')
 
 from mcts.mcts import MCTS
+from game.data import GoGame
+from game.data import GoVars
 
 
 class TestMCTSvsRandom(unittest.TestCase):
@@ -12,44 +14,40 @@ class TestMCTSvsRandom(unittest.TestCase):
         victories = 0
         games = 1
         rollouts = 100
-        mcts_player = 0
 
         for _ in range(games):
-            go_env = gym.make('gym_go:go-v0', size=4)
+            go_env = gym.make('gym_go:go-v0', size=5)
             go_env.reset()
             game_state = go_env.canonical_state()
-            curr_player = go_env.turn()
-            print(curr_player)
+            curr_turn = go_env.turn()
             tree = MCTS(1, 1, rollouts, 1.3)
             tree.set_root(game_state)
 
             terminated = False
 
             while not terminated:
-                if curr_player == mcts_player:
+                if curr_turn == GoVars.BLACK:
                     print("MCTS")
-                    best_action_node, player, game_state, distribution = tree.search(curr_player)
+                    best_action_node, player, game_state, distribution = tree.search(curr_turn)
                     observation, reward, terminated, info = go_env.step(best_action_node.action)
                     tree.root = best_action_node
                 else:
                     print("Random")
-                    valid_moves = go_env.valid_moves()
-                    valid = False
-
-                    while not valid:
-                        action = go_env.action_space.sample()
-                        if valid_moves[action] != 0:
-                            observation, reward, terminated, info = go_env.step(action)
-                            valid = True
+                    action = go_env.uniform_random_action()
+                    state, reward, done, info = go_env.step(action)
                     
                     # Update the tree
                     tree = MCTS(1, 1, rollouts, 1.3)
-                    tree.set_root(observation)
+                    tree.set_root(state)
                 
-                curr_player = go_env.turn()
+                curr_turn = go_env.turn()
 
-            if go_env.winner() == mcts_player:
+            black_won = go_env.winning()
+
+            if black_won == 1:
                 victories += 1
+            
+            go_env.render()
 
         # Calculate the win probability
         win_probability = victories / games

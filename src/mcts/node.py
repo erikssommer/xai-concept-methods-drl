@@ -44,18 +44,7 @@ class Node:
         return GoGame.action_size(self.state)
 
     def winning(self):
-        winning = GoGame.winning(self.state)
-
-        if winning == 0:
-            return 0
-        elif self.player == 0 and winning == -1:
-            return 1
-        elif self.player == 1 and winning == 1:
-            return 1
-        elif self.player == 1 and winning == -1:
-            return -1
-        elif self.player == 0 and winning == 1:
-            return -1
+        return GoGame.winning(self.state, 6.5)
         
 
     def isleaf(self):
