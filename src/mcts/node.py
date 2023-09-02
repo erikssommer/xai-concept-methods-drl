@@ -46,7 +46,6 @@ class Node:
     def winning(self):
         return GoGame.winning(self.state, 6.5)
         
-
     def isleaf(self):
         # Not the same as whether the state is terminal or not
         return (self.child_nodes == None).all()
@@ -105,7 +104,7 @@ class Node:
             graph = graphviz.Digraph()
 
         graph.node(str(
-            id(self)), label=f'Player: {self.get_player()}\nVisits: {self.visits}\nRewards: {self.rewards}\nState: {self.state}')
+            id(self)), label=f'Player: {self.get_player()}\nVisits: {self.visits}\nRewards: {self.rewards}\nState ([black][white]):\n{self.state[0]}\n{self.state[1]}]')
 
         for child in self.children:
             graph.edge(str(id(self)), str(id(child)))
