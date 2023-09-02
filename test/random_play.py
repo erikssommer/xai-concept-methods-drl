@@ -1,35 +1,26 @@
 import gym
+import unittest
 
-# Create the go environment
-env = gym.make('gym_go:go-v0', size=2, komi=0, reward_method='real')
+class TestRandomPlay(unittest.TestCase):
+    # Create the go environment
+    go_env = gym.make('gym_go:go-v0', size=9, komi=6.5, reward_method='real')
 
-# Reset the environment
-env.reset()
+    # Reset the environment
+    go_env.reset()
 
-print(env.canonical_state())
+    # Play a random game
+    terminated = False
 
-# Play a random game
-terminated = False
-while not terminated:
-    # Get valid moves
-    valid_moves = env.valid_moves()
-    valid = False
+    while not terminated:
+        action = go_env.uniform_random_action()
+        state, reward, terminated, info = go_env.step(action)
 
-    while not valid:
-        action = env.action_space.sample()
-        if valid_moves[action] != 0:
-            observation, reward, terminated, info = env.step(action)
+        # Render the board
+        go_env.render()
 
-            # Render the board
-            env.render()
+    # Close the environment
+    go_env.close()
 
-            # Print the results
-            print("Observation: \n {}".format(observation))
-            print("Info: {}".format(info))
-            print("Reward: {}, Terminated: {}".format(reward, terminated))
 
-            # Switch valid to True
-            valid = True
-
-# Close the environment
-env.close()
+if __name__ == '__main__':
+    unittest.main()
