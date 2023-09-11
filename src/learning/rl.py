@@ -28,25 +28,27 @@ class RL:
             # Get the initial state
             game_state = go_env.canonical_state()
 
-            # Get the player
-            curr_player = go_env.turn()
-
             # Create the initial tree
             tree = MCTS(epsilon, sigma, simulations, c)
 
             # Set the root node of the tree
             tree.set_root(game_state)
 
+            node = tree.root
+
             # Play a game until termination
             terminated = False
 
             while not terminated:
+                # Get the player
+                curr_player = go_env.turn()
+
                 best_action_node, player, game_state, distribution = tree.search(
                     curr_player)
                 
                 # Visualize the tree
                 if config.visualize_tree:
-                    graph = best_action_node.visualize_tree()
+                    graph = node.visualize_tree()
                     graph.render('./visualization/tree', view=True)
 
                 # TODO add to rbuf (replay buffer)

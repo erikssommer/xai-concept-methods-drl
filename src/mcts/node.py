@@ -1,7 +1,7 @@
 import graphviz
 import numpy as np
 
-from game.data import GoGame
+from game.data import GoGame, GoVars
 
 
 class Node:
@@ -43,8 +43,17 @@ class Node:
     def action_size(self):
         return GoGame.action_size(self.state)
 
-    def winning(self):
-        return GoGame.winning(self.state, 6.5)
+    def winning(self, root_player):
+        # Allways in perspective of black
+        # Black is 0, white is 1
+        win = GoGame.winning(self.state)
+
+        if root_player == GoVars.BLACK and win == 1:
+            return 1
+        elif root_player == GoVars.WHITE and win == 0:
+            return 1
+        else:
+            return -1
         
     def isleaf(self):
         # Not the same as whether the state is terminal or not

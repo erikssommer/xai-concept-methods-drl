@@ -3,6 +3,7 @@ import copy
 import random
 from mcts.node import Node
 from typing import Tuple, List, Any, Union
+from game.data import GoVars
 
 class MCTS:
     def __init__(self, epsilon, sigma, iterations, c=1.3, c_nn=None, dp_nn=None):
@@ -12,6 +13,7 @@ class MCTS:
         self.dp_nn = dp_nn
         self.c_nn = c_nn
         self.c = c
+        self.counter = 0
 
     def __rollout(self, node: Node) -> int:
         """
@@ -37,18 +39,18 @@ class MCTS:
                     raise Exception("Invalid action")
 
         # Return the reward of the node given the player using node class
-        return node.winning()
+        return node.winning(self.root.get_player())
 
     def __calculate_ucb1(self, node: Node) -> float:
         """
         Calculate UCB1 value for a given node and child
         """
-        if node.visits == 0 and node.parent.get_player() == 0:
+        if node.visits == 0 and node.parent.get_player() == GoVars.BLACK:
             return np.inf
-        elif node.visits == 0 and node.parent.get_player() == 1:
+        elif node.visits == 0 and node.parent.get_player() == GoVars.WHITE:
             return -np.inf
 
-        elif node.parent.get_player() == 0:
+        elif node.parent.get_player() == GoVars.BLACK:
             return self.__get_max_value_move(node)
         else:
             return self.__get_min_value_move(node)
@@ -85,7 +87,7 @@ class MCTS:
         ucb1_scores = [self.__calculate_ucb1(child) for child in node.children]
 
         best_idx = np.argmax(ucb1_scores) \
-            if node.get_player() == 0 \
+            if node.get_player() == GoVars.BLACK \
             else np.argmin(ucb1_scores)
 
         val = ucb1_scores[best_idx]
