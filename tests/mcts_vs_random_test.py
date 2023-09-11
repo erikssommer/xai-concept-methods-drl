@@ -16,31 +16,30 @@ class TestMCTSvsRandom(unittest.TestCase):
         rollouts = 100
 
         for _ in range(games):
-            go_env = gym.make('gym_go:go-v0', size=5)
+            go_env = gym.make('gym_go:go-v0', size=6)
             go_env.reset()
             game_state = go_env.canonical_state()
             curr_turn = go_env.turn()
-            tree = MCTS(1, 1, rollouts, 1.3)
+            tree = MCTS(1, 1, rollouts)
             tree.set_root(game_state)
 
             terminated = False
 
             while not terminated:
                 if curr_turn == GoVars.BLACK:
-                    print("MCTS")
                     best_action_node, player, game_state, distribution = tree.search(curr_turn)
                     observation, reward, terminated, info = go_env.step(best_action_node.action)
                     tree.root = best_action_node
                 else:
-                    print("Random")
                     action = go_env.uniform_random_action()
                     state, reward, done, info = go_env.step(action)
                     
                     # Update the tree
-                    tree = MCTS(1, 1, rollouts, 1.3)
+                    tree = MCTS(1, 1, rollouts)
                     tree.set_root(state)
                 
                 curr_turn = go_env.turn()
+                go_env.render()
 
             black_won = go_env.winning()
 

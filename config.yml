@@ -23,7 +23,7 @@ plot_accuracy: false
 starting_player: 1
 
 # GO config
-board_size: 2 # k
+board_size: 5 # k
 
 # Debug config
 visualize_tree: true
