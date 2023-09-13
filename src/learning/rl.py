@@ -34,6 +34,7 @@ class RL:
             # Set the root node of the tree
             tree.set_root(game_state)
 
+            # For visualization only
             node = tree.root
 
             # Play a game until termination
@@ -43,13 +44,19 @@ class RL:
                 # Get the player
                 curr_player = go_env.turn()
 
+                print("Current player: {}".format(curr_player))
+
                 best_action_node, player, game_state, distribution = tree.search(
                     curr_player)
+                
+                # Print action
+                print("Action: {}".format(best_action_node.action))
                 
                 # Visualize the tree
                 if config.visualize_tree:
                     graph = node.visualize_tree()
                     graph.render('./visualization/tree', view=True)
+                    node = best_action_node
 
                 # TODO add to rbuf (replay buffer)
 

@@ -12,11 +12,12 @@ from game.data import GoVars
 class TestMCTSvsRandom(unittest.TestCase):
     def test_mcts_vs_random(self):
         victories = 0
-        games = 1
-        rollouts = 100
+        games = 10
+        rollouts = 50
+        board_size = 4
 
         for _ in range(games):
-            go_env = gym.make('gym_go:go-v0', size=6)
+            go_env = gym.make('gym_go:go-v0', size=board_size)
             go_env.reset()
             game_state = go_env.canonical_state()
             curr_turn = go_env.turn()

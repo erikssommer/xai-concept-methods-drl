@@ -83,7 +83,7 @@ class Node:
         """
         :return: Padded children numpy states
         """
-        child_states = GoGame.children(self.state, canonical=True, padded=True)
+        child_states = GoGame.children(self.state, canonical=False, padded=True)
         actions = np.argwhere(self.valid_moves()).flatten()
         for action in actions:
             self.make_childnode(action, child_states[action])
