@@ -1,6 +1,8 @@
 from tqdm import tqdm
 from utils.read_config import config
 from mcts.mcts import MCTS
+from rbuf.rbuf import RBUF
+from models.policy_nn import ActorCriticNet
 import gym
 
 
@@ -16,8 +18,14 @@ class RL:
         simulations = config.simulations
         c = config.c
 
+        # Creation replay buffer
+        rbuf = RBUF(config.rbuf_size)
+
+        # Create the neural network
+        policy_nn = ActorCriticNet(config.board_size)
+
         # Loop through the number of episodes
-        for _ in tqdm(range(config.episodes)):
+        for episode in tqdm(range(config.episodes)):
 
             # Create the environment
             go_env: gym.Env = gym.make('gym_go:go-v0', size=config.board_size)
@@ -44,13 +52,8 @@ class RL:
                 # Get the player
                 curr_player = go_env.turn()
 
-                print("Current player: {}".format(curr_player))
-
                 best_action_node, player, game_state, distribution = tree.search(
                     curr_player)
-                
-                # Print action
-                print("Action: {}".format(best_action_node.action))
                 
                 # Visualize the tree
                 if config.visualize_tree:
@@ -58,14 +61,15 @@ class RL:
                     graph.render('./visualization/tree', view=True)
                     node = best_action_node
 
-                # TODO add to rbuf (replay buffer)
+                # Add to rbuf (replay buffer)
+                rbuf.add_case((player, game_state, distribution))
 
                 # Apply the action to the environment
                 observation, reward, terminated, info = go_env.step(
                     best_action_node.action)
 
                 # Render the board
-                go_env.render()
+                # go_env.render()
 
                 # Update the root node of the mcts tree
                 tree.root = best_action_node
@@ -76,6 +80,19 @@ class RL:
             epsilon = epsilon * config.epsilon_decay
             sigma = sigma * config.sigma_decay
 
-            # TODO train the networks
+            # Train the neural network
+            batch = rbuf.get(config.batch_size)
+
+            # Train the neural network
+            policy_nn.fit(batch)
+
+            # Save the neural network model
+            if episode % config.save_interval == 0:
+                # Save the neural network model
+                policy_nn.save_weights(f'../models/rl_policy_nn_{episode}.h5')
+        
+        # Save the final neural network model
+        policy_nn.save_weights(f'../models/rl_policy_nn_{config.episodes}.h5')
+            
 
         print("Finished training")

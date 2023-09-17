@@ -26,7 +26,7 @@ starting_player: 1
 board_size: 5 # k
 
 # Debug config
-visualize_tree: true
+visualize_tree: false
 
 # Topp config
 nr_of_topp_games: 25 # g

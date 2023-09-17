@@ -21,24 +21,7 @@ class RBUF:
     def add_case(self, case):
         player, game_state, distribution = case
 
-        state = transform(player, game_state)
-
-        if player == 1:
-            distribution = np.array(distribution).reshape(config.board_size, config.board_size).T.flatten().tolist()
-
-        self.buffer.append((state, distribution))
+        self.buffer.append((game_state, distribution))
     
     def clear(self):
         self.buffer = deque([], maxlen=self.max_size)
-
-def transform(player, game_state):
-    """
-    Transform game state to a format that can be used by the neural network
-    :param player: Player number
-    :param game_state: Game state
-    :return: Transformed game state
-    """
-    if player == 0:
-        return game_state
-    else:
-        return np.flip(game_state, (0, 1))
