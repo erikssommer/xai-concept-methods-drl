@@ -29,13 +29,12 @@ class TestMCTSvsRandom(unittest.TestCase):
             while not terminated:
                 if curr_turn == GoVars.BLACK:
                     best_action_node, player, game_state, distribution = tree.search(curr_turn)
-                    observation, reward, terminated, info = go_env.step(best_action_node.action)
-                    tree.root = best_action_node
+                    state, reward, terminated, info = go_env.step(best_action_node.action)
                 else:
                     action = go_env.uniform_random_action()
                     state, reward, terminated, info = go_env.step(action)
                     
-                    # Update the tree
+                    # Update the tree, may be done better
                     tree = MCTS(1, 1, rollouts)
                     tree.set_root(state)
                 
