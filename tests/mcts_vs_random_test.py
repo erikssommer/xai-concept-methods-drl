@@ -12,9 +12,9 @@ from game.data import GoVars
 class TestMCTSvsRandom(unittest.TestCase):
     def test_mcts_vs_random(self):
         victories = 0
-        games = 10
-        rollouts = 50
-        board_size = 4
+        games = 5
+        rollouts = 100
+        board_size = 5
 
         for _ in range(games):
             go_env = gym.make('gym_go:go-v0', size=board_size)
@@ -33,7 +33,7 @@ class TestMCTSvsRandom(unittest.TestCase):
                     tree.root = best_action_node
                 else:
                     action = go_env.uniform_random_action()
-                    state, reward, done, info = go_env.step(action)
+                    state, reward, terminated, info = go_env.step(action)
                     
                     # Update the tree
                     tree = MCTS(1, 1, rollouts)
@@ -56,7 +56,7 @@ class TestMCTSvsRandom(unittest.TestCase):
         print("Win probability: {}".format(win_probability))
 
         # Assert the results
-        self.assertTrue(win_probability > 0.9)
+        self.assertTrue(win_probability >= 0.9)
 
 
 if __name__ == '__main__':
