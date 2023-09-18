@@ -3,7 +3,7 @@ import copy
 import random
 from mcts.node import Node
 from typing import Tuple, List, Any, Union
-from game.data import GoVars
+from game.data import GoVars, GoGame
 
 class MCTS:
     def __init__(self, epsilon, sigma, iterations, c=1.3, c_nn=None, dp_nn=None):
@@ -18,28 +18,30 @@ class MCTS:
     def __rollout(self, node: Node) -> int:
         """
         Rollout function using epsilon-greedy strategy with default policy
+        Not using node structure to save memory
         """
 
-        while not node.is_game_over():
+        # Get the current state
+        game_state = node.state
+
+        while not GoGame.game_ended(game_state):
             pivot = random.random()
 
             if pivot < self.epsilon:
                 # Random rollout
-                node = node.apply_random_move()
+                actions = np.argwhere(GoGame.valid_moves(game_state)).flatten()
+
+                # Make a childnode for only one random action
+                action = np.random.choice(actions)
+
+                game_state = GoGame.next_state(game_state, action, canonical=True)
+
             else:
                 # Rollout using default policy
-                action = self.dp_nn.rollout_action(node)
-                try:
-                    node = node.apply_action_without_adding_child(action)
-                except:
-                    self.dp_nn.debug(node.state)
-
-                    node = node.apply_action(random.choice(
-                        node.get_legal_actions()))
-                    raise Exception("Invalid action")
+                raise NotImplementedError("Default policy not implemented")
 
         # Return the reward of the node given the player using node class
-        return node.winning(self.root.get_player())
+        return node.winning(self.root.get_player(), game_state)
 
     def __calculate_ucb1(self, node: Node) -> float:
         """

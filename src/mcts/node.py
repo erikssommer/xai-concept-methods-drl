@@ -43,10 +43,10 @@ class Node:
     def action_size(self):
         return GoGame.action_size(self.state)
 
-    def winning(self, root_player):
+    def winning(self, root_player, game_state):
         # Allways in perspective of black
         # Black is 0, white is 1
-        win = GoGame.winning(self.state)
+        win = GoGame.winning(game_state)
 
         if root_player == GoVars.BLACK and win == 1:
             return 1
