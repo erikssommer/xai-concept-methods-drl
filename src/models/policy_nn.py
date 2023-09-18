@@ -1,36 +1,40 @@
 import tensorflow as tf
-import numpy as np
 from game.data import GoGame
 
 class ActorCriticNet(tf.keras.Model):
-    def __init__(self, size):
-        action_size = GoGame.action_size(board_size=size)
+    def __init__(self, input_shape, move_cap, init=True):
         super(ActorCriticNet, self).__init__()
 
-        self.action_size = action_size
+        BLOCK_FILTER_SIZE = 32
 
-        self.act_head = tf.keras.Sequential([
-            tf.keras.layers.Conv2D(2, kernel_size=1),
-            tf.keras.layers.BatchNormalization(),
-            tf.keras.layers.ReLU(),
-            tf.keras.layers.Flatten(),
-            tf.keras.layers.Dense(action_size)
-        ])
+        if not init:
+            return
+        
+        # Input
+        self.position_input = tf.keras.Input((input_shape))
+        
+        # Residual block
+        base = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (3, 3), activation="elu", padding="same", name="res_block_output_base")(self.position_input)
+        base = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (3, 3), activation="elu", padding="same")(base)
+        base = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (3, 3), activation="elu", padding="same")(base)
 
-        self.crit_head = tf.keras.Sequential([
-            tf.keras.layers.Conv2D(1, kernel_size=1),
-            tf.keras.layers.BatchNormalization(),
-            tf.keras.layers.ReLU(),
-            tf.keras.layers.Flatten(),
-            tf.keras.layers.Dense(256, activation='relu'),
-            tf.keras.layers.Dense(1)
-        ])
+        # Policy head
+        policy = tf.keras.layers.Conv2D(move_cap, (1, 1), activation="elu", padding="same")(base)
+        policy = tf.keras.layers.Flatten()(policy)
+        policy_output = tf.keras.layers.Softmax(name="policy_output")(policy)
 
-        self.game_head = tf.keras.Sequential([
-            tf.keras.layers.Conv2D(6, kernel_size=1),  # Assuming `self.channels` is 6
-            tf.keras.layers.BatchNormalization(),
-            tf.keras.layers.ReLU(),
-            tf.keras.layers.Conv2D(6 * (size ** 2 + 1), kernel_size=1)
-        ])
-    
+        # Value head
+        val = tf.keras.layers.Conv2D(16, (1, 1), name="value_conv", activation="elu", padding="same")(base)
+        val = tf.keras.layers.Flatten()(val)
+        value_output = tf.keras.layers.Dense(1, name="value_output", activation="tanh")(val)
+
+        self.model = tf.keras.Model(self.position_input, [policy_output, value_output])
+        self.model.summary()
+        self.model.compile(
+            loss={"policy_output": tf.keras.losses.CategoricalCrossentropy(), "value_output": tf.keras.losses.MeanSquaredError()},
+            loss_weights={"policy_output": 1.0, "value_output": 1.0},
+            optimizer=tf.keras.optimizers.Adam(learning_rate=0.001))
+
+    def call(self, inputs):
+        return self.model(inputs)
     

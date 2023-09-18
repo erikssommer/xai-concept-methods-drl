@@ -18,17 +18,19 @@ class RL:
         simulations = config.simulations
         c = config.c
 
+        # Create the environment
+        go_env: gym.Env = gym.make('gym_go:go-v0', size=config.board_size)
+
         # Creation replay buffer
         rbuf = RBUF(config.rbuf_size)
 
+        print(go_env.observation_space.shape)
+
         # Create the neural network
-        policy_nn = ActorCriticNet(config.board_size)
+        policy_nn = ActorCriticNet(go_env.observation_space.shape, config.move_cap)
 
         # Loop through the number of episodes
         for episode in tqdm(range(config.episodes)):
-
-            # Create the environment
-            go_env: gym.Env = gym.make('gym_go:go-v0', size=config.board_size)
 
             # Reset the environment
             go_env.reset()
@@ -54,6 +56,8 @@ class RL:
 
                 best_action_node, player, game_state, distribution = tree.search(
                     curr_player)
+                
+                print(distribution)
                 
                 # Visualize the tree
                 if config.visualize_tree:

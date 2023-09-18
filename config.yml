@@ -18,6 +18,7 @@ hidden_layers: 3
 neurons_per_layer: [256, 512, 256] # (512, 256)
 batch_size: 128
 plot_accuracy: false
+move_cap: 500
 
 # Game general config
 starting_player: 1
