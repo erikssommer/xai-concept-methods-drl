@@ -29,12 +29,9 @@ class MCTS:
 
             if pivot < self.epsilon:
                 # Random rollout
-                actions = np.argwhere(GoGame.valid_moves(game_state)).flatten()
+                action = GoGame.random_action(game_state)
 
-                # Make a childnode for only one random action
-                action = np.random.choice(actions)
-
-                game_state = GoGame.next_state(game_state, action, canonical=True)
+                game_state = GoGame.next_state(game_state, action)
 
             else:
                 # Rollout using default policy

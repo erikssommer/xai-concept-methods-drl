@@ -13,7 +13,7 @@ class TestMCTSvsRandom(unittest.TestCase):
     def test_mcts_vs_random(self):
         victories = 0
         games = 5
-        rollouts = 100
+        rollouts = 300
         board_size = 5
 
         for _ in range(games):
