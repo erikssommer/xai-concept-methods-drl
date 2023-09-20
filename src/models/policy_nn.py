@@ -1,5 +1,8 @@
 import tensorflow as tf
+import numpy as np
 from game.data import GoGame
+from game.data import GoVars
+from utils.read_config import config
 
 class ActorCriticNet(tf.keras.Model):
     def __init__(self, input_shape, move_cap, init=True):
@@ -33,8 +36,26 @@ class ActorCriticNet(tf.keras.Model):
         self.model.compile(
             loss={"policy_output": tf.keras.losses.CategoricalCrossentropy(), "value_output": tf.keras.losses.MeanSquaredError()},
             loss_weights={"policy_output": 1.0, "value_output": 1.0},
-            optimizer=tf.keras.optimizers.Adam(learning_rate=0.001))
+            optimizer=tf.keras.optimizers.Adam(learning_rate=config.learning_rate))
 
-    def call(self, inputs):
-        return self.model(inputs)
+    def fit(self, states, distributions, values, epochs=10):
+        with tf.device('/gpu:0'):
+            return self.model.fit(states, [distributions, values], epochs=epochs, batch_size=128)
+        
+    def predict(self, boards):
+        if len(boards.shape) == 3:
+            boards = np.reshape(boards, (1, *boards.shape))
+        with tf.device('/gpu:0'):
+            res = self.model(boards, training=False)
+        
+        policies, values = res
+        
+        return policies, values
+    
+    def predict_multi(self, boards):
+        res = self.model.predict(np.array(boards))
+
+        policies, values = res
+
+        return policies, values
     
