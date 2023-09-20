@@ -4,6 +4,8 @@ from mcts.mcts import MCTS
 from rbuf.rbuf import RBUF
 from models.policy_nn import ActorCriticNet
 import gym
+import numpy as np
+import gc
 
 
 class RL:
@@ -17,6 +19,8 @@ class RL:
         # Set the number of simulations and c constant
         simulations = config.simulations
         c = config.c
+
+        save_interval = config.episodes // config.nr_of_anets
 
         # Create the environment
         go_env: gym.Env = gym.make('gym_go:go-v0', size=config.board_size)
@@ -57,7 +61,7 @@ class RL:
                 best_action_node, player, game_state, distribution = tree.search(
                     curr_player)
                 
-                print(distribution)
+                #print(distribution)
                 
                 # Visualize the tree
                 if config.visualize_tree:
@@ -66,7 +70,7 @@ class RL:
                     node = best_action_node
 
                 # Add to rbuf (replay buffer)
-                rbuf.add_case((player, game_state, distribution))
+                rbuf.add_case((curr_player, game_state, distribution))
 
                 # Apply the action to the environment
                 observation, reward, terminated, info = go_env.step(
@@ -78,6 +82,15 @@ class RL:
                 # Update the root node of the mcts tree
                 tree.root = best_action_node
 
+                # Garbage collection
+                gc.collect()
+
+            # Get the winner of the game
+            winner = go_env.winning()
+
+            # Set the values of the states
+            rbuf.set_values(winner)
+
             tree.reset()
 
             # Updating sigma and epsilon
@@ -85,15 +98,18 @@ class RL:
             sigma = sigma * config.sigma_decay
 
             # Train the neural network
-            batch = rbuf.get(config.batch_size)
+            state_buffer, distribution_buffer, value_buffer = zip(*rbuf.get(config.batch_size))
 
             # Train the neural network
-            policy_nn.fit(batch)
+            policy_nn.fit(np.array(state_buffer), np.array(distribution_buffer), np.array(value_buffer), epochs=1)
 
             # Save the neural network model
-            if episode % config.save_interval == 0:
+            if episode % save_interval == 0 and episode != 0:
                 # Save the neural network model
                 policy_nn.save_weights(f'../models/rl_policy_nn_{episode}.h5')
+
+            # Garbadge collection
+            gc.collect()
         
         # Save the final neural network model
         policy_nn.save_weights(f'../models/rl_policy_nn_{config.episodes}.h5')

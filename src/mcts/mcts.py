@@ -152,7 +152,17 @@ class MCTS:
         total_visits = sum(child.visits for child in self.root.children)
         dist = [(child.visits / total_visits) for child in self.root.children]
 
-        return dist
+        validity = self.root.get_validity_of_children()
+
+        distribution = []
+
+        for i in validity:
+            if i and len(dist) > 0:
+                distribution.append(dist.pop(0))
+            else:
+                distribution.append(0)
+
+        return distribution
 
     def set_root(self, state) -> None:
         self.root = Node(state)

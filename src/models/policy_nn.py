@@ -22,8 +22,9 @@ class ActorCriticNet(tf.keras.Model):
         base = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (3, 3), activation="elu", padding="same")(base)
 
         # Policy head
-        policy = tf.keras.layers.Conv2D(move_cap, (1, 1), activation="elu", padding="same")(base)
+        policy = tf.keras.layers.Conv2D(25, (1, 1), activation="elu", padding="same")(base)
         policy = tf.keras.layers.Flatten()(policy)
+        policy = tf.keras.layers.Dense(25, activation="relu")(policy)
         policy_output = tf.keras.layers.Softmax(name="policy_output")(policy)
 
         # Value head

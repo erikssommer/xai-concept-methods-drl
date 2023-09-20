@@ -3,6 +3,7 @@ import numpy as np
 
 from game.data import GoGame, GoVars
 
+from utils.read_config import config
 
 class Node:
     def __init__(self, state, parent=None):
@@ -90,20 +91,22 @@ class Node:
         self.child_states = child_states
 
         return child_states
+    
+    def get_validity_of_children(self):
+        dim = config.board_size
+        value = np.ones((dim, dim))
 
-    def apply_random_move(self):
-        """
-        Apply an action to the state represented by the node
-        """
-        child_states = GoGame.children(self.state, padded=True)
-        actions = np.argwhere(self.valid_moves()).flatten()
-
-        # Make a childnode for only one random action
-        action = np.random.choice(actions)
-
-        node = self.make_childnode(action, child_states[action])
-
-        return node
+        for i in range(dim):
+            for j in range(dim):
+                if self.state[0][i][j] != 0:
+                    value[i][j] = 0
+        
+        for i in range(dim):
+            for j in range(dim):
+                if self.state[1][i][j] != 0:
+                    value[i][j] = 0
+        
+        return list(value.flatten())
 
     def visualize_tree(self, graph=None):
         """ 
