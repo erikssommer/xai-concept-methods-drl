@@ -28,12 +28,11 @@ if __name__ == "__main__":
     while not terminated:
         if go_env.turn() == 0:
             # Get the action from the neural network
-            actions = model.predict(np.array([go_env.canonical_state()]))
-            action = np.argmax(actions[0][0])
+            distribution, value = model.predict(np.array([go_env.canonical_state()]))
+            action = np.argmax(distribution[0])
             # Test if move is valid
             valid_actions = go_env.valid_moves()
-            print(valid_actions)
-            print(action)
+
             if valid_actions[action] != 1:
                 invalid_predictions += 1
                 action = go_env.uniform_random_action()

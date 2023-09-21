@@ -21,7 +21,7 @@ class RBUF:
             return buffer
 
         sample = random.sample(self.buffer, batch_size)
-        
+
         # Delete the sampled cases from the buffer
         for case in sample:
             self.buffer.remove(case)
@@ -38,8 +38,12 @@ class RBUF:
             player, game_state, distribution = self.buffer[i]
             if winner == GoVars.BLACK and player == GoVars.BLACK:
                 value = 1
-            elif winner == -1 and player == GoVars.WHITE:
+            elif winner == GoVars.WHITE and player == GoVars.WHITE:
                 value = -1
+            elif winner == GoVars.BLACK and player == GoVars.WHITE:
+                value = -1
+            elif winner == GoVars.WHITE and player == GoVars.BLACK:
+                value = 1
             else:
                 value = 0
             self.buffer[i] = (game_state, distribution, value)
