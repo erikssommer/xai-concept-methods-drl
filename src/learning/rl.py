@@ -111,13 +111,13 @@ class RL:
             # Save the neural network model
             if episode % save_interval == 0 and episode != 0:
                 # Save the neural network model
-                policy_nn.save_weights(f'../models/rl_policy_nn_{episode}.h5')
+                policy_nn.model.save(f'../models/actor_critic_net_{episode}')
 
             # Garbadge collection
             gc.collect()
         
         # Save the final neural network model
-        policy_nn.save_weights(f'../models/rl_policy_nn_{config.episodes}.h5')
+        policy_nn.model.save(f'../models/actor_critic_net_{config.episodes}')
             
 
         logger.info("RL training loop ended")

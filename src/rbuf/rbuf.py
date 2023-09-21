@@ -20,8 +20,13 @@ class RBUF:
             self.buffer = deque([], maxlen=self.max_size)
             return buffer
 
-        weights = np.linspace(0, 1, len(self.buffer))
-        return random.choices(self.buffer, weights=weights, k=batch_size)
+        sample = random.sample(self.buffer, batch_size)
+        
+        # Delete the sampled cases from the buffer
+        for case in sample:
+            self.buffer.remove(case)
+        
+        return sample
 
     def add_case(self, case):
         player, game_state, distribution = case
@@ -33,10 +38,10 @@ class RBUF:
             player, game_state, distribution = self.buffer[i]
             if winner == GoVars.BLACK and player == GoVars.BLACK:
                 value = 1
-            elif winner == -1:
-                value = 0
-            else:
+            elif winner == -1 and player == GoVars.WHITE:
                 value = -1
+            else:
+                value = 0
             self.buffer[i] = (game_state, distribution, value)
     
     def clear(self):
