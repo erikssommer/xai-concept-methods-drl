@@ -51,10 +51,10 @@ class Node:
 
         if root_player == GoVars.BLACK and win == 1:
             return 1
-        elif root_player == GoVars.WHITE and win == 0:
-            return 1
-        else:
+        elif root_player == GoVars.WHITE and win == -1:
             return -1
+        else:
+            return 0
         
     def isleaf(self):
         # Not the same as whether the state is terminal or not
@@ -96,6 +96,7 @@ class Node:
         dim = config.board_size
         value = np.ones((dim, dim))
 
+        """
         for i in range(dim):
             for j in range(dim):
                 if self.state[0][i][j] != 0:
@@ -104,6 +105,14 @@ class Node:
         for i in range(dim):
             for j in range(dim):
                 if self.state[1][i][j] != 0:
+                    value[i][j] = 0
+        """
+        
+        # Test if all statates set to 1 are valid
+        valid_moves = self.valid_moves()
+        for i in range(dim):
+            for j in range(dim):
+                if valid_moves[i * dim + j] == 0:
                     value[i][j] = 0
         
         return list(value.flatten())

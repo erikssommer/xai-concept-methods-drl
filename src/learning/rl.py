@@ -13,6 +13,7 @@ gym.logger.set_level(40)
 
 logger = logging.getLogger(__name__)
 
+
 class RL:
 
     def learn(self):
@@ -36,7 +37,8 @@ class RL:
         rbuf = RBUF(config.rbuf_size)
 
         # Create the neural network
-        policy_nn = ActorCriticNet(go_env.observation_space.shape, config.board_size * 2)
+        policy_nn = ActorCriticNet(
+            go_env.observation_space.shape, config.board_size * 2)
 
         # Loop through the number of episodes
         for episode in tqdm(range(config.episodes)):
@@ -65,9 +67,7 @@ class RL:
 
                 best_action_node, player, game_state, distribution = tree.search(
                     curr_player)
-                
-                #print(distribution)
-                
+
                 # Visualize the tree
                 if config.visualize_tree:
                     graph = node.visualize_tree()
@@ -77,15 +77,26 @@ class RL:
                 # Add to rbuf (replay buffer)
                 rbuf.add_case((curr_player, game_state, distribution))
 
+                print("--------------------")
+                # Print the game state
+                print("Game state: {}".format(game_state))
+                # Print the distribution
+                print("Distribution: {}".format(distribution))
+                # Print valid moves
+                print("Valid moves: {}".format(go_env.valid_moves()))
+                #print("--------------------")
+
                 # Apply the action to the environment
                 observation, reward, terminated, info = go_env.step(
                     best_action_node.action)
 
                 # Render the board
-                # go_env.render()
+                if config.render:
+                    go_env.render()
 
                 # Update the root node of the mcts tree
-                tree.root = best_action_node
+                #tree.root = best_action_node
+                tree.set_root(game_state)
 
                 # Garbage collection
                 gc.collect()
@@ -103,10 +114,12 @@ class RL:
             sigma = sigma * config.sigma_decay
 
             # Train the neural network
-            state_buffer, distribution_buffer, value_buffer = zip(*rbuf.get(config.batch_size))
+            state_buffer, distribution_buffer, value_buffer = zip(
+                *rbuf.get(config.batch_size))
 
             # Train the neural network
-            policy_nn.fit(np.array(state_buffer), np.array(distribution_buffer), np.array(value_buffer), epochs=1)
+            policy_nn.fit(np.array(state_buffer), np.array(
+                distribution_buffer), np.array(value_buffer), epochs=10)
 
             # Save the neural network model
             if episode % save_interval == 0 and episode != 0:
@@ -115,9 +128,8 @@ class RL:
 
             # Garbadge collection
             gc.collect()
-        
+
         # Save the final neural network model
         policy_nn.model.save(f'../models/actor_critic_net_{config.episodes}')
-            
 
         logger.info("RL training loop ended")
