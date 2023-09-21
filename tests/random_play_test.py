@@ -1,6 +1,9 @@
 import gym
 import unittest
 
+# Set the logging level
+gym.logger.set_level(40)
+
 class TestRandomPlay(unittest.TestCase):
     # Create the go environment
     go_env = gym.make('gym_go:go-v0', size=9, komi=6.5, reward_method='real')

@@ -6,11 +6,18 @@ from models.policy_nn import ActorCriticNet
 import gym
 import numpy as np
 import gc
+import logging
 
+# Set the logging level
+gym.logger.set_level(40)
+
+logger = logging.getLogger(__name__)
 
 class RL:
 
     def learn(self):
+
+        logger.info("RL training loop started")
 
         # Setting the activation of default policy network and critic network
         epsilon = config.epsilon
@@ -28,10 +35,8 @@ class RL:
         # Creation replay buffer
         rbuf = RBUF(config.rbuf_size)
 
-        print(go_env.observation_space.shape)
-
         # Create the neural network
-        policy_nn = ActorCriticNet(go_env.observation_space.shape, config.move_cap)
+        policy_nn = ActorCriticNet(go_env.observation_space.shape, config.board_size * 2)
 
         # Loop through the number of episodes
         for episode in tqdm(range(config.episodes)):
@@ -115,4 +120,4 @@ class RL:
         policy_nn.save_weights(f'../models/rl_policy_nn_{config.episodes}.h5')
             
 
-        print("Finished training")
+        logger.info("RL training loop ended")

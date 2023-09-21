@@ -8,6 +8,9 @@ from mcts.mcts import MCTS
 from game.data import GoGame
 from game.data import GoVars
 
+# Set the logging level
+gym.logger.set_level(40)
+
 
 class TestMCTSvsRandom(unittest.TestCase):
     def test_mcts_as_black_vs_random(self):

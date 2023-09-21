@@ -22,7 +22,7 @@ class ActorCriticNet(tf.keras.Model):
         base = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (3, 3), activation="elu", padding="same")(base)
 
         # Policy head
-        policy = tf.keras.layers.Conv2D(25, (1, 1), activation="elu", padding="same")(base)
+        policy = tf.keras.layers.Conv2D(move_cap, (1, 1), activation="elu", padding="same")(base)
         policy = tf.keras.layers.Flatten()(policy)
         policy = tf.keras.layers.Dense(25, activation="relu")(policy)
         policy_output = tf.keras.layers.Softmax(name="policy_output")(policy)
@@ -41,7 +41,7 @@ class ActorCriticNet(tf.keras.Model):
 
     def fit(self, states, distributions, values, epochs=10):
         with tf.device('/gpu:0'):
-            return self.model.fit(states, [distributions, values], epochs=epochs, batch_size=128)
+            return self.model.fit(states, [distributions, values], verbose=0, epochs=epochs, batch_size=128)
         
     def predict(self, boards):
         if len(boards.shape) == 3:
