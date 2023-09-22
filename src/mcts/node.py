@@ -94,7 +94,7 @@ class Node:
     
     def get_validity_of_children(self):
         dim = config.board_size
-        value = np.ones((dim, dim))
+        value = np.ones(dim ** 2 + 1)
 
         """
         for i in range(dim):
@@ -110,12 +110,19 @@ class Node:
         
         # Test if all statates set to 1 are valid
         valid_moves = self.valid_moves()
-        for i in range(dim):
-            for j in range(dim):
-                if valid_moves[i * dim + j] == 0:
-                    value[i][j] = 0
         
-        return list(value.flatten())
+        """
+        for i in range(len(valid_moves)):
+            if valid_moves[i] == 0:
+                value[i] = 0
+
+        # assert if the list of valid moves is the same as the list of value
+        assert np.array_equal(valid_moves, value)
+            
+        return value
+        """
+
+        return valid_moves
 
     def visualize_tree(self, graph=None):
         """ 

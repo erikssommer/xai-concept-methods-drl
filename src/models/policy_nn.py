@@ -5,7 +5,7 @@ from game.data import GoVars
 from utils.read_config import config
 
 class ActorCriticNet(tf.keras.Model):
-    def __init__(self, input_shape, move_cap, init=True):
+    def __init__(self, input_shape, output, init=True):
         super(ActorCriticNet, self).__init__()
 
         BLOCK_FILTER_SIZE = 32
@@ -22,9 +22,9 @@ class ActorCriticNet(tf.keras.Model):
         base = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (3, 3), activation="elu", padding="same")(base)
 
         # Policy head
-        policy = tf.keras.layers.Conv2D(move_cap, (1, 1), activation="elu", padding="same")(base)
+        policy = tf.keras.layers.Conv2D(output, (1, 1), activation="elu", padding="same")(base)
         policy = tf.keras.layers.Flatten()(policy)
-        policy = tf.keras.layers.Dense(25, activation="relu")(policy)
+        policy = tf.keras.layers.Dense(output, activation="relu")(policy)
         policy_output = tf.keras.layers.Softmax(name="policy_output")(policy)
 
         # Value head

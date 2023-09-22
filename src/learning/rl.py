@@ -36,9 +36,9 @@ class RL:
         # Creation replay buffer
         rbuf = RBUF(config.rbuf_size)
 
-        # Create the neural network
+        # Create the neural network (+1 is for the pass action)
         policy_nn = ActorCriticNet(
-            go_env.observation_space.shape, config.board_size * 2)
+            go_env.observation_space.shape, config.board_size ** 2 + 1)
 
         # Loop through the number of episodes
         for episode in tqdm(range(config.episodes)):
@@ -84,7 +84,6 @@ class RL:
                 print("Distribution: {}".format(distribution))
                 # Print valid moves
                 print("Valid moves: {}".format(go_env.valid_moves()))
-                #print("--------------------")
 
                 # Apply the action to the environment
                 observation, reward, terminated, info = go_env.step(
