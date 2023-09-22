@@ -134,8 +134,15 @@ class MCTS:
             return self.__critic(node)
 
     def __critic(self, node: Node):
-        # TODO: Use the chritic neural network to simulate a playout from the current node
-        pass
+        game_state = node.state
+
+        # Get the value from the policy network
+        _, value = self.policy_nn.predict(np.array([game_state]))
+
+        # Get the value from the tensor
+        value = value.numpy()[0][0]
+
+        return value
 
     def __backpropagate(self, node: Node, reward) -> None:
         # Backpropagate reward through the tree
