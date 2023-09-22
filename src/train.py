@@ -1,17 +1,17 @@
-from learning.rl import RL
-from utils.timer import Timer
+import rl
+from utils import Timer
 import os
 import logging
 
 def train_models():
-    rl = RL()
+    model = rl.RL()
 
     # Start a timer
     timer = Timer()
     timer.start_timer()
 
     # Train the models
-    rl.learn()
+    model.learn()
 
     # End the timer
     timer.end_timer()
@@ -22,13 +22,14 @@ def setup():
         os.makedirs('../models')
     
     # Create the folder containing the visualizations if it doesn't exist
-    if not os.path.exists('./visualization'):
-        os.makedirs('./visualization')
+    if not os.path.exists('../log/visualization'):
+        os.makedirs('../log/visualization')
 
 def set_logging_level():
     # Create the folder containing the models if it doesn't exist
     if not os.path.exists('../log'):
         os.makedirs('../log')
+    
     # Set the logging level
     logging.basicConfig(filename='../log/logfile.log', 
                         level=logging.DEBUG, 

@@ -3,8 +3,7 @@ import tensorflow as tf
 import numpy as np
 
 from models.policy_nn import ActorCriticNet
-from utils.read_config import config
-from game.data import GoVars, GoGame
+from utils import config
 
 # Main method
 if __name__ == "__main__":

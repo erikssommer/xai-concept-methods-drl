@@ -1,8 +1,6 @@
 import tensorflow as tf
 import numpy as np
-from game.data import GoGame
-from game.data import GoVars
-from utils.read_config import config
+from utils import config
 
 class ActorCriticNet(tf.keras.Model):
     def __init__(self, input_shape, output, init=True):

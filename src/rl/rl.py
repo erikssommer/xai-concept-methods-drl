@@ -1,8 +1,8 @@
 from tqdm import tqdm
-from utils.read_config import config
-from mcts.mcts import MCTS
-from rbuf.rbuf import RBUF
-from models.policy_nn import ActorCriticNet
+from utils import config
+from mcts import MCTS
+from rbuf import RBUF
+from models import ActorCriticNet
 import gym
 import numpy as np
 import gc
@@ -73,7 +73,7 @@ class RL:
                 # Visualize the tree
                 if config.visualize_tree:
                     graph = node.visualize_tree()
-                    graph.render('./visualization/tree', view=True)
+                    graph.render('../../log/visualization/tree', view=True)
                     node = best_action_node
 
                 # Add to rbuf (replay buffer)

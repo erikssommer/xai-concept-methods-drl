@@ -1,7 +1,7 @@
 import graphviz
 import numpy as np
 
-from game.data import GoGame, GoVars
+from game import GoGame, GoVars
 
 from utils.read_config import config
 

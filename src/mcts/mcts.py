@@ -1,9 +1,9 @@
 import numpy as np
 import copy
 import random
-from mcts.node import Node
+from .node import Node
 from typing import Tuple, List, Any, Union
-from game.data import GoVars, GoGame
+from game import GoGame, GoVars
 
 class MCTS:
     def __init__(self, epsilon, sigma, iterations, board_size, c=1.3, policy_nn=None):
