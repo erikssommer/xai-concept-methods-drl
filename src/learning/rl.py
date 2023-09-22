@@ -50,7 +50,7 @@ class RL:
             game_state = go_env.canonical_state()
 
             # Create the initial tree
-            tree = MCTS(epsilon, sigma, simulations, c)
+            tree = MCTS(epsilon, sigma, simulations, c, policy_nn)
 
             # Set the root node of the tree
             tree.set_root(game_state)
@@ -78,8 +78,6 @@ class RL:
                 rbuf.add_case((curr_player, game_state, distribution))
 
                 print("--------------------")
-                # Print the game state
-                print("Game state: {}".format(game_state))
                 # Print the distribution
                 print("Distribution: {}".format(distribution))
                 # Print valid moves
@@ -94,8 +92,8 @@ class RL:
                     go_env.render()
 
                 # Update the root node of the mcts tree
-                #tree.root = best_action_node
-                tree.set_root(game_state)
+                tree.root = best_action_node
+                #tree.set_root(game_state)
 
                 # Garbage collection
                 gc.collect()
