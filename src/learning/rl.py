@@ -28,10 +28,12 @@ class RL:
         simulations = config.simulations
         c = config.c
 
+        board_size = config.board_size
+
         save_interval = config.episodes // config.nr_of_anets
 
         # Create the environment
-        go_env: gym.Env = gym.make('gym_go:go-v0', size=config.board_size)
+        go_env: gym.Env = gym.make('gym_go:go-v0', size=board_size)
 
         # Creation replay buffer
         rbuf = RBUF(config.rbuf_size)
@@ -50,7 +52,7 @@ class RL:
             game_state = go_env.canonical_state()
 
             # Create the initial tree
-            tree = MCTS(epsilon, sigma, simulations, c, policy_nn)
+            tree = MCTS(epsilon, sigma, simulations, board_size, c, policy_nn)
 
             # Set the root node of the tree
             tree.set_root(game_state)

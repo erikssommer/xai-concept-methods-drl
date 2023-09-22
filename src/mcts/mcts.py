@@ -6,12 +6,13 @@ from typing import Tuple, List, Any, Union
 from game.data import GoVars, GoGame
 
 class MCTS:
-    def __init__(self, epsilon, sigma, iterations, c=1.3, policy_nn=None):
+    def __init__(self, epsilon, sigma, iterations, board_size, c=1.3, policy_nn=None):
         self.iterations = iterations
         self.epsilon = epsilon
         self.sigma = sigma
         self.c = c
         self.policy_nn = policy_nn
+        self.move_cap = board_size ** 2 * 5
 
     def __rollout(self, node: Node) -> int:
         """
@@ -20,8 +21,9 @@ class MCTS:
         """
         # Get the current state
         game_state = node.state
+        moves = 0
 
-        while not GoGame.game_ended(game_state):
+        while not GoGame.game_ended(game_state) and moves < self.move_cap:
             pivot = random.random()
 
             if pivot < self.epsilon:
@@ -29,6 +31,8 @@ class MCTS:
                 action = GoGame.random_action(game_state)
 
                 game_state = GoGame.next_state(game_state, action)
+
+                moves += 1
 
             else:
                 # Rollout using distribution from neural network
@@ -51,7 +55,9 @@ class MCTS:
                 # Get the next state
                 game_state = GoGame.next_state(game_state, action)
 
-        # Return the reward of the node given the player using node class
+                moves += 1
+
+        # Return the reward of the node given the player using node class even if it is not a terminal state
         return node.winning(self.root.get_player(), game_state)
 
     def __calculate_ucb1(self, node: Node) -> float:
