@@ -41,8 +41,9 @@ class MCTS:
                 # Set the invalid moves to 0
                 distribution = distribution * valid_moves
 
-                # Normalize the distribution
-                distribution = distribution / np.sum(distribution)
+                # Softmax the distribution
+                distribution = np.exp(distribution) / \
+                    np.sum(np.exp(distribution))
 
                 # Get the action
                 action = np.argmax(distribution[0])
