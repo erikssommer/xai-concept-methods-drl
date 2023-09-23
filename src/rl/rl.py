@@ -29,6 +29,7 @@ class RL:
         c = config.c
 
         board_size = config.board_size
+        move_cap = board_size ** 2 * 5
 
         save_interval = config.episodes // config.nr_of_anets
 
@@ -52,10 +53,7 @@ class RL:
             game_state = go_env.canonical_state()
 
             # Create the initial tree
-            tree = MCTS(epsilon, sigma, simulations, board_size, c, policy_nn)
-
-            # Set the root node of the tree
-            tree.set_root(game_state)
+            tree = MCTS(game_state, epsilon, sigma, simulations, board_size, move_cap, c, policy_nn)
 
             # For visualization only
             node = tree.root
@@ -67,8 +65,7 @@ class RL:
                 # Get the player
                 curr_player = go_env.turn()
 
-                best_action_node, player, game_state, distribution = tree.search(
-                    curr_player)
+                best_action_node, game_state, distribution = tree.search()
 
                 # Visualize the tree
                 if config.visualize_tree:

@@ -7,22 +7,21 @@ from game import GoGame, GoVars
 import utils
 
 class MCTS:
-    def __init__(self, epsilon, sigma, iterations, board_size, c=1.3, policy_nn=None):
-        self.iterations = iterations
+    def __init__(self, game_state, epsilon, sigma, simulations, board_size, move_cap, c=1.3, policy_nn=None):
+        self.root = Node(game_state)
+        self.simulations = simulations
         self.epsilon = epsilon
         self.sigma = sigma
         self.c = c
         self.policy_nn = policy_nn
         self.board_size = board_size
-        self.move_cap = board_size ** 2 * 5
+        self.move_cap = move_cap
 
-    def __rollout(self, node: Node) -> int:
+    def __rollout(self, game_state: np.ndarray) -> int:
         """
         Rollout function using epsilon-greedy strategy with default policy
         Not using node structure to save memory
         """
-        # Get the current state
-        game_state = node.state
         moves = 0
 
         while not GoGame.game_ended(game_state) and moves < self.move_cap:
@@ -60,7 +59,7 @@ class MCTS:
                 moves += 1
 
         # Return the reward of the node given the player using node class even if it is not a terminal state
-        return node.winning(self.root.get_player(), game_state)
+        return self.root.winning(self.root.get_player(), game_state)
 
     def __calculate_ucb1(self, node: Node) -> float:
         """
@@ -107,16 +106,17 @@ class MCTS:
         """
         ucb1_scores = [self.__calculate_ucb1(child) for child in node.children]
 
-        best_idx = np.argmax(ucb1_scores) \
-            if node.get_player() == GoVars.BLACK \
-            else np.argmin(ucb1_scores)
+        if node.get_player() == GoVars.BLACK:
+            best_idx = np.argmax(ucb1_scores)
+        else:
+            best_idx = np.argmin(ucb1_scores)
 
-        val = ucb1_scores[best_idx]
+        value = ucb1_scores[best_idx]
 
-        # find all the nodes with the same value
-        best_idx = [i for i, j in enumerate(ucb1_scores) if j == val]
+        # Find all the nodes with the same value
+        best_idx = [i for i, j in enumerate(ucb1_scores) if j == value]
 
-        # randomly select one of the best nodes
+        # Randomly select one of the best nodes
         best_idx = random.choice(best_idx)
 
         return node.children[best_idx]
@@ -129,14 +129,13 @@ class MCTS:
         # Tree policy: return the first child node
         return random.choice(node.children)
 
-    def __simulate(self, node: Node) -> int:
+    def __simulate(self, game_state: np.ndarray) -> int:
         if random.random() < self.sigma:
-            return self.__rollout(node)
+            return self.__rollout(game_state)
         else:
-            return self.__critic(node)
+            return self.__critic(game_state)
 
-    def __critic(self, node: Node):
-        game_state = node.state
+    def __critic(self, game_state: np.ndarray) -> float:
 
         # Get the value from the policy network
         _, value = self.policy_nn.predict(np.array([game_state]))
@@ -193,20 +192,17 @@ class MCTS:
     def set_root(self, state) -> None:
         self.root = Node(state)
 
-    def search(self, starting_player) -> Tuple[Any, Any, List[Union[float, Any]], Any]:
-        node: Node = self.root
-        node.player = starting_player
-
-        for _ in range(self.iterations):
-            leaf_node = self.__tree_search(node)  # Tree policy
-            reward = self.__simulate(leaf_node)  # Rollout
+    def search(self) -> Tuple[Node, Any, List[float]]:
+        for _ in range(self.simulations):
+            leaf_node = self.__tree_search(self.root)  # Tree policy
+            reward = self.__simulate(leaf_node.state)  # Rollout
             self.__backpropagate(leaf_node, reward)  # Backpropagation
 
         # Use the edge (from the root) with the highest visit count as the actual move.
         best_move = self.__get_best_move()
         distribution = self.__get_distribution()
 
-        return best_move, best_move.get_player(), copy.deepcopy(best_move.state), distribution
+        return best_move, best_move.state, distribution
 
     def reset(self) -> None:
         self.root = None
