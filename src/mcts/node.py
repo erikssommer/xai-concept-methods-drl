@@ -25,12 +25,6 @@ class Node:
         self.value = None
         self.first_action = None
 
-        # Level
-        if parent is None:
-            self.level = 0
-        else:
-            self.level = parent.level + 1
-
     def update(self, reward):
         self.visits += 1
         self.rewards += reward

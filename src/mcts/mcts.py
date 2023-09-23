@@ -4,6 +4,7 @@ import random
 from .node import Node
 from typing import Tuple, List, Any, Union
 from game import GoGame, GoVars
+import utils
 
 class MCTS:
     def __init__(self, epsilon, sigma, iterations, board_size, c=1.3, policy_nn=None):
@@ -12,6 +13,7 @@ class MCTS:
         self.sigma = sigma
         self.c = c
         self.policy_nn = policy_nn
+        self.board_size = board_size
         self.move_cap = board_size ** 2 * 5
 
     def __rollout(self, node: Node) -> int:
@@ -140,7 +142,7 @@ class MCTS:
         _, value = self.policy_nn.predict(np.array([game_state]))
 
         # Get the value from the tensor
-        value = value.numpy()[0][0]
+        value = 1 - value.numpy()[0][0]
 
         return value
 
@@ -149,6 +151,7 @@ class MCTS:
         while node is not None:
             node.update(reward)
             node = node.parent
+            #reward = 1 - reward
 
     def __tree_search(self, node: Node) -> Node:
         # Run while the current node is not a leaf node
@@ -176,18 +179,14 @@ class MCTS:
         return random.choice(best_moves)
 
     def __get_distribution(self):
-        total_visits = sum(child.visits for child in self.root.children)
-        dist = [(child.visits / total_visits) for child in self.root.children]
+        # Get the distribution from the root node
+        distribution = np.zeros(self.board_size ** 2 + 1)
+        
+        for child in self.root.children:
+            distribution[child.action] = child.visits
 
-        validity = GoGame.valid_moves(self.root.state)
-
-        distribution = []
-
-        for i in validity:
-            if i:
-                distribution.append(dist.pop(0))
-            else:
-                distribution.append(0)
+        # Softmax the distribution
+        distribution = utils.normalize(distribution)
 
         return distribution
 
