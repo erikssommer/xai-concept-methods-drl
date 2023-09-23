@@ -79,26 +79,13 @@ class MCTS:
         """
         Return the max value move for a given node and child
         """
-        return self.__q_value(node) + self.__u_value(node)
+        return node.q_value() + self.c * node.u_value()
 
     def __get_min_value_move(self, node: Node) -> float:
         """
         Return the min value move for a given node and child
         """
-        return self.__q_value(node) - self.__u_value(node)
-
-    def __q_value(self, node: Node) -> float:
-        """
-        Calculate the Q(s,a) value for a given node
-        """
-        return node.rewards / node.visits
-
-    def __u_value(self, node: Node) -> float:
-        """
-        Exploration bonus: calculate the U(s,a) value for a given node
-        Using upper confidence bound for trees (UCT)
-        """
-        return self.c * np.sqrt(np.log(node.parent.visits) / (1 + node.visits))
+        return node.q_value() - self.c * node.u_value()
 
     def __select_best_child(self, node: Node) -> Node:
         """

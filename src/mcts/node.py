@@ -33,6 +33,19 @@ class Node:
 
     def action_size(self):
         return GoGame.action_size(self.state)
+    
+    def q_value(self) -> float:
+        """
+        Calculate the Q(s,a) value for a given node
+        """
+        return self.rewards / self.visits
+    
+    def u_value(self) -> float:
+        """
+        Exploration bonus: calculate the U(s,a) value for a given node
+        Using upper confidence bound for trees (UCT)
+        """
+        return np.sqrt(np.log(self.parent.visits) / (1 + self.visits))
 
     def winning(self, root_player, game_state):
         # Allways in perspective of black
