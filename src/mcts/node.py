@@ -8,22 +8,18 @@ from utils.read_config import config
 class Node:
     def __init__(self, state, parent=None):
 
+        # Game state
         self.player = None
-
         self.state = state
-        self.child_states = None
-
         self.action = None
 
         # Node references
         self.parent = parent
         self.children = []
 
+        # MCTS values
         self.visits = 0
         self.rewards = 0
-
-        self.value = None
-        self.first_action = None
 
     def update(self, reward):
         self.visits += 1
@@ -82,41 +78,8 @@ class Node:
         actions = np.argwhere(self.valid_moves()).flatten()
         for action in actions:
             self.make_childnode(action, child_states[action])
-        self.child_states = child_states
 
         return child_states
-    
-    def get_validity_of_children(self):
-        dim = config.board_size
-        value = np.ones(dim ** 2 + 1)
-
-        """
-        for i in range(dim):
-            for j in range(dim):
-                if self.state[0][i][j] != 0:
-                    value[i][j] = 0
-        
-        for i in range(dim):
-            for j in range(dim):
-                if self.state[1][i][j] != 0:
-                    value[i][j] = 0
-        """
-        
-        # Test if all statates set to 1 are valid
-        valid_moves = self.valid_moves()
-        
-        """
-        for i in range(len(valid_moves)):
-            if valid_moves[i] == 0:
-                value[i] = 0
-
-        # assert if the list of valid moves is the same as the list of value
-        assert np.array_equal(valid_moves, value)
-            
-        return value
-        """
-
-        return valid_moves
 
     def visualize_tree(self, graph=None):
         """ 
