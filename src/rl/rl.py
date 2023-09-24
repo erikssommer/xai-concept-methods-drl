@@ -76,18 +76,16 @@ class RL:
                 # Add to rbuf (replay buffer)
                 rbuf.add_case((curr_player, game_state, distribution))
 
-                print("--------------------")
-                # Print the distribution
-                print("Distribution: {}".format(distribution))
-                # Print valid moves
-                print("Valid moves: {}".format(go_env.valid_moves()))
-
                 # Apply the action to the environment
                 observation, reward, terminated, info = go_env.step(
                     best_action_node.action)
 
                 # Render the board
                 if config.render:
+                    # Print the distribution
+                    print(f"Distribution: {distribution}")
+                    # Print valid moves
+                    print(f"Valid moves: {go_env.valid_moves()}")
                     go_env.render()
 
                 # Update the root node of the mcts tree
@@ -105,10 +103,6 @@ class RL:
 
             tree.reset()
 
-            # Updating sigma and epsilon
-            epsilon = epsilon * config.epsilon_decay
-            sigma = sigma * config.sigma_decay
-
             # Train the neural network
             state_buffer, distribution_buffer, value_buffer = zip(
                 *rbuf.get(config.batch_size))
@@ -121,6 +115,10 @@ class RL:
             if episode % save_interval == 0 and episode != 0:
                 # Save the neural network model
                 policy_nn.model.save(f'../models/actor_critic_net_{episode}')
+            
+            # Updating sigma and epsilon
+            epsilon = epsilon * config.epsilon_decay
+            sigma = sigma * config.sigma_decay
 
             # Garbadge collection
             gc.collect()

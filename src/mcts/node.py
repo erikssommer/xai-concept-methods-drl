@@ -3,8 +3,6 @@ import numpy as np
 
 from game import GoGame, GoVars
 
-from utils.read_config import config
-
 class Node:
     def __init__(self, state: np.ndarray, parent=None):
 
@@ -21,18 +19,12 @@ class Node:
         self.visits = 0
         self.rewards = 0
 
-    def get_player(self):
-        return self.player
-
     def update(self, reward):
         self.visits += 1
         self.rewards += reward
 
     def is_game_over(self):
         return GoGame.game_ended(self.state)
-
-    def action_size(self):
-        return GoGame.action_size(self.state)
     
     def q_value(self) -> float:
         """
@@ -96,7 +88,7 @@ class Node:
             graph = graphviz.Digraph()
 
         graph.node(str(
-            id(self)), label=f'Player: {self.get_player()}\nVisits: {self.visits}\nRewards: {self.rewards}\nState ([black][white]):\n{self.state[0]}\n{self.state[1]}]')
+            id(self)), label=f'Player: {self.player}\nVisits: {self.visits}\nRewards: {self.rewards}\nState ([black][white]):\n{self.state[0]}\n{self.state[1]}]')
 
         for child in self.children:
             graph.edge(str(id(self)), str(id(child)))

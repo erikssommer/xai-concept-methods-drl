@@ -2,7 +2,7 @@ import numpy as np
 import copy
 import random
 from .node import Node
-from typing import Tuple, List, Any, Union
+from typing import Tuple, List, Any
 from game import GoGame, GoVars
 import utils
 
@@ -59,18 +59,18 @@ class MCTS:
                 moves += 1
 
         # Return the reward of the node given the player using node class even if it is not a terminal state
-        return self.root.winning(self.root.get_player(), game_state)
+        return self.root.winning(self.root.player, game_state)
 
     def __calculate_ucb1(self, node: Node) -> float:
         """
         Calculate UCB1 value for a given node and child
         """
-        if node.visits == 0 and node.parent.get_player() == GoVars.BLACK:
+        if node.visits == 0 and node.parent.player == GoVars.BLACK:
             return np.inf
-        elif node.visits == 0 and node.parent.get_player() == GoVars.WHITE:
+        elif node.visits == 0 and node.parent.player == GoVars.WHITE:
             return -np.inf
 
-        elif node.parent.get_player() == GoVars.BLACK:
+        elif node.parent.player == GoVars.BLACK:
             return self.__get_max_value_move(node)
         else:
             return self.__get_min_value_move(node)
@@ -93,7 +93,7 @@ class MCTS:
         """
         ucb1_scores = [self.__calculate_ucb1(child) for child in node.children]
 
-        if node.get_player() == GoVars.BLACK:
+        if node.player == GoVars.BLACK:
             best_idx = np.argmax(ucb1_scores)
         else:
             best_idx = np.argmin(ucb1_scores)
@@ -177,6 +177,7 @@ class MCTS:
         return distribution
 
     def set_root(self, state) -> None:
+        del self.root
         self.root = Node(state)
 
     def search(self) -> Tuple[Node, Any, List[float]]:
@@ -192,4 +193,5 @@ class MCTS:
         return best_move, best_move.state, distribution
 
     def reset(self) -> None:
+        del self.root
         self.root = None
