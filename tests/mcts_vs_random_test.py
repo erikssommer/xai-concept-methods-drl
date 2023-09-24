@@ -1,14 +1,10 @@
 import unittest
-import gym
 
 import sys
-sys.path.insert(0, 'ml')
+sys.path.insert(0, 'src')
 
-from ml.mcts.mcts import MCTS
-from ml.game.data import GoVars
-
-# Set the logging level
-gym.logger.set_level(40)
+from src.mcts.mcts import MCTS
+from src.env import govars
 
 
 class TestMCTSvsRandom(unittest.TestCase):
@@ -29,7 +25,7 @@ class TestMCTSvsRandom(unittest.TestCase):
             terminated = False
 
             while not terminated:
-                if curr_turn == GoVars.BLACK:
+                if curr_turn == govars.BLACK:
                     best_action_node, game_state, distribution = tree.search()
                     state, reward, terminated, info = go_env.step(best_action_node.action)
                 else:
@@ -76,7 +72,7 @@ class TestMCTSvsRandom(unittest.TestCase):
             terminated = False
 
             while not terminated:
-                if curr_turn == GoVars.WHITE:
+                if curr_turn == govars.WHITE:
                     best_action_node, game_state, distribution = tree.search()
                     state, reward, terminated, info = go_env.step(best_action_node.action)
                 else:
