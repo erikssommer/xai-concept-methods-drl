@@ -1,10 +1,9 @@
 import unittest
 
-import sys
-sys.path.insert(0, 'src')
+from mcts import MCTS
+from env import govars
 
-from src.mcts.mcts import MCTS
-from src.env import govars
+import env
 
 
 class TestMCTSvsRandom(unittest.TestCase):
@@ -15,7 +14,7 @@ class TestMCTSvsRandom(unittest.TestCase):
         board_size = 5
 
         for _ in range(games):
-            go_env = gym.make('gym_go:go-v0', size=board_size)
+            go_env = env.GoEnv(size=board_size)
             go_env.reset()
             game_state = go_env.canonical_state()
             curr_turn = go_env.turn()
@@ -62,7 +61,7 @@ class TestMCTSvsRandom(unittest.TestCase):
         board_size = 5
 
         for _ in range(games):
-            go_env = gym.make('gym_go:go-v0', size=board_size)
+            go_env = env.GoEnv(size=board_size)
             go_env.reset()
             game_state = go_env.canonical_state()
             curr_turn = go_env.turn()

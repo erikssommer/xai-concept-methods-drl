@@ -1,5 +1,4 @@
 import numpy as np
-import copy
 import random
 from .node import Node
 from typing import Tuple, List, Any

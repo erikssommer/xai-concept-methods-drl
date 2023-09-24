@@ -1,5 +1,6 @@
-gym
 pyyaml
-tqdm~=4.64.1
+tqdm
 numpy
 graphviz
+numba
+tensorflow
