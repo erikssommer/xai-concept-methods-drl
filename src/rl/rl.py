@@ -98,6 +98,8 @@ class RL:
             # Get the winner of the game
             winner = go_env.winning()
 
+            print(f"Winner: {winner}")
+
             # Set the values of the states
             rbuf.set_values(winner)
 
