@@ -3,7 +3,7 @@ episodes: 10
 simulations: 100 # m
 epsilon: 1
 epsilon_decay: 1
-sigma: 2
+sigma: 1
 sigma_decay: 1
 c: 1.3
 
@@ -18,9 +18,6 @@ batch_size: 128
 plot_accuracy: false
 move_cap: 200
 sample_ratio: 0.8
-
-# Game general config
-starting_player: 1
 
 # GO config
 board_size: 5 # k
