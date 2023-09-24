@@ -1,8 +1,8 @@
 from collections import deque
 import random
 import numpy as np
-from utils.read_config import config
-from game.data import GoVars, GoGame
+from env import gogame
+from env import govars
 
 class RBUF:
     """
@@ -36,13 +36,13 @@ class RBUF:
     def set_values(self, winner):
         for i in range(len(self.buffer)):
             player, game_state, distribution = self.buffer[i]
-            if winner == 1 and player == GoVars.BLACK:
+            if winner == 1 and player == govars.BLACK:
                 value = 1
-            elif winner == -1 and player == GoVars.WHITE:
+            elif winner == -1 and player == govars.WHITE:
                 value = -1
-            elif winner == 1 and player == GoVars.WHITE:
+            elif winner == 1 and player == govars.WHITE:
                 value = -1
-            elif winner == -1 and player == GoVars.BLACK:
+            elif winner == -1 and player == govars.BLACK:
                 value = 1
             else:
                 value = 0

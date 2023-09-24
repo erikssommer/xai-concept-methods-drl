@@ -3,7 +3,8 @@ import copy
 import random
 from .node import Node
 from typing import Tuple, List, Any
-from game import GoGame, GoVars
+from env import govars
+from env import gogame
 import utils
 
 class MCTS:
@@ -24,14 +25,14 @@ class MCTS:
         """
         moves = 0
 
-        while not GoGame.game_ended(game_state) and moves < self.move_cap:
+        while not gogame.game_ended(game_state) and moves < self.move_cap:
             pivot = random.random()
 
             if pivot < self.epsilon:
                 # Random rollout
-                action = GoGame.random_action(game_state)
+                action = gogame.random_action(game_state)
 
-                game_state = GoGame.next_state(game_state, action)
+                game_state = gogame.next_state(game_state, action)
 
                 moves += 1
 
@@ -41,7 +42,7 @@ class MCTS:
                     np.array([game_state]))
                 
                 # Get the valid moves
-                valid_moves = GoGame.valid_moves(game_state)
+                valid_moves = gogame.valid_moves(game_state)
 
                 # Set the invalid moves to 0
                 distribution = distribution * valid_moves
@@ -54,7 +55,7 @@ class MCTS:
                 action = np.argmax(distribution[0])
 
                 # Get the next state
-                game_state = GoGame.next_state(game_state, action)
+                game_state = gogame.next_state(game_state, action)
 
                 moves += 1
 
@@ -65,12 +66,12 @@ class MCTS:
         """
         Calculate UCB1 value for a given node and child
         """
-        if node.visits == 0 and node.parent.player == GoVars.BLACK:
+        if node.visits == 0 and node.parent.player == govars.BLACK:
             return np.inf
-        elif node.visits == 0 and node.parent.player == GoVars.WHITE:
+        elif node.visits == 0 and node.parent.player == govars.WHITE:
             return -np.inf
 
-        elif node.parent.player == GoVars.BLACK:
+        elif node.parent.player == govars.BLACK:
             return self.__get_max_value_move(node)
         else:
             return self.__get_min_value_move(node)
@@ -93,7 +94,7 @@ class MCTS:
         """
         ucb1_scores = [self.__calculate_ucb1(child) for child in node.children]
 
-        if node.player == GoVars.BLACK:
+        if node.player == govars.BLACK:
             best_idx = np.argmax(ucb1_scores)
         else:
             best_idx = np.argmin(ucb1_scores)

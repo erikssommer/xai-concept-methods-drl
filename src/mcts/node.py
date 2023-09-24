@@ -1,7 +1,8 @@
 import graphviz
 import numpy as np
 
-from game import GoGame, GoVars
+from env import gogame
+from env import govars
 
 class Node:
     def __init__(self, state: np.ndarray, parent=None):
@@ -24,7 +25,7 @@ class Node:
         self.rewards += reward
 
     def is_game_over(self):
-        return GoGame.game_ended(self.state)
+        return gogame.game_ended(self.state)
     
     def q_value(self) -> float:
         """
@@ -43,15 +44,15 @@ class Node:
         # Allways in perspective of black
         # Black is 0, white is 1
         # 0 is in game or draw, 1 is black win, -1 is black loss
-        win = GoGame.winning(game_state)
+        win = gogame.winning(game_state)
 
-        if root_player == GoVars.BLACK and win == 1:
+        if root_player == govars.BLACK and win == 1:
             return 1
-        elif root_player == GoVars.WHITE and win == -1:
+        elif root_player == govars.WHITE and win == -1:
             return -1
-        elif root_player == GoVars.BLACK and win == -1:
+        elif root_player == govars.BLACK and win == -1:
             return -1
-        elif root_player == GoVars.WHITE and win == 1:
+        elif root_player == govars.WHITE and win == 1:
             return 1
         else:
             return 0
@@ -71,8 +72,8 @@ class Node:
         """
         :return: Padded children numpy states
         """
-        child_states = GoGame.children(self.state)
-        valid_moves = GoGame.valid_moves(self.state)
+        child_states = gogame.children(self.state)
+        valid_moves = gogame.valid_moves(self.state)
 
         actions = np.argwhere(valid_moves).flatten()
 

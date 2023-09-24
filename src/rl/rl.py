@@ -2,14 +2,12 @@ from tqdm import tqdm
 from utils import config
 from mcts import MCTS
 from rbuf import RBUF
-from models import ActorCriticNet
-import gym
+from policy import ActorCriticNet
 import numpy as np
 import gc
 import logging
 
-# Set the logging level
-gym.logger.set_level(40)
+import env
 
 logger = logging.getLogger(__name__)
 
@@ -34,14 +32,14 @@ class RL:
         save_interval = config.episodes // config.nr_of_anets
 
         # Create the environment
-        go_env: gym.Env = gym.make('gym_go:go-v0', size=board_size)
+        go_env = env.GoEnv(size=board_size)
 
         # Creation replay buffer
         rbuf = RBUF(config.rbuf_size)
 
         # Create the neural network (+1 is for the pass action)
         policy_nn = ActorCriticNet(
-            go_env.observation_space.shape, config.board_size ** 2 + 1)
+            go_env.observation_space, config.board_size ** 2 + 1)
 
         # Loop through the number of episodes
         for episode in tqdm(range(config.episodes)):

@@ -2,16 +2,16 @@ import gym
 import tensorflow as tf
 import numpy as np
 
-from models.policy_nn import ActorCriticNet
+from policy.policy_nn import ActorCriticNet
 from utils import config
+
+import env
 
 # Main method
 if __name__ == "__main__":
-    # Set the logging level
-    gym.logger.set_level(40)
 
     # Create the go environment
-    go_env = gym.make('gym_go:go-v0', size=config.board_size, komi=0, reward_method='real')
+    go_env = env.GoEnv(size=config.board_size)
 
     # Reset the environment
     go_env.reset()
