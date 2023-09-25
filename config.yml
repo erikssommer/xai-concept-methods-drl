@@ -1,6 +1,6 @@
 # MCTS config
 episodes: 10
-simulations: 300 # m
+simulations: 500 # m
 epsilon: 1
 epsilon_decay: 1
 sigma: 1
@@ -20,11 +20,11 @@ move_cap: 200
 sample_ratio: 0.8
 
 # GO config
-board_size: 5 # k
+board_size: 3 # k
 
 # Debug config
 visualize_tree: false
 render: true
 
 # Topp config
-nr_of_topp_games: 25 # g
+nr_of_topp_games: 1 # g
