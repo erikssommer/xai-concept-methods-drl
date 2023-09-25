@@ -46,6 +46,3 @@ if __name__ == "__main__":
 
     print("Number of predictions: {}".format(num_predictions))
     print("Invalid predictions: {}".format(invalid_predictions))
-
-    # Close the environment
-    go_env.close()
