@@ -70,22 +70,24 @@ class RL:
                     graph = node.visualize_tree()
                     graph.render('../../log/visualization/tree', view=True)
                     node = best_action_node
-
-                # Add to rbuf (replay buffer)
-                rbuf.add_case((curr_player, game_state, distribution))
-
-                # Apply the action to the environment
-                observation, reward, terminated, info = go_env.step(
-                    best_action_node.action)
-
-                # Render the board
+                
                 if config.render:
                     # Print the distribution
                     print(f"Distribution: {distribution}")
                     # Print valid moves
                     print(f"Valid moves: {go_env.valid_moves()}")
-                    go_env.render()
 
+                # Add the case to the replay buffer
+                rbuf.add_case(curr_player, game_state, distribution)
+
+                # Apply the action to the environment
+                observation, reward, terminated, info = go_env.step(
+                    best_action_node.action)
+                
+                if config.render:
+                    # Render the board
+                    go_env.render()
+    
                 # Update the root node of the mcts tree
                 tree.root = best_action_node
                 #tree.set_root(game_state)
@@ -100,6 +102,8 @@ class RL:
 
             # Set the values of the states
             rbuf.set_values(winner)
+
+            rbuf.clear_lists()
 
             tree.reset()
 
