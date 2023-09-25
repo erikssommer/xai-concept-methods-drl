@@ -1,7 +1,5 @@
 from collections import deque
 import random
-import numpy as np
-from env import gogame
 from env import govars
 
 class RBUF:
@@ -9,44 +7,54 @@ class RBUF:
     Replay buffer for storing training cases for neural network
     """
     def __init__(self, max_size=256):
-        self.buffer = deque([], maxlen=max_size)
         self.max_size = max_size
+        self.buffer = deque([], maxlen=max_size)
+
+        # Lists for storing the training cases of later adition to the buffer
+        self.player = []
+        self.states = []
+        self.distributions = []
+
+    def add_case(self, player, state, distribution):
+        self.player.append(player)
+        self.states.append(state)
+        self.distributions.append(distribution)
+
+    def clear_lists(self):
+        self.states = []
+        self.player = []
+        self.distributions = []
 
     def get(self, batch_size):
-        if batch_size > len(self.buffer):
-            # Print info about the buffer
-            buffer = self.buffer
-            # empty the buffer
-            self.buffer = deque([], maxlen=self.max_size)
-            return buffer
+        if batch_size > self.__len__():
+            batch_size = self.__len__()
 
-        sample = random.sample(self.buffer, batch_size)
+        # Random sample from the buffer
+        res = random.sample(self.buffer, batch_size)
 
-        # Delete the sampled cases from the buffer
-        for case in sample:
-            self.buffer.remove(case)
-        
-        return sample
-
-    def add_case(self, case):
-        player, game_state, distribution = case
-
-        self.buffer.append((player, game_state, distribution))
+        return res
 
     def set_values(self, winner):
-        for i in range(len(self.buffer)):
-            player, game_state, distribution = self.buffer[i]
-            if winner == 1 and player == govars.BLACK:
-                value = 1
-            elif winner == -1 and player == govars.WHITE:
-                value = -1
-            elif winner == 1 and player == govars.WHITE:
-                value = -1
-            elif winner == -1 and player == govars.BLACK:
-                value = 1
-            else:
-                value = 0
-            self.buffer[i] = (game_state, distribution, value)
-    
-    def clear(self):
-        self.buffer = deque([], maxlen=self.max_size)
+        for (dist, state, player) in zip(self.distributions, self.states, self.player):
+            # Get the winning value
+            value = self.winning(player, winner)
+
+            # Add the case to the buffer
+            self.buffer.append((state, dist, value))
+        
+        self.clear_lists()
+
+    def winning(self, player, winner):
+        if player == govars.BLACK and winner == 1:
+            return 1
+        elif player == govars.WHITE and winner == -1:
+            return 1
+        elif player == govars.BLACK and winner == -1:
+            return -1
+        elif player == govars.WHITE and winner == 1:
+            return -1
+        else:
+            return 0
+
+    def __len__(self):
+        return len(self.buffer)
