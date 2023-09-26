@@ -128,7 +128,7 @@ class MCTS:
         _, value = self.policy_nn.predict(np.array([game_state]))
 
         # Get the value from the tensor
-        value = 1 - value.numpy()[0][0]
+        value = value.numpy()[0][0]
 
         return value
 
@@ -157,7 +157,7 @@ class MCTS:
         return node
 
     def __get_best_move(self) -> Node:
-        max_visits = max(self.root.children, key=lambda c: c.visits).visits
+        max_visits = max(child.visits for child in self.root.children)
         best_moves = [
             child for child in self.root.children if child.visits == max_visits]
         # Add some randomness and not always choose the same move eagerly
