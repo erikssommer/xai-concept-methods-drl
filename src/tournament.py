@@ -1,5 +1,5 @@
 from utils import config
-from play import Tournament
+from topp import Tournament
 
 if __name__ == '__main__':
     # Initialize the Tournament of Progressive Policies (TOPP)
