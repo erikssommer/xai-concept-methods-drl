@@ -34,6 +34,7 @@ class Tournament:
     def run_tournament(self):
         for i in range(self.num_nn):
             for j in range(i+1, self.num_nn):
+                # Starting agent plays as black
                 starting_agent = random.choice([i, j])
 
                 # Play the games
@@ -51,36 +52,49 @@ class Tournament:
                     moves = 0
 
                     # Play a game until termination
-                    while not terminated and moves < self.move_cap:
-        
-                        action = self.agents[i].choose_action(go_env.state())
-                        state, reward, terminated, info = go_env.step(action)
+                    while not terminated:
+                        if moves > self.move_cap:
+                            print("Move cap reached, terminating game")
+                            sleep(1)
+                            break
+
+                        agent: Agent = self.agents[current_agent]
+                        action = agent.choose_action(go_env.state())
+                        _, _, terminated, _ = go_env.step(action)
                         moves += 1
 
                         # Render the board
                         if self.render:
                             go_env.render()
                             sleep(0.5)
+                        
+                        if current_agent == i:
+                            current_agent = j
+                        else:
+                            current_agent = i
 
                     # Winner in perspective of the starting agent, 1 if won, -1 if lost, 0 if draw
                     winner = go_env.winner()
 
                     # Add the score
-                    if winner == 1:
-                        self.agents[i].add_win(current_agent)
-                        self.agents[j].add_loss(current_agent)
-                    elif winner == -1:
-                        self.agents[i].add_loss(current_agent)
-                        self.agents[j].add_win(current_agent)
+                    if starting_agent == i and winner == 1:
+                        self.agents[i].add_win(1)
+                        self.agents[j].add_loss(2)
+                    elif starting_agent == i and winner == -1:
+                        self.agents[i].add_loss(1)
+                        self.agents[j].add_win(2)
+                    elif starting_agent == j and winner == 1:
+                        self.agents[j].add_win(1)
+                        self.agents[i].add_loss(2)
+                    elif starting_agent == j and winner == -1:
+                        self.agents[j].add_loss(1)
+                        self.agents[i].add_win(2)
                     else:
                         self.agents[i].add_draw()
                         self.agents[j].add_draw()
                     
                     # Swap the starting agent
                     starting_agent = (starting_agent + 1) % 2
-
-                    # Reset the environment
-                    go_env.reset()
 
     def plot_result(self, block):
         plt.clf()
