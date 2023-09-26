@@ -1,4 +1,21 @@
-def concept_eyes():
+from env import gogame, govars
+
+def concept_area_advantage(game_state) -> bool:
+    """
+    In the game of Go, area advantage is a concept that describes the difference between the number of
+    points that a player has surrounded, and the number of points that their opponent has surrounded.
+    Area advantage is important because it is used to determine the winner of the game.
+    """
+    player = gogame.turn(game_state)
+    black_area, white_area = gogame.areas(game_state)
+
+    if player == govars.BLACK:
+        return black_area > white_area
+    else:
+        return white_area > black_area
+
+
+def concept_eyes(game_state):
     """
     In the game of Go, an eye is a group of empty points surrounded by stones of a single color,
     such that no opposing stone can be placed in the group without being captured. Eyes are important
@@ -6,8 +23,9 @@ def concept_eyes():
     opponent to capture the group.
     """
     pass
+    
 
-def concept_atari():
+def concept_atari(game_state):
     """
     In the game of Go, atari is a situation in which a group of stones has only one liberty remaining.
     If the opponent places a stone on that liberty, the group will be captured. Atari is an important
