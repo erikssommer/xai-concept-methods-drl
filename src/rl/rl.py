@@ -1,5 +1,6 @@
 from tqdm import tqdm
 from utils import config
+import utils
 from mcts import MCTS
 from rbuf import RBUF
 from policy import ActorCriticNet
@@ -77,11 +78,14 @@ class RL:
                     # Print valid moves
                     print(f"Valid moves: {go_env.valid_moves()}")
 
+                    # Plot the distribution
+                    #utils.plot_distribution(distribution)
+
                 # Add the case to the replay buffer
                 rbuf.add_case(curr_player, game_state, distribution)
 
                 # Apply the action to the environment
-                observation, reward, terminated, info = go_env.step(
+                _, _, terminated, _ = go_env.step(
                     best_action_node.action)
                 
                 if config.render:
