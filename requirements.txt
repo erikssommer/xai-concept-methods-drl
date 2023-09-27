@@ -5,3 +5,5 @@ numba
 tensorflow==2.13.*
 scikit-learn
 scipy
+seaborn
+matplotlib
