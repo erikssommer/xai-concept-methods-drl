@@ -20,6 +20,11 @@ def setup():
     # Create the folder containing the models if it doesn't exist
     if not os.path.exists('../models'):
         os.makedirs('../models')
+    else:
+        # Delete the model folders
+        folders = os.listdir('../models')
+        for folder in folders:
+            os.rmdir(f'../models/{folder}')
     
     # Create the folder containing the visualizations if it doesn't exist
     if not os.path.exists('../log/visualization'):
