@@ -127,5 +127,3 @@ class Tournament:
         for agent in agents_result:
             print(
                 f"Agent {agent.name} won {agent.win} times, lost {agent.loss} times and drew {agent.draw} times")
-
-        self.plot_result(block=True)
