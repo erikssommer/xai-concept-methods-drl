@@ -1,6 +1,5 @@
 pyyaml
 tqdm
 numpy
-graphviz
 numba
 tensorflow
