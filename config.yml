@@ -25,6 +25,7 @@ board_size: 5 # k
 # Debug config
 visualize_tree: false
 render: true
+plot: false
 
 # Topp config
 nr_of_topp_games: 1 # g

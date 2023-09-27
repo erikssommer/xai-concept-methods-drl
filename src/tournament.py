@@ -15,4 +15,5 @@ if __name__ == '__main__':
     topp.get_results()
 
     # Plot the results
-    #topp.plot_results()
+    if config.plot:
+        topp.plot_results()
