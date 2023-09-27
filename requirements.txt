@@ -1,6 +1,9 @@
 pyyaml
 tqdm
 numpy
-graphviz
 numba
-tensorflow
+tensorflow==2.13.*
+scikit-learn
+scipy
+seaborn
+matplotlib

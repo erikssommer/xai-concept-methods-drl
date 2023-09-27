@@ -1,5 +1,5 @@
 # MCTS config
-episodes: 10
+episodes: 1000
 simulations: 100 # m
 epsilon: 1
 epsilon_decay: 1
@@ -25,6 +25,7 @@ board_size: 5 # k
 # Debug config
 visualize_tree: false
 render: true
+plot: false
 
 # Topp config
 nr_of_topp_games: 1 # g

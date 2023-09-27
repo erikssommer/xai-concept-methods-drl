@@ -1,4 +1,4 @@
-import graphviz
+#import graphviz
 import numpy as np
 
 from env import gogame
@@ -79,12 +79,9 @@ class Node:
 
         for action in actions:
             self.make_childnode(action, child_states[action])
-        
 
+    """ Visualize the tree structure of the MCTS tree (for debugging purposes)
     def visualize_tree(self, graph=None):
-        """ 
-        Visualize the tree structure of the MCTS tree (for debugging purposes)
-        """
         if graph is None:
             graph = graphviz.Digraph()
 
@@ -95,6 +92,7 @@ class Node:
             graph.edge(str(id(self)), str(id(child)))
             child.visualize_tree(graph)
         return graph
+    """
 
     def __str__(self):
         return str(self.state)

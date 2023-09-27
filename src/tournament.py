@@ -13,3 +13,7 @@ if __name__ == '__main__':
 
     # Get the results
     topp.get_results()
+
+    # Plot the results
+    if config.plot:
+        topp.plot_results()

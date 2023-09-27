@@ -105,7 +105,7 @@ class Tournament:
         print("Total number of invalid moves: {}".format(invalid_moves))
         print("Total number of moves: {}".format(moves_total))
 
-    def plot_result(self, block):
+    def plot_results(self, block):
         plt.clf()
         plt.ion()
         # x is agent name
@@ -127,5 +127,3 @@ class Tournament:
         for agent in agents_result:
             print(
                 f"Agent {agent.name} won {agent.win} times, lost {agent.loss} times and drew {agent.draw} times")
-
-        self.plot_result(block=True)
