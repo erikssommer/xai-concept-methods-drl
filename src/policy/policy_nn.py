@@ -38,14 +38,14 @@ class ActorCriticNet(tf.keras.Model):
             optimizer=tf.keras.optimizers.Adam(learning_rate=config.learning_rate))
 
     def fit(self, states, distributions, values, epochs=10):
-        with tf.device('/gpu:0'):
-            return self.model.fit(states, [distributions, values], verbose=0, epochs=epochs, batch_size=128)
+        
+        return self.model.fit(states, [distributions, values], verbose=0, epochs=epochs, batch_size=128)
         
     def predict(self, boards):
         if len(boards.shape) == 3:
             boards = np.reshape(boards, (1, *boards.shape))
-        with tf.device('/gpu:0'):
-            res = self.model(boards, training=False)
+        
+        res = self.model(boards, training=False)
         
         policies, values = res
         
