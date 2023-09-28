@@ -1,5 +1,5 @@
 # MCTS config
-episodes: 1000
+episodes: 10
 simulations: 100 # m
 epsilon: 1
 epsilon_decay: 1
