@@ -22,6 +22,11 @@ sample_ratio: 0.8
 # GO config
 board_size: 5 # k
 
+# Threads
+multi_threading: true
+nr_of_threads: 10
+epochs: 1
+
 # Debug config
 visualize_tree: false
 render: true
