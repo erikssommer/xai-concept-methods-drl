@@ -7,6 +7,7 @@ from policy import ActorCriticNet
 import numpy as np
 import gc
 import logging
+import tensorflow as tf
 
 import env
 
@@ -18,6 +19,10 @@ class RL:
     def learn(self):
 
         logger.info("RL training loop started")
+
+        gpus = tf.config.experimental.list_physical_devices('GPU')
+        for gpu in gpus:
+            tf.config.experimental.set_memory_growth(gpu, True)
 
         # Setting the activation of default policy network and critic network
         epsilon = config.epsilon
