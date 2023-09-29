@@ -1,4 +1,5 @@
 import tensorflow as tf
+from tqdm import tqdm
 import numpy as np
 from multiprocessing import Pool
 from utils import config
@@ -20,9 +21,11 @@ if __name__ == '__main__':
 
     move_cap = board_size ** 2 * 5
 
+    model_name = config.model_name
+
     policy_nn = ActorCriticNet(input_shape, output)
 
-    save_interval = config.episodes // config.nr_of_anets
+    save_interval = 1
 
     state_buffer = []
     observation_buffer = []
@@ -31,14 +34,16 @@ if __name__ == '__main__':
     # Save initial random weights
     policy_nn.model.save(f"../models/board_size_{config.board_size}/net_0")
 
-    for epoch in range(1, config.epochs + 1):
+    for epoch in tqdm(range(0, config.epochs + 1)):
         with Pool(config.nr_of_threads) as p:
             thread_results = p.map(mcts_threading, [
                 (
                     thread,
+                    model_name,
                     config.episodes,
                     config.epsilon,
                     config.sigma,
+                    move_cap,
                     config.c,
                     config.simulations,
                     config.board_size
@@ -56,6 +61,7 @@ if __name__ == '__main__':
             observation_buffer = observation_buffer[-config.rbuf_cap:]
             value_buffer = value_buffer[-config.rbuf_cap:]
 
+            # Train the neural network
             history = policy_nn.fit(
                 np.array(observation_buffer),
                 np.array(state_buffer),

@@ -1,5 +1,5 @@
 # MCTS config
-episodes: 1000
+episodes: 1
 simulations: 100 # m
 epsilon: 1
 epsilon_decay: 1
@@ -12,21 +12,19 @@ nr_of_anets: 5 # m
 rbuf_size: 512
 rbuf_cap: 10000
 learning_rate: 0.001
-activation: relu # linear, sigmoid, tanh, relu, leaky_relu, tanh
-optimizer: adam # Adagrad, Stochastic Gradient Descent (SGD), RMSProp, and Adam
-loss: cross_entropy # mse, cross_entropy, l1
 batch_size: 128
 plot_accuracy: false
 move_cap: 200
 sample_ratio: 0.8
+model_name: "model"
 
 # GO config
 board_size: 5 # k
 
 # Threads
 multi_threading: true
-nr_of_threads: 10
-epochs: 1
+nr_of_threads: 6
+epochs: 10
 epoch_skip: 0
 
 # Debug config

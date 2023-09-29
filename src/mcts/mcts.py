@@ -180,6 +180,9 @@ class MCTS:
         del self.root
         self.root = Node(state)
 
+    def set_root_node(self, node: Node) -> None:
+        self.root = node
+
     def search(self) -> Tuple[Node, Any, List[float]]:
         for _ in range(self.simulations):
             leaf_node = self.__tree_search(self.root)  # Tree policy
