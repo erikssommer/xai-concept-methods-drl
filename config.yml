@@ -10,6 +10,7 @@ c: 1.3
 # Neural Network config
 nr_of_anets: 5 # m
 rbuf_size: 512
+rbuf_cap: 10000
 learning_rate: 0.001
 activation: relu # linear, sigmoid, tanh, relu, leaky_relu, tanh
 optimizer: adam # Adagrad, Stochastic Gradient Descent (SGD), RMSProp, and Adam
@@ -26,6 +27,7 @@ board_size: 5 # k
 multi_threading: true
 nr_of_threads: 10
 epochs: 1
+epoch_skip: 0
 
 # Debug config
 visualize_tree: false
