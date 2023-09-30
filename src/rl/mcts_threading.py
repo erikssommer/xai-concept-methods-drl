@@ -1,6 +1,5 @@
 import tensorflow as tf
 from mcts import MCTS
-from utils import config
 import env
 import gc
 
@@ -13,7 +12,10 @@ def mcts_threading(args):
 
     go_env = env.GoEnv(size=board_size)
 
-    policy_nn = tf.keras.models.load_model(f'../models/board_size_{board_size}/net_{model_name}')
+    if epsilon != 1:
+        policy_nn = tf.keras.models.load_model(f'../models/board_size_{board_size}/net_{model_name}.keras')
+    else:
+        policy_nn = None
 
     for _ in range(episodes):
         states = []

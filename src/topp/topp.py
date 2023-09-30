@@ -9,8 +9,8 @@ import random
 from utils import config
 
 class Tournament:
-    def __init__(self, num_nn, num_games, render: bool = False):
-        self.num_nn = num_nn
+    def __init__(self, num_games, render: bool = False):
+        self.num_nn = 0
         self.num_games = num_games
         self.render = render
         self.agents: Agent = []
@@ -22,11 +22,12 @@ class Tournament:
         folders = os.listdir(path)
 
         # Sort the folders by the number in the name
-        sorted_folders = sorted(folders, key=lambda x: int(x.split('_')[-1]))
+        sorted_folders = sorted(folders, key=lambda x: int(x.split('_')[-1].strip('.keras')))
 
         # Add the agents
         for folder in sorted_folders:
             self.agents.append(Agent(path, folder))
+            self.num_nn += 1
 
         if len(self.agents) == 0:
             raise Exception("No agents found")

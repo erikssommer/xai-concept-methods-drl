@@ -2,9 +2,8 @@ import tensorflow as tf
 import numpy as np
 from utils import config
 
-class ActorCriticNet(tf.keras.Model):
+class ActorCriticNet:
     def __init__(self, input_shape, output, init=True):
-        super(ActorCriticNet, self).__init__()
 
         BLOCK_FILTER_SIZE = 32
 
@@ -22,8 +21,7 @@ class ActorCriticNet(tf.keras.Model):
         # Policy head
         policy = tf.keras.layers.Conv2D(output, (1, 1), activation="elu", padding="same")(base)
         policy = tf.keras.layers.Flatten()(policy)
-        policy = tf.keras.layers.Dense(output, activation="relu")(policy)
-        policy_output = tf.keras.layers.Softmax(name="policy_output")(policy)
+        policy_output = tf.keras.layers.Dense(output, activation="softmax", name="policy_output")(policy)
 
         # Value head
         val = tf.keras.layers.Conv2D(16, (1, 1), name="value_conv", activation="elu", padding="same")(base)
@@ -38,13 +36,19 @@ class ActorCriticNet(tf.keras.Model):
             optimizer=tf.keras.optimizers.Adam(learning_rate=config.learning_rate))
 
     def fit(self, states, distributions, values, epochs=10):
-        with tf.device('/gpu:0'):
+        if config.use_gpu:
+            with tf.device('/gpu:0'):
+                return self.model.fit(states, [distributions, values], verbose=0, epochs=epochs, batch_size=128)
+        else:
             return self.model.fit(states, [distributions, values], verbose=0, epochs=epochs, batch_size=128)
         
     def predict(self, boards):
         if len(boards.shape) == 3:
             boards = np.reshape(boards, (1, *boards.shape))
-        with tf.device('/gpu:0'):
+        if config.use_gpu:
+            with tf.device('/gpu:0'):
+                res = self.model(boards, training=False)
+        else:
             res = self.model(boards, training=False)
         
         policies, values = res

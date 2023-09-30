@@ -26,6 +26,9 @@ nr_of_threads: 6
 epochs: 10
 epoch_skip: 0
 
+# System
+use_gpu: false
+
 # Debug config
 visualize_tree: false
 render: false
