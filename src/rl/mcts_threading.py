@@ -18,7 +18,7 @@ def mcts_threading(args):
     for _ in range(episodes):
         states = []
         distributions = []
-        player = []
+        players = []
 
         go_env.reset()
 
@@ -36,7 +36,7 @@ def mcts_threading(args):
             # Store the data
             states.append(game_state)
             distributions.append(distribution)
-            player.append(current_player)
+            players.append(current_player)
 
             _, _, game_over, _ = go_env.step(best_action_node.action)
 
@@ -46,7 +46,7 @@ def mcts_threading(args):
 
         winner = go_env.winning()
 
-        for (dist, state, player) in zip(distribution, states, player):
+        for (state, distribution, player) in zip(states, distributions, players):
 
             value_map = {
                 (env.govars.BLACK, 1): 1,
@@ -58,7 +58,7 @@ def mcts_threading(args):
             value = value_map.get((player, winner), 0)
                 
             state_buffer.append(state)
-            observation_buffer.append(dist)
+            observation_buffer.append(distribution)
             value_buffer.append(value)
 
     return state_buffer, observation_buffer, value_buffer
