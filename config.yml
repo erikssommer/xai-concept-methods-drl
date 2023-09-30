@@ -16,7 +16,6 @@ batch_size: 128
 plot_accuracy: false
 move_cap: 200
 sample_ratio: 0.8
-model_name: "model"
 
 # GO config
 board_size: 5 # k
@@ -29,7 +28,7 @@ epoch_skip: 0
 
 # Debug config
 visualize_tree: false
-render: true
+render: false
 plot: false
 
 # Topp config
