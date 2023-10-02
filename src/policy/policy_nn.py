@@ -17,7 +17,7 @@ class ActorCriticNet:
             self.model = tf.keras.models.load_model(load_path)
         else:
             # Input
-            self.position_input = tf.keras.Input(shape=(6, self.board_size, self.board_size))
+            self.position_input = tf.keras.Input(shape=(4, self.board_size, self.board_size))
             
             # Residual block
             base = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (3, 3), activation="elu", padding="same", name="res_block_output_base")(self.position_input)
@@ -36,7 +36,8 @@ class ActorCriticNet:
 
             self.model = tf.keras.Model(self.position_input, [policy_output, value_output])
 
-        self.model.summary()
+            self.model.summary()
+
         self.model.compile(
             loss={"policy_output": tf.keras.losses.CategoricalCrossentropy(), "value_output": tf.keras.losses.MeanSquaredError()},
             loss_weights={"policy_output": 1.0, "value_output": 1.0},
@@ -52,6 +53,10 @@ class ActorCriticNet:
     # Define a prediction function
     def predict(self, state):
         state_copy = state.copy()
+
+        # Remove array index 3 and 5 from the current state making it an shape of (4, 5, 5)
+        state = np.delete(state, [3, 5], axis=0)
+
         if len(state.shape) == 3:
             state = np.reshape(state, (1, *state.shape))
         if config.use_gpu:

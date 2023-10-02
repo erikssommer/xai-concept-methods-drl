@@ -65,7 +65,7 @@ class RL:
             while not game_over:
                 # Get the player
                 curr_player = go_env.turn()
-                curr_state = go_env.canonical_state()
+                curr_state = go_env.state()
 
                 best_action_node, next_game_state, distribution = tree.search()
 
@@ -83,6 +83,9 @@ class RL:
 
                     # Plot the distribution
                     #utils.plot_distribution(distribution)
+                
+                # Remove array index 3 and 5 from the current state making it an shape of (4, 5, 5)
+                curr_state = np.delete(curr_state, [3, 5], axis=0)
 
                 # Add the case to the replay buffer
                 rbuf.add_case(curr_player, curr_state, distribution)
