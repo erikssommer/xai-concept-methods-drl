@@ -8,6 +8,18 @@ import utils
 
 class MCTS:
     def __init__(self, game_state, epsilon, sigma, simulations, board_size, move_cap, c=1.3, policy_nn=None):
+        """
+        Initialize the Monte Carlo Tree Search
+
+        :param game_state: The initial state of the game
+        :param epsilon: The probability of choosing a random move
+        :param sigma: The probability of choosing the critic network
+        :param simulations: The number of simulations to run
+        :param board_size: The size of the board
+        :param move_cap: The maximum number of moves in a game
+        :param c: The exploration constant
+        :param policy_nn: The neural network to use for the default policy
+        """
         self.root = Node(game_state)
         self.simulations = simulations
         self.epsilon = epsilon
