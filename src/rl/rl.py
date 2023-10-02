@@ -38,8 +38,11 @@ class RL:
         # Creation replay buffer
         rbuf = RBUF(config.rbuf_size)
 
-        # Create the neural network (+1 is for the pass action)
+        # Create the neural network
         policy_nn = ActorCriticNet(board_size)
+
+        # Save initial random weights
+        policy_nn.save_model(f"../models/board_size_{board_size}/net_0.keras")
 
         # Loop through the number of episodes
         for episode in tqdm(range(config.episodes)):
@@ -57,9 +60,9 @@ class RL:
             node = tree.root
 
             # Play a game until termination
-            terminated = False
+            game_over = False
 
-            while not terminated:
+            while not game_over:
                 # Get the player
                 curr_player = go_env.turn()
                 curr_state = go_env.canonical_state()
@@ -85,7 +88,7 @@ class RL:
                 rbuf.add_case(curr_player, curr_state, distribution)
 
                 # Apply the action to the environment
-                _, _, terminated, _ = go_env.step(
+                _, _, game_over, _ = go_env.step(
                     best_action_node.action)
                 
                 if config.render:
@@ -101,8 +104,6 @@ class RL:
 
             # Get the winner of the game
             winner = go_env.winning()
-
-            print(f"Winner: {winner}")
 
             # Set the values of the states
             rbuf.set_values(winner)

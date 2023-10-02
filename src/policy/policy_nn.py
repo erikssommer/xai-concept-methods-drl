@@ -17,7 +17,7 @@ class ActorCriticNet:
             self.model = tf.keras.models.load_model(load_path)
         else:
             # Input
-            self.position_input = tf.keras.Input(shape=(self.board_size, self.board_size, 6))
+            self.position_input = tf.keras.Input(shape=(6, self.board_size, self.board_size))
             
             # Residual block
             base = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (3, 3), activation="elu", padding="same", name="res_block_output_base")(self.position_input)
