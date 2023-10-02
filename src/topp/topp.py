@@ -33,8 +33,6 @@ class Tournament:
             raise Exception("No agents found")
         
     def run_tournament(self):
-        invalid_moves = 0
-        moves_total = 0
         for i in range(self.num_nn):
             for j in range(i+1, self.num_nn):
                 # Starting agent plays as black
@@ -62,11 +60,7 @@ class Tournament:
                             break
 
                         agent: Agent = self.agents[current_agent]
-                        action, valid = agent.choose_action(go_env.state())
-
-                        if not valid:
-                            invalid_moves += 1
-                        moves_total += 1
+                        action = agent.choose_action(go_env.state())
                         
                         _, _, terminated, _ = go_env.step(action)
                         moves += 1
@@ -102,9 +96,6 @@ class Tournament:
                     
                     # Swap the starting agent
                     starting_agent = (starting_agent + 1) % 2
-        
-        print("Total number of invalid moves: {}".format(invalid_moves))
-        print("Total number of moves: {}".format(moves_total))
 
     def plot_results(self, block):
         plt.clf()

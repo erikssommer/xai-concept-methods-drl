@@ -21,16 +21,11 @@ class Agent:
     # Play a round of the turnament
     def choose_action(self, state):
         distribution, _ = self.nn.predict(state)
-        action = np.argmax(distribution[0])
-        # Test if move is valid
-        valid_moves = gogame.valid_moves(state)
 
-        if valid_moves[action] != 1:
-            print("Invalid move, choosing random move")
-            valid_move_idcs = np.argwhere(valid_moves).flatten()
-            return np.random.choice(valid_move_idcs), False
+        # Choose the action with the highest probability
+        action = np.argmax(distribution[0])
         
-        return action, True
+        return action
 
     # Add a win
     def add_win(self, player):
