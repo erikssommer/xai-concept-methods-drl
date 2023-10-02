@@ -47,8 +47,7 @@ class MCTS:
                 distribution = distribution * valid_moves
 
                 # Softmax the distribution
-                distribution = np.exp(distribution) / \
-                    np.sum(np.exp(distribution))
+                #distribution = np.exp(distribution) / np.sum(np.exp(distribution))
 
                 # Get the action
                 action = np.argmax(distribution[0])
@@ -179,6 +178,9 @@ class MCTS:
     def set_root(self, state) -> None:
         del self.root
         self.root = Node(state)
+
+    def set_root_node(self, node: Node) -> None:
+        self.root = node
 
     def search(self) -> Tuple[Node, Any, List[float]]:
         for _ in range(self.simulations):
