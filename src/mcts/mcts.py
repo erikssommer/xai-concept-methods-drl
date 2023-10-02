@@ -5,9 +5,10 @@ from typing import Tuple, List, Any
 from env import govars
 from env import gogame
 import utils
+from policy import ActorCriticNet
 
 class MCTS:
-    def __init__(self, game_state, epsilon, sigma, simulations, board_size, move_cap, c=1.3, policy_nn=None):
+    def __init__(self, game_state, epsilon, sigma, simulations, board_size, move_cap, c=1.3, policy_nn: ActorCriticNet=None):
         """
         Initialize the Monte Carlo Tree Search
 
@@ -49,17 +50,7 @@ class MCTS:
 
             else:
                 # Rollout using distribution from neural network
-                distribution, _ = self.policy_nn.predict(
-                    np.array([game_state]))
-                
-                # Get the valid moves
-                valid_moves = gogame.valid_moves(game_state)
-
-                # Set the invalid moves to 0
-                distribution = distribution * valid_moves
-
-                # Softmax the distribution
-                #distribution = np.exp(distribution) / np.sum(np.exp(distribution))
+                distribution, _ = self.policy_nn.predict(game_state)
 
                 # Get the action
                 action = np.argmax(distribution[0])
