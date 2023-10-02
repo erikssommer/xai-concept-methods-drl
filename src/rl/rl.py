@@ -63,8 +63,9 @@ class RL:
             while not terminated:
                 # Get the player
                 curr_player = go_env.turn()
+                curr_state = go_env.canonical_state()
 
-                best_action_node, game_state, distribution = tree.search()
+                best_action_node, next_game_state, distribution = tree.search()
 
                 # Visualize the tree
                 if config.visualize_tree:
@@ -82,7 +83,7 @@ class RL:
                     #utils.plot_distribution(distribution)
 
                 # Add the case to the replay buffer
-                rbuf.add_case(curr_player, game_state, distribution)
+                rbuf.add_case(curr_player, curr_state, distribution)
 
                 # Apply the action to the environment
                 _, _, terminated, _ = go_env.step(
@@ -94,7 +95,7 @@ class RL:
     
                 # Update the root node of the mcts tree
                 tree.root = best_action_node
-                #tree.set_root(game_state)
+                #tree.set_root(next_game_state)
 
                 # Garbage collection
                 gc.collect()
