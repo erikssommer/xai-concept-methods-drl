@@ -47,8 +47,7 @@ class MCTS:
                 distribution = distribution * valid_moves
 
                 # Softmax the distribution
-                distribution = np.exp(distribution) / \
-                    np.sum(np.exp(distribution))
+                #distribution = np.exp(distribution) / np.sum(np.exp(distribution))
 
                 # Get the action
                 action = np.argmax(distribution[0])
