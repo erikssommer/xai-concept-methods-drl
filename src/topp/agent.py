@@ -1,12 +1,11 @@
-import tensorflow as tf
 import numpy as np
 from utils import config
 from env import gogame
 from policy import ActorCriticNet
 
 class Agent:
-    def __init__(self, network_path, filename):
-        self.name = filename # Naming the player the same as the network for clarity
+    def __init__(self, path, name):
+        self.name = name # Naming the player the same as the network for clarity
 
         self.player_1_win = 0
         self.player_2_win = 0
@@ -17,14 +16,11 @@ class Agent:
         self.win = 0
         self.loss = 0
         self.draw = 0
-        self.nn: ActorCriticNet = self.on_policy_setup(network_path, filename)
-
-    def on_policy_setup(self, path, folder):
-        return tf.keras.models.load_model(f'{path}/{folder}')
+        self.nn = ActorCriticNet(config.board_size, (f'{path}/{name}'))
 
     # Play a round of the turnament
     def choose_action(self, state):
-        distribution, _ = self.nn.predict(np.array([gogame.canonical_form(state)]))
+        distribution, _ = self.nn.predict(state)
         action = np.argmax(distribution[0])
         # Test if move is valid
         valid_moves = gogame.valid_moves(state)
