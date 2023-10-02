@@ -77,3 +77,6 @@ class ActorCriticNet:
         policy = utils.normalize(policy)
         
         return policy
+    
+    def save_model(self, path):
+        self.model.save(path)

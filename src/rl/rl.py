@@ -39,8 +39,7 @@ class RL:
         rbuf = RBUF(config.rbuf_size)
 
         # Create the neural network (+1 is for the pass action)
-        policy_nn = ActorCriticNet(
-            go_env.observation_space, config.board_size ** 2 + 1)
+        policy_nn = ActorCriticNet(board_size)
 
         # Loop through the number of episodes
         for episode in tqdm(range(config.episodes)):
@@ -123,7 +122,7 @@ class RL:
             # Save the neural network model
             if episode % save_interval == 0 and episode != 0:
                 # Save the neural network model
-                policy_nn.model.save(f'../models/board_size_{board_size}/net_{episode}.keras')
+                policy_nn.save_model(f'../models/board_size_{board_size}/net_{episode}.keras')
             
             # Updating sigma and epsilon
             epsilon = epsilon * config.epsilon_decay
@@ -133,6 +132,6 @@ class RL:
             gc.collect()
 
         # Save the final neural network model
-        policy_nn.model.save(f'../models/board_size_{board_size}/net_{config.episodes}.keras')
+        policy_nn.save_model(f'../models/board_size_{board_size}/net_{config.episodes}.keras')
 
         logger.info("RL training loop ended")
