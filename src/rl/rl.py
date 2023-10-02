@@ -123,7 +123,7 @@ class RL:
             # Save the neural network model
             if episode % save_interval == 0 and episode != 0:
                 # Save the neural network model
-                policy_nn.model.save(f'../models/actor_critic_net_{episode}')
+                policy_nn.model.save(f'../models/board_size_{board_size}/net_{episode}.keras')
             
             # Updating sigma and epsilon
             epsilon = epsilon * config.epsilon_decay
@@ -133,6 +133,6 @@ class RL:
             gc.collect()
 
         # Save the final neural network model
-        policy_nn.model.save(f'../models/actor_critic_net_{config.episodes}')
+        policy_nn.model.save(f'../models/board_size_{board_size}/net_{config.episodes}.keras')
 
         logger.info("RL training loop ended")
