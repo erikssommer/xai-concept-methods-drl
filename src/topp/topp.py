@@ -82,6 +82,10 @@ class Tournament:
                     # Winner in perspective of the starting agent, 1 if won, -1 if lost, 0 if draw
                     winner = go_env.winner()
 
+                    if config.render:
+                        # Print the winner
+                        print(f"Winner: {winner}")
+
                     # Add the score
                     if starting_agent == i and winner == 1:
                         self.agents[i].add_win(1)
