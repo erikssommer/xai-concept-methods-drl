@@ -1,9 +1,8 @@
 import unittest
 
-from mcts import MCTS
+from env import GoEnv
 from env import govars
-
-import env
+from mcts import MCTS
 
 
 class TestMCTSvsRandom(unittest.TestCase):
@@ -11,14 +10,14 @@ class TestMCTSvsRandom(unittest.TestCase):
         victories = 0
         games = 5
         rollouts = 50
-        board_size = 5
+        board_size = 4
 
         for _ in range(games):
-            go_env = env.GoEnv(size=board_size)
+            go_env = GoEnv(size=board_size)
             go_env.reset()
             game_state = go_env.canonical_state()
             curr_turn = go_env.turn()
-            tree = MCTS(game_state, 1, 1, rollouts, board_size**2, board_size**2*5)
+            tree = MCTS(game_state, 1, 1, rollouts, board_size, board_size**2*5)
             tree.set_root(game_state)
 
             terminated = False
@@ -32,24 +31,24 @@ class TestMCTSvsRandom(unittest.TestCase):
                     state, reward, terminated, info = go_env.step(action)
                     
                     # Update the tree, may be done better
-                    tree = MCTS(1, 1, rollouts)
+                    tree = MCTS(game_state, 1, 1, rollouts, board_size, board_size**2*5)
                     tree.set_root(state)
                 
                 curr_turn = go_env.turn()
-                go_env.render()
+                #go_env.render()
 
             black_won = go_env.winning()
 
             if black_won == 1:
                 victories += 1
             
-            go_env.render()
+            #go_env.render()
 
         # Calculate the win probability
         win_probability = victories / games
 
         # Print the results
-        print("Win probability: {}".format(win_probability))
+        print("Win probability as black: {}".format(win_probability))
 
         # Assert the results
         self.assertTrue(win_probability >= 0.9)
@@ -57,15 +56,15 @@ class TestMCTSvsRandom(unittest.TestCase):
     def test_mcts_as_white_vs_random(self):
         victories = 0
         games = 5
-        rollouts = 300
-        board_size = 5
+        rollouts = 50
+        board_size = 4
 
         for _ in range(games):
-            go_env = env.GoEnv(size=board_size)
+            go_env = GoEnv(size=board_size)
             go_env.reset()
             game_state = go_env.canonical_state()
             curr_turn = go_env.turn()
-            tree = MCTS(1, 1, rollouts)
+            tree = MCTS(game_state, 1, 1, rollouts, board_size, board_size**2*5)
             tree.set_root(game_state)
 
             terminated = False
@@ -79,24 +78,24 @@ class TestMCTSvsRandom(unittest.TestCase):
                     state, reward, terminated, info = go_env.step(action)
                     
                     # Update the tree, may be done better
-                    tree = MCTS(1, 1, rollouts)
+                    tree = MCTS(game_state, 1, 1, rollouts, board_size, board_size**2*5)
                     tree.set_root(state)
                 
                 curr_turn = go_env.turn()
-                go_env.render()
+                #go_env.render()
 
             black_won = go_env.winning()
 
             if black_won != 1:
                 victories += 1
             
-            go_env.render()
+            #go_env.render()
 
         # Calculate the win probability
         win_probability = victories / games
 
         # Print the results
-        print("Win probability: {}".format(win_probability))
+        print("Win probability as white: {}".format(win_probability))
 
         # Assert the results
         self.assertTrue(win_probability >= 0.9)

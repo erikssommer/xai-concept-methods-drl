@@ -1,4 +1,5 @@
 import unittest
+
 import env
 
 class TestRandomPlay(unittest.TestCase):
@@ -15,8 +16,9 @@ class TestRandomPlay(unittest.TestCase):
         action = go_env.uniform_random_action()
         state, reward, terminated, info = go_env.step(action)
 
-        # Render the board
-        go_env.render()
+    
+    # Render the final board
+    go_env.render()
 
 
 if __name__ == '__main__':
