@@ -38,6 +38,11 @@ class Tournament:
                 # Starting agent plays as black
                 starting_agent = random.choice([i, j])
 
+                if config.render:
+                    # Print playing agents
+                    print(f'Playing agents: {self.agents[i].name} vs {self.agents[j].name}')
+                    print(f"Starting agent: {self.agents[starting_agent].name}")
+
                 # Play the games
                 for _ in range(self.num_games):
                     # Create the environment
