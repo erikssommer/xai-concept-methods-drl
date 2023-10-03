@@ -127,7 +127,7 @@ class MCTS:
     def __critic(self, game_state: np.ndarray) -> float:
 
         # Get the value from the policy network
-        _, value = self.policy_nn.predict(np.array([game_state]))
+        _, value = self.policy_nn.predict(game_state)
 
         # Get the value from the tensor
         value = value.numpy()[0][0]
