@@ -26,5 +26,6 @@ python -m unittest tests.random_play_test
 > From src directory
 ```bash
 nohup python train.py > train_log.txt &
+nohup python train_multi_threading.py > train_log.txt &
 ```
 
