@@ -1,7 +1,8 @@
-import tensorflow as tf
 from mcts import MCTS
 import env
 import gc
+from policy import ActorCriticNet
+import numpy as np
 
 def mcts_threading(args):
     thread, model_name, episodes, epsilon, sigma, move_cap, c, simulations, board_size = args
@@ -13,7 +14,8 @@ def mcts_threading(args):
     go_env = env.GoEnv(size=board_size)
 
     if epsilon != 1:
-        policy_nn = tf.keras.models.load_model(f'../models/board_size_{board_size}/net_{model_name}.keras')
+        path = f'../models/board_size_{board_size}/net_{model_name}.keras'
+        policy_nn = ActorCriticNet(board_size, path)
     else:
         policy_nn = None
 
@@ -32,11 +34,15 @@ def mcts_threading(args):
 
         while not game_over:
             current_player = go_env.turn()
+            curr_game_state = go_env.state()
 
             best_action_node, game_state, distribution = tree.search()
 
+            # Remove the 3 and 5 index from the current state
+            curr_game_state = np.delete(curr_game_state, [3, 5], axis=0)
+            
             # Store the data
-            states.append(game_state)
+            states.append(curr_game_state)
             distributions.append(distribution)
             players.append(current_player)
 

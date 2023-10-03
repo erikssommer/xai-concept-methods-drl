@@ -6,6 +6,13 @@ import utils
 
 class ActorCriticNet:
     def __init__(self, board_size, load_path=None):
+        """
+        Neural network for the actor-critic policy.
+
+        Args:
+            board_size (int): The size of the board.
+            load_path (str, optional): The path to the model to load. Defaults to None.
+        """
 
         BLOCK_FILTER_SIZE = 32
 

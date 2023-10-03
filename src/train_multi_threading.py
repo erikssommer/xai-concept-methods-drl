@@ -5,26 +5,8 @@ from multiprocessing import Pool
 from utils import config
 from rl import mcts_threading
 from policy import ActorCriticNet
-from env import gogame, govars
 import os
-
-def setup(board_size):
-    # Create the folder containing the models if it doesn't exist
-    if not os.path.exists('../models'):
-        os.makedirs(f'../models/')
-    if not os.path.exists(f'../models/board_size_{board_size}'):
-        os.makedirs(f'../models/board_size_{board_size}/')
-    else:
-        # Delete the model folders
-        folders = os.listdir(f'../models/board_size_{board_size}')
-        for folder in folders:
-            # Test if ends with .keras
-            if not folder.endswith('.keras'):
-                # Delete the folder even if it's not empty
-                os.system(f'rm -rf ../models/board_size_{board_size}/{folder}')
-            else:
-                # Delete the file
-                os.remove(f'../models/board_size_{board_size}/{folder}')
+from utils import setup
 
 if __name__ == '__main__':
 
@@ -37,16 +19,15 @@ if __name__ == '__main__':
 
     board_size = config.board_size
 
-    setup(board_size)
+    setup()
 
-    input_shape = (govars.NUM_CHNLS, board_size, board_size)
     output = board_size ** 2 + 1
 
     move_cap = board_size ** 2 * 5
 
     model_name = 0
 
-    policy_nn = ActorCriticNet(input_shape, output)
+    policy_nn = ActorCriticNet(board_size)
 
     save_interval = 2
 
@@ -62,7 +43,7 @@ if __name__ == '__main__':
 
 
     # Save initial random weights
-    policy_nn.model.save(f"../models/board_size_{config.board_size}/net_0.keras")
+    policy_nn.save_model(f"../models/board_size_{config.board_size}/net_0.keras")
 
     for epoch in tqdm(range(1, config.epochs + 1)):
         with Pool(config.nr_of_threads) as pool:
@@ -103,6 +84,6 @@ if __name__ == '__main__':
             sigma = sigma * config.sigma_decay
         
         if (epoch % save_interval) == 0:
-            policy_nn.model.save(f"../models/board_size_{config.board_size}/net_{epoch}.keras")
+            policy_nn.save_model(f"../models/board_size_{config.board_size}/net_{epoch}.keras")
             model_name = epoch
         
