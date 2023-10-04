@@ -122,10 +122,10 @@ class Tournament:
         x = [agent.name for agent in self.agents]
         # y is number of wins
         y = [agent.win for agent in self.agents]
-        z_1 = [agent.player_1_win for agent in self.agents]
-        z_2 = [agent.player_2_win for agent in self.agents]
+        z_1 = [agent.black_win for agent in self.agents]
+        z_2 = [agent.white_win for agent in self.agents]
 
-        d = {'Agent': x*3, 'Wins': z_1 + z_2 + y, 'Player': ['Player 1']*len(x) + ['Player 2']*len(x) + ['Total']*len(x)}
+        d = {'Agent': x*3, 'Wins': z_1 + z_2 + y, 'Player': ['Black']*len(x) + ['White']*len(x) + ['Total']*len(x)}
         df = pd.DataFrame(data=d)
 
         sns.barplot(x='Agent', y='Wins', hue='Player', data=df)

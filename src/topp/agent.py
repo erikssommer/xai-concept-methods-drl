@@ -10,11 +10,12 @@ class Agent:
         self.player_black = 0
         self.player_white = 0
 
-        self.player_1_win = 0
-        self.player_2_win = 0
+        self.black_win = 0
+        self.white_win = 0
 
-        self.player_1_loss = 0
-        self.player_2_loss = 0
+        # Black is allways the starting player
+        self.black_loss = 0
+        self.white_loss = 0
 
         self.win = 0
         self.loss = 0
@@ -35,18 +36,18 @@ class Agent:
         self.win += 1
 
         if player == 1:
-            self.player_1_win += 1
+            self.black_win += 1
         else:
-            self.player_2_win += 1
+            self.white_win += 1
 
     # Add a loss
     def add_loss(self, player):
         self.loss += 1
 
         if player == 1:
-            self.player_1_loss += 1
+            self.black_loss += 1
         else:
-            self.player_2_loss += 1
+            self.white_loss += 1
 
     # Add a draw
     def add_draw(self):
