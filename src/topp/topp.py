@@ -40,9 +40,12 @@ class Tournament:
 
                 # Track the number of times as black and white
                 # Starting player is black
-                self.agents[starting_agent].player_black += 1
-                # Other player is white
-                self.agents[(starting_agent + 1) % 2].player_white += 1
+                if starting_agent == i:
+                    self.agents[i].player_black += 1
+                    self.agents[j].player_white += 1
+                else:
+                    self.agents[j].player_black += 1
+                    self.agents[i].player_white += 1
 
                 if config.render:
                     # Print playing agents
