@@ -38,15 +38,6 @@ class Tournament:
                 # Starting agent plays as black
                 starting_agent = random.choice([i, j])
 
-                # Track the number of times as black and white
-                # Starting player is black
-                if starting_agent == i:
-                    self.agents[i].player_black += 1
-                    self.agents[j].player_white += 1
-                else:
-                    self.agents[j].player_black += 1
-                    self.agents[i].player_white += 1
-
                 if config.render:
                     # Print playing agents
                     print(f'Playing agents: {self.agents[i].name} vs {self.agents[j].name}')
@@ -59,6 +50,15 @@ class Tournament:
 
                     # Reset the environment
                     go_env.reset()
+
+                    # Track the number of times as black and white
+                    # Starting player is black
+                    if starting_agent == i:
+                        self.agents[i].player_black += 1
+                        self.agents[j].player_white += 1
+                    else:
+                        self.agents[j].player_black += 1
+                        self.agents[i].player_white += 1
 
                     current_agent = starting_agent
 
