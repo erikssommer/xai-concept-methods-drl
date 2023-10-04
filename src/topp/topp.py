@@ -109,12 +109,17 @@ class Tournament:
                         self.agents[j].add_loss(1)
                         self.agents[i].add_win(2)
                     else:
-                        print(winner)
+                        print(f"winner: {winner}")
+
                         self.agents[i].add_draw()
                         self.agents[j].add_draw()
                     
                     # Swap the starting agent
-                    starting_agent = (starting_agent + 1) % 2
+                    if starting_agent == i:
+                        starting_agent = j
+                    else:
+                        starting_agent = i
+
 
     def plot_results(self, block):
         plt.clf()
