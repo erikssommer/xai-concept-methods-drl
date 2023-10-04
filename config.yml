@@ -1,6 +1,6 @@
 # MCTS config
 episodes: 1
-simulations: 10 # m
+simulations: 100 # m
 epsilon: 1
 epsilon_decay: 1
 sigma: 1
@@ -19,6 +19,7 @@ sample_ratio: 0.8
 
 # GO config
 board_size: 5 # k
+komi: 0
 
 # Threads
 multi_threading: true
@@ -31,7 +32,7 @@ use_gpu: false
 
 # Debug config
 visualize_tree: false
-render: false
+render: true
 plot: false
 
 # Topp config
