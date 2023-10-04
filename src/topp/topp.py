@@ -140,4 +140,4 @@ class Tournament:
 
         for agent in agents_result:
             print(
-                f"Agent {agent.name} won {agent.win} times, lost {agent.loss} times and drew {agent.draw} times, played {agent.player_black} times as black and {agent.player_white} times as white")
+                f"Agent {agent.name} won {agent.win} times where {agent.black_win} as black and {agent.white_win} as white, lost {agent.loss} times, where {agent.black_loss} as black and {agent.white_loss} as white, and drew {agent.draw} times, played {agent.player_black} times as black and {agent.player_white} times as white")
