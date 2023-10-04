@@ -109,8 +109,6 @@ class Tournament:
                         self.agents[j].add_loss(1)
                         self.agents[i].add_win(2)
                     else:
-                        print(f"winner: {winner}")
-
                         self.agents[i].add_draw()
                         self.agents[j].add_draw()
                     
