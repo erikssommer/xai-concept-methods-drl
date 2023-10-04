@@ -7,6 +7,9 @@ class Agent:
     def __init__(self, path, name):
         self.name = name # Naming the player the same as the network for clarity
 
+        self.player_black = 0
+        self.player_white = 0
+
         self.player_1_win = 0
         self.player_2_win = 0
 

@@ -38,6 +38,12 @@ class Tournament:
                 # Starting agent plays as black
                 starting_agent = random.choice([i, j])
 
+                # Track the number of times as black and white
+                # Starting player is black
+                self.agents[starting_agent].player_black += 1
+                # Other player is white
+                self.agents[(starting_agent + 1) % 2].player_white += 1
+
                 if config.render:
                     # Print playing agents
                     print(f'Playing agents: {self.agents[i].name} vs {self.agents[j].name}')
@@ -127,4 +133,4 @@ class Tournament:
 
         for agent in agents_result:
             print(
-                f"Agent {agent.name} won {agent.win} times, lost {agent.loss} times and drew {agent.draw} times")
+                f"Agent {agent.name} won {agent.win} times, lost {agent.loss} times and drew {agent.draw} times, played {agent.player_black} times as black and {agent.player_white} times as white")
