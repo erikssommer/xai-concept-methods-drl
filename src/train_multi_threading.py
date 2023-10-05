@@ -7,6 +7,7 @@ from rl import mcts_threading
 from policy import ActorCriticNet
 import os
 from utils import setup
+import time
 
 if __name__ == '__main__':
 
@@ -15,13 +16,9 @@ if __name__ == '__main__':
     for gpu in gpus:
         tf.config.experimental.set_memory_growth(gpu, True)
 
-    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
-
     board_size = config.board_size
 
     setup()
-
-    output = board_size ** 2 + 1
 
     move_cap = board_size ** 2 * 5
 
@@ -41,6 +38,15 @@ if __name__ == '__main__':
     simulations = config.simulations
     episodes = config.episodes
 
+    # Delete the ../tensorboard_logs directory if it exists
+    if os.path.exists('../tensorboard_logs'):
+        os.system('rm -rf ../tensorboard_logs')
+
+    # Create a log directory with a timestamp
+    logdir = f'../{config.log_dir}/' + time.strftime("%Y%m%d-%H%M%S")
+
+    # Create a TensorBoard callback
+    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=logdir)
 
     # Save initial random weights
     policy_nn.save_model(f"../models/board_size_{config.board_size}/net_0.keras")
@@ -77,8 +83,15 @@ if __name__ == '__main__':
                 np.array(state_buffer),
                 np.array(observation_buffer),
                 np.array(value_buffer),
-                epochs=1
+                epochs=1,
+                callbacks=[tensorboard_callback]
             )
+
+            with tf.summary.create_file_writer(logdir).as_default():
+                for loss in ["loss", "value_output_loss", "policy_output_loss"]:
+                    tf.summary.scalar(name=loss, data=history.history[loss][0], step=epoch)
+                for acc in ["value_output_accuracy", "policy_output_accuracy"]:
+                    tf.summary.scalar(name=acc, data=history.history[acc][0], step=epoch)
 
             epsilon = epsilon * config.epsilon_decay
             sigma = sigma * config.sigma_decay

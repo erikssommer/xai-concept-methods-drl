@@ -137,6 +137,8 @@ class RL:
             with tf.summary.create_file_writer(logdir).as_default():
                 for loss in ["loss", "value_output_loss", "policy_output_loss"]:
                     tf.summary.scalar(name=loss, data=history.history[loss][0], step=episode)
+                for acc in ["value_output_accuracy", "policy_output_accuracy"]:
+                    tf.summary.scalar(name=acc, data=history.history[acc][0], step=episode)
 
             # Save the neural network model
             if episode % save_interval == 0 and episode != 0:
