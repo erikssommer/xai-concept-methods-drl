@@ -32,8 +32,8 @@ use_gpu: false
 
 # Debug config
 visualize_tree: false
-render: true
+render: false
 plot: false
 
 # Topp config
-nr_of_topp_games: 1 # g
+nr_of_topp_games: 2 # g
