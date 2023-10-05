@@ -69,7 +69,7 @@ class Tournament:
                     # Play a game until termination
                     while not terminated:
                         if moves > self.move_cap:
-                            print("Move cap reached, terminating game")
+                            print("Move cap reached in game between {} and {}, termination game!".format(self.agents[i].name, self.agents[j].name))
                             sleep(1)
                             break
 

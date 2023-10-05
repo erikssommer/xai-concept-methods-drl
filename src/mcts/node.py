@@ -40,19 +40,19 @@ class Node:
         """
         return np.sqrt(np.log(self.parent.visits) / (1 + self.visits))
 
-    def winning(self, root_player, game_state):
+    def reward(self, game_state):
         # Allways in perspective of black
         # Black is 0, white is 1
         # 0 is in game or draw, 1 is black win, -1 is black loss
         win = gogame.winning(game_state)
 
-        if root_player == govars.BLACK and win == 1:
+        if self.player == govars.BLACK and win == 1:
             return 1
-        elif root_player == govars.WHITE and win == -1:
+        elif self.player == govars.WHITE and win == -1:
             return -1
-        elif root_player == govars.BLACK and win == -1:
+        elif self.player == govars.BLACK and win == -1:
             return -1
-        elif root_player == govars.WHITE and win == 1:
+        elif self.player == govars.WHITE and win == 1:
             return 1
         else:
             return 0

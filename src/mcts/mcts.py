@@ -61,7 +61,7 @@ class MCTS:
                 moves += 1
 
         # Return the reward of the node given the player using node class even if it is not a terminal state
-        return self.root.winning(self.root.player, game_state)
+        return self.root.reward(game_state)
 
     def __calculate_ucb1(self, node: Node) -> float:
         """
