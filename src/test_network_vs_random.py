@@ -72,10 +72,10 @@ class TestMCTSvsRandom(unittest.TestCase):
         path = path + sorted_folders[-1]
 
         print("Loading model from: {}".format(path))
-        
+
         actor_net = ActorCriticNet(5, path)
 
-        games = 10
+        games = 100
         winns = 0
 
         for _ in range(games):
