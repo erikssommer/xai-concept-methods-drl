@@ -8,6 +8,7 @@ import numpy as np
 import gc
 import logging
 import time
+import os
 
 import env
 
@@ -40,6 +41,10 @@ class RL:
 
         # Create the neural network
         policy_nn = ActorCriticNet(board_size)
+
+        # Delete the ../tensorboard_logs directory if it exists
+        if os.path.exists('../tensorboard_logs'):
+            os.system('rm -rf ../tensorboard_logs')
 
         # Create a log directory with a timestamp
         logdir = f'../{config.log_dir}/' + time.strftime("%Y%m%d-%H%M%S")
