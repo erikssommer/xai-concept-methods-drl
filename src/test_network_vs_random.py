@@ -60,7 +60,19 @@ class TestMCTSvsRandom(unittest.TestCase):
 
         go_env.reset()
 
-        path = '../models/board_size_5/net_10.keras'
+       # Find the model with the highest number in the name from the models/board_size_5 folder
+        path = f'../models/board_size_{config.board_size}/'
+
+        folders = os.listdir(path)
+
+        # Sort the folders by the number in the name
+        sorted_folders = sorted(folders, key=lambda x: int(x.split('_')[-1].strip('.keras')))
+
+        # Get the last folder
+        path = path + sorted_folders[-1]
+
+        print("Loading model from: {}".format(path))
+        
         actor_net = ActorCriticNet(5, path)
 
         games = 10
