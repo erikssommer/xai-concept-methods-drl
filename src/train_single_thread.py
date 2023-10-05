@@ -2,7 +2,6 @@ import rl
 from utils import Timer, setup
 import os
 import logging
-from utils import config
 
 def train_models():
     model = rl.RL()

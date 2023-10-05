@@ -29,3 +29,9 @@ nohup python train.py > train_log.txt &
 nohup python train_multi_threading.py > train_log.txt &
 ```
 
+### Tensorboard
+> From the root directory
+```bash
+tensorboard --logdir tensorboard_logs/
+```
+

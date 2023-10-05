@@ -48,14 +48,16 @@ class ActorCriticNet:
         self.model.compile(
             loss={"policy_output": tf.keras.losses.CategoricalCrossentropy(), "value_output": tf.keras.losses.MeanSquaredError()},
             loss_weights={"policy_output": 1.0, "value_output": 1.0},
-            optimizer=tf.keras.optimizers.Adam(learning_rate=config.learning_rate))
+            optimizer=tf.keras.optimizers.Adam(learning_rate=config.learning_rate),
+            metrics=["accuracy"]
+            )
 
-    def fit(self, states, distributions, values, epochs=10):
+    def fit(self, states, distributions, values, callbacks=None, epochs=10):
         if config.use_gpu:
             with tf.device('/gpu:0'):
-                return self.model.fit(states, [distributions, values], verbose=0, epochs=epochs, batch_size=128)
+                return self.model.fit(states, [distributions, values], verbose=0, epochs=epochs, batch_size=128, callbacks=callbacks)
         else:
-            return self.model.fit(states, [distributions, values], verbose=0, epochs=epochs, batch_size=128)
+            return self.model.fit(states, [distributions, values], verbose=0, epochs=epochs, batch_size=128, callbacks=callbacks)
     
     # Define a prediction function
     def predict(self, state):

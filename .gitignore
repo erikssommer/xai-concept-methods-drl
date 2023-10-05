@@ -165,3 +165,5 @@ config.yml
 .vscode/
 
 models/
+
+tensorboard_logs/

@@ -1,12 +1,13 @@
+import tensorflow as tf
 from tqdm import tqdm
 from utils import config
-import utils
 from mcts import MCTS
 from rbuf import RBUF
 from policy import ActorCriticNet
 import numpy as np
 import gc
 import logging
+import time
 
 import env
 
@@ -16,7 +17,6 @@ logger = logging.getLogger(__name__)
 class RL:
 
     def learn(self):
-
         logger.info("RL training loop started")
 
         # Setting the activation of default policy network and critic network
@@ -40,6 +40,12 @@ class RL:
 
         # Create the neural network
         policy_nn = ActorCriticNet(board_size)
+
+        # Create a log directory with a timestamp
+        logdir = f'../{config.log_dir}/' + time.strftime("%Y%m%d-%H%M%S")
+
+        # Create a TensorBoard callback
+        tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=logdir)
 
         # Save initial random weights
         policy_nn.save_model(f"../models/board_size_{board_size}/net_0.keras")
@@ -120,8 +126,12 @@ class RL:
                 *rbuf.get(config.batch_size))
 
             # Train the neural network
-            policy_nn.fit(np.array(state_buffer), np.array(
-                distribution_buffer), np.array(value_buffer), epochs=10)
+            history = policy_nn.fit(np.array(state_buffer), np.array(
+                distribution_buffer), np.array(value_buffer), epochs=1, callbacks=[tensorboard_callback])
+            
+            with tf.summary.create_file_writer(logdir).as_default():
+                for loss in ["loss", "value_output_loss", "policy_output_loss"]:
+                    tf.summary.scalar(name=loss, data=history.history[loss][0], step=episode)
 
             # Save the neural network model
             if episode % save_interval == 0 and episode != 0:
