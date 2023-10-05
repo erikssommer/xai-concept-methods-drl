@@ -132,6 +132,16 @@ class MCTS:
         # Get the value from the tensor
         value = value.numpy()[0][0]
 
+        # The network validates the value in respect of the current player.
+        # Returns between 1 for good and -1 for bad even if the current player is white.
+        # If the current player is white, the value is inverted
+        
+        # Get the current player
+        current_player = gogame.turn(game_state)
+
+        if current_player == govars.WHITE:
+            value = -value
+
         return value
 
     def __backpropagate(self, node: Node, reward) -> None:
