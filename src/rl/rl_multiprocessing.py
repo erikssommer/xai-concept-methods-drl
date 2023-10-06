@@ -1,3 +1,5 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import tensorflow as tf
 from tqdm import tqdm
 import numpy as np
@@ -5,14 +7,14 @@ from multiprocessing import Pool
 from utils import config
 from mcts import mcts_loop
 from policy import ActorCriticNet
-from utils import tensorboard_setup
+from utils import tensorboard_setup, write_to_tensorboard
 import logging
 
 logger = logging.getLogger(__name__)
 
 def rl_multiprocessing():
     logger.info("RL training loop started")
-    
+
     gpus = tf.config.experimental.list_physical_devices('GPU')
 
     for gpu in gpus:
@@ -80,11 +82,7 @@ def rl_multiprocessing():
             )
 
             # Add the metrics to TensorBoard
-            with tf.summary.create_file_writer(logdir).as_default():
-                for loss in ["loss", "value_output_loss", "policy_output_loss"]:
-                    tf.summary.scalar(name=loss, data=history.history[loss][0], step=epoch)
-                for acc in ["value_output_accuracy", "policy_output_accuracy"]:
-                    tf.summary.scalar(name=acc, data=history.history[acc][0], step=epoch)
+            write_to_tensorboard(history, epoch, logdir)
 
             epsilon = epsilon * config.epsilon_decay
             sigma = sigma * config.sigma_decay

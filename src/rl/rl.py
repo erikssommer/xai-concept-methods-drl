@@ -1,3 +1,5 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import tensorflow as tf
 from tqdm import tqdm
 from utils import config
@@ -7,7 +9,7 @@ from policy import ActorCriticNet
 import numpy as np
 import gc
 import logging
-from utils import tensorboard_setup
+from utils import tensorboard_setup, write_to_tensorboard
 
 import env
 
@@ -16,6 +18,12 @@ logger = logging.getLogger(__name__)
 
 def rl():
     logger.info("RL training loop started")
+
+    gpus = tf.config.experimental.list_physical_devices('GPU')
+
+    for gpu in gpus:
+        tf.config.experimental.set_memory_growth(gpu, True)
+    
     # Setting the activation of default policy network and critic network
     epsilon = config.epsilon
     sigma = config.sigma
@@ -53,7 +61,7 @@ def rl():
         # Create the initial tree
         tree = MCTS(game_state, epsilon, sigma, simulations,
                     board_size, move_cap, c, policy_nn)
-        
+
         # For visualization only
 
         node = tree.root
@@ -114,22 +122,20 @@ def rl():
         # Train the neural network
         state_buffer, distribution_buffer, value_buffer = zip(
             *rbuf.get(config.batch_size))
-        
+
         # Train the neural network
-        history = policy_nn.fit(np.array(state_buffer), np.array(
-            distribution_buffer), np.array(value_buffer), epochs=1, callbacks=[tensorboard_callback])
+        history = policy_nn.fit(
+            np.array(state_buffer),
+            np.array(distribution_buffer),
+            np.array(value_buffer),
+            epochs=1,
+            callbacks=[tensorboard_callback]
+        )
 
         # Add the metrics to TensorBoard
-        with tf.summary.create_file_writer(logdir).as_default():
-            for loss in ["loss", "value_output_loss", "policy_output_loss"]:
-                tf.summary.scalar(
-                    name=loss, data=history.history[loss][0], step=episode)
-            for acc in ["value_output_accuracy", "policy_output_accuracy"]:
-                tf.summary.scalar(
-                    name=acc, data=history.history[acc][0], step=episode)
-                
-        # Save the neural network model
-        if episode % save_interval == 0 and episode != 0:
+        write_to_tensorboard(history, episode, logdir)
+        
+        if episode != 0 and episode % save_interval == 0:
             # Save the neural network model
             policy_nn.save_model(
                 f'../models/board_size_{board_size}/net_{episode}.keras')
@@ -144,5 +150,5 @@ def rl():
     # Save the final neural network model
     policy_nn.save_model(
         f'../models/board_size_{board_size}/net_{config.episodes}.keras')
-    
+
     logger.info("RL training loop ended")

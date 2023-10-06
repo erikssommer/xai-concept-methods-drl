@@ -13,11 +13,8 @@ def mcts_loop(args):
 
     go_env = env.GoEnv(size=board_size)
 
-    if epsilon != 1:
-        path = f'../models/board_size_{board_size}/net_{model_name}.keras'
-        policy_nn = ActorCriticNet(board_size, path)
-    else:
-        policy_nn = None
+    path = f'../models/board_size_{board_size}/net_{model_name}.keras'
+    policy_nn = ActorCriticNet(board_size, path)
 
     for _ in range(episodes):
         states = []
