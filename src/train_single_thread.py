@@ -1,17 +1,15 @@
-import rl
+from rl import rl
 from utils import Timer, folder_setup
 import os
 import logging
 
 def train_models():
-    model = rl.RL()
-
     # Start a timer
     timer = Timer()
     timer.start_timer()
 
-    # Train the models
-    model.learn()
+    # Train the models with reinforcement learning
+    rl()
 
     # End the timer
     timer.end_timer()

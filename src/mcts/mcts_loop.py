@@ -4,7 +4,7 @@ import gc
 from policy import ActorCriticNet
 import numpy as np
 
-def mcts_threading(args):
+def mcts_loop(args):
     thread, model_name, episodes, epsilon, sigma, move_cap, c, simulations, board_size = args
 
     state_buffer = []

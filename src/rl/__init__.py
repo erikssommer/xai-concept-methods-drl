@@ -1,2 +1,2 @@
-from .rl import RL
-from .mcts_threading import mcts_threading
+from .rl import rl
+from .rl_multiprocessing import rl_multiprocessing
