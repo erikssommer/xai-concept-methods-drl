@@ -5,9 +5,7 @@ from multiprocessing import Pool
 from utils import config
 from rl import mcts_threading
 from policy import ActorCriticNet
-import os
-from utils import setup
-import time
+from utils import folder_setup, tensorboard_setup
 
 if __name__ == '__main__':
 
@@ -18,7 +16,7 @@ if __name__ == '__main__':
 
     board_size = config.board_size
 
-    setup()
+    folder_setup()
 
     move_cap = board_size ** 2 * 5
 
@@ -38,15 +36,7 @@ if __name__ == '__main__':
     simulations = config.simulations
     episodes = config.episodes
 
-    # Delete the ../tensorboard_logs directory if it exists
-    if os.path.exists('../tensorboard_logs'):
-        os.system('rm -rf ../tensorboard_logs')
-
-    # Create a log directory with a timestamp
-    logdir = f'../{config.log_dir}/' + time.strftime("%Y%m%d-%H%M%S")
-
-    # Create a TensorBoard callback
-    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=logdir)
+    tensorboard_callback, logdir = tensorboard_setup()
 
     # Save initial random weights
     policy_nn.save_model(f"../models/board_size_{config.board_size}/net_0.keras")
@@ -87,6 +77,7 @@ if __name__ == '__main__':
                 callbacks=[tensorboard_callback]
             )
 
+            # Add the metrics to TensorBoard
             with tf.summary.create_file_writer(logdir).as_default():
                 for loss in ["loss", "value_output_loss", "policy_output_loss"]:
                     tf.summary.scalar(name=loss, data=history.history[loss][0], step=epoch)

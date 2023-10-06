@@ -9,6 +9,7 @@ import gc
 import logging
 import time
 import os
+from utils import tensorboard_setup
 
 import env
 
@@ -42,15 +43,7 @@ class RL:
         # Create the neural network
         policy_nn = ActorCriticNet(board_size)
 
-        # Delete the ../tensorboard_logs directory if it exists
-        if os.path.exists('../tensorboard_logs'):
-            os.system('rm -rf ../tensorboard_logs')
-
-        # Create a log directory with a timestamp
-        logdir = f'../{config.log_dir}/' + time.strftime("%Y%m%d-%H%M%S")
-
-        # Create a TensorBoard callback
-        tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=logdir)
+        tensorboard_callback, logdir = tensorboard_setup()
 
         # Save initial random weights
         policy_nn.save_model(f"../models/board_size_{board_size}/net_0.keras")
@@ -134,6 +127,7 @@ class RL:
             history = policy_nn.fit(np.array(state_buffer), np.array(
                 distribution_buffer), np.array(value_buffer), epochs=1, callbacks=[tensorboard_callback])
             
+            # Add the metrics to TensorBoard
             with tf.summary.create_file_writer(logdir).as_default():
                 for loss in ["loss", "value_output_loss", "policy_output_loss"]:
                     tf.summary.scalar(name=loss, data=history.history[loss][0], step=episode)

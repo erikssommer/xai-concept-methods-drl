@@ -1,5 +1,5 @@
 import rl
-from utils import Timer, setup
+from utils import Timer, folder_setup
 import os
 import logging
 
@@ -32,5 +32,5 @@ def set_logging_level():
 # Main method
 if __name__ == "__main__":
     set_logging_level()
-    setup()
+    folder_setup()
     train_models()
