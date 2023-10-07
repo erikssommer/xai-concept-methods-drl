@@ -1,6 +1,6 @@
 # MCTS config
-episodes: 1
-simulations: 100 # m
+episodes: 10
+simulations: 50 # m
 epsilon: 1
 epsilon_decay: 1
 sigma: 1
@@ -17,13 +17,17 @@ plot_accuracy: false
 move_cap: 200
 sample_ratio: 0.8
 
+# Tensorboard config
+log_dir: tensorboard_logs
+log_name: go
+
 # GO config
 board_size: 5 # k
 komi: 0
 
 # Threads
 multi_threading: true
-nr_of_threads: 6
+nr_of_threads: 4
 epochs: 10
 epoch_skip: 0
 

@@ -1,7 +1,7 @@
 import os
 from utils import config
 
-def setup():
+def folder_setup():
     board_size = config.board_size
     # Create the folder containing the models if it doesn't exist
     if not os.path.exists('../models'):

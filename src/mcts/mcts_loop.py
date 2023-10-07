@@ -4,7 +4,7 @@ import gc
 from policy import ActorCriticNet
 import numpy as np
 
-def mcts_threading(args):
+def mcts_loop(args):
     thread, model_name, episodes, epsilon, sigma, move_cap, c, simulations, board_size = args
 
     state_buffer = []
@@ -13,11 +13,8 @@ def mcts_threading(args):
 
     go_env = env.GoEnv(size=board_size)
 
-    if epsilon != 1:
-        path = f'../models/board_size_{board_size}/net_{model_name}.keras'
-        policy_nn = ActorCriticNet(board_size, path)
-    else:
-        policy_nn = None
+    path = f'../models/board_size_{board_size}/net_{model_name}.keras'
+    policy_nn = ActorCriticNet(board_size, path)
 
     for _ in range(episodes):
         states = []
