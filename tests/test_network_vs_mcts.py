@@ -30,7 +30,7 @@ class TestMCTSvsNetwork(unittest.TestCase):
         print("Loading model from: {}".format(path))
 
         actor_net = ActorCriticNet(5, path)
-        actor_mcts = MCTS(go_env.canonical_state(), 1, 1, 100, 5, 5**2*5)
+        actor_mcts = MCTS(go_env.state(), 1, 1, 100, 5, 5**2*5)
 
         games = 10
         winns = 0
@@ -80,7 +80,7 @@ class TestMCTSvsNetwork(unittest.TestCase):
         print("Loading model from: {}".format(path))
 
         actor_net = ActorCriticNet(5, path)
-        actor_mcts = MCTS(go_env.canonical_state(), 1, 1, 100, 5, 5**2*5)
+        actor_mcts = MCTS(go_env.state(), 1, 1, 100, 5, 5**2*5)
 
         games = 10
         winns = 0
