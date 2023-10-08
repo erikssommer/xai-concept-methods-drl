@@ -189,6 +189,14 @@ class MCTS:
     def set_root_node(self, node: Node) -> None:
         self.root = node
 
+    def set_root_node_with_action(self, action) -> None:
+        # Find the node with the given action
+        for child in self.root.children:
+            if child.action == action:
+                self.root = child
+                return
+        raise ValueError("Action not found in root children")
+
     def search(self) -> Tuple[Node, Any, List[float]]:
         for _ in range(self.simulations):
             leaf_node = self.__tree_search(self.root)  # Tree policy
