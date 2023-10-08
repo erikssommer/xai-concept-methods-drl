@@ -38,12 +38,11 @@ class TestMCTSvsNetwork(unittest.TestCase):
 
             while not game_over:
                 if go_env.turn() == 0:
-                    distribution, _ = actor_net.predict(go_env.state())
-                    action = np.argmax(distribution[0])
+                    action = actor_net.best_action(go_env.state())
                     _, _, game_over, _ = go_env.step(action)
                 else:
                     actor_mcts.set_root(go_env.state())
-                    best_action_node, _, distribution = actor_mcts.search()
+                    best_action_node, _, _ = actor_mcts.search()
                     _, _, game_over, _ = go_env.step(best_action_node.action)
             
             winner = go_env.winning()
@@ -89,12 +88,11 @@ class TestMCTSvsNetwork(unittest.TestCase):
 
             while not game_over:
                 if go_env.turn() == 1:
-                    distribution, _ = actor_net.predict(go_env.state())
-                    action = np.argmax(distribution[0])
+                    action = actor_net.best_action(go_env.state())
                     _, _, game_over, _ = go_env.step(action)
                 else:
                     actor_mcts.set_root(go_env.state())
-                    best_action_node, _, distribution = actor_mcts.search()
+                    best_action_node, _, _ = actor_mcts.search()
                     _, _, game_over, _ = go_env.step(best_action_node.action)
             
             winner = go_env.winning()

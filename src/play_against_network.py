@@ -34,8 +34,7 @@ if __name__ == "__main__":
 
         while not game_over:
             if go_env.turn() == 0:
-                distribution, _ = actor_net.predict(go_env.state())
-                action = np.argmax(distribution[0])
+                action = actor_net.best_action(go_env.state())
                 _, _, game_over, _ = go_env.step(action)
             else:
                 go_env.render()

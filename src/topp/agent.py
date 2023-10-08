@@ -2,6 +2,7 @@ import numpy as np
 from utils import config
 from env import gogame
 from policy import ActorCriticNet
+import random
 
 class Agent:
     def __init__(self, path, name):
@@ -24,12 +25,7 @@ class Agent:
 
     # Play a round of the turnament
     def choose_action(self, state):
-        distribution, _ = self.nn.predict(state)
-
-        # Choose the action with the highest probability
-        action = np.argmax(distribution[0])
-        
-        return action
+        return self.nn.best_action(state)
 
     # Add a win
     def add_win(self, player):

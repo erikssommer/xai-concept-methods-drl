@@ -74,11 +74,15 @@ class ActorCriticNet:
         else:
             res = self.model(state, training=False)
         
-        policy, values = res
+        policy, value = res
+
+        # Get the policy array and value number from the result
+        policy = policy[0]
+        value = value[0][0]
 
         policy = self.mask_invalid_moves(policy, state_copy)
         
-        return policy, values
+        return policy, value
     
     def mask_invalid_moves(self, policy, state):
         # Get invalid moves
@@ -86,11 +90,23 @@ class ActorCriticNet:
 
         # Mask the invalid moves
         policy = policy * valid_moves
+
+        # Reduce to 8 decimal places
+        policy = np.round(policy, 8)
     
         # Normalize the policy
         policy = utils.normalize(policy)
         
         return policy
+    
+    def best_action(self, state):
+        policy, _ = self.predict(state)
+
+        # Choose an action based on the policy
+        if config.alpha > np.random.random():
+            return np.random.choice(len(policy), p=policy)
+
+        return np.argmax(policy)
     
     def save_model(self, path):
         self.model.save(path)

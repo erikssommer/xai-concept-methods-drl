@@ -16,4 +16,4 @@ if __name__ == '__main__':
 
     # Plot the results
     if config.plot:
-        topp.plot_results()
+        topp.plot_results(True)

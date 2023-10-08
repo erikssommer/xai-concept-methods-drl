@@ -50,10 +50,7 @@ class MCTS:
 
             else:
                 # Rollout using distribution from neural network
-                distribution, _ = self.policy_nn.predict(game_state)
-
-                # Get the action
-                action = np.argmax(distribution[0])
+                action = self.policy_nn.best_action(game_state)
 
                 # Get the next state
                 game_state = gogame.next_state(game_state, action)
@@ -128,9 +125,6 @@ class MCTS:
 
         # Get the value from the policy network
         _, value = self.policy_nn.predict(game_state)
-
-        # Get the value from the tensor
-        value = value.numpy()[0][0]
 
         # The network validates the value in respect of the current player.
         # Returns between 1 for good and -1 for bad even if the current player is white.
