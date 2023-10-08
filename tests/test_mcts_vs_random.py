@@ -20,24 +20,23 @@ class TestMCTSvsRandom(unittest.TestCase):
         for _ in range(games):
             go_env = GoEnv(size=board_size)
             go_env.reset()
-            game_state = go_env.canonical_state()
+            game_state = go_env.state()
             curr_turn = go_env.turn()
             tree = MCTS(game_state, 1, 1, rollouts, board_size, board_size**2*5)
-            tree.set_root(game_state)
 
             terminated = False
 
             while not terminated:
                 if curr_turn == govars.BLACK:
-                    best_action_node, game_state, distribution = tree.search()
-                    state, reward, terminated, info = go_env.step(best_action_node.action)
+                    best_action_node, game_state, _ = tree.search()
+                    _, _, terminated, _ = go_env.step(best_action_node.action)
+                    tree.set_root_node(best_action_node)
                 else:
                     action = go_env.uniform_random_action()
-                    state, reward, terminated, info = go_env.step(action)
+                    _, _, terminated, _ = go_env.step(action)
                     
                     # Update the tree, may be done better
-                    tree = MCTS(game_state, 1, 1, rollouts, board_size, board_size**2*5)
-                    tree.set_root(state)
+                    tree.set_root_node_with_action(action)
                 
                 curr_turn = go_env.turn()
                 #go_env.render()
@@ -67,24 +66,29 @@ class TestMCTSvsRandom(unittest.TestCase):
         for _ in range(games):
             go_env = GoEnv(size=board_size)
             go_env.reset()
-            game_state = go_env.canonical_state()
+            game_state = go_env.state()
             curr_turn = go_env.turn()
             tree = MCTS(game_state, 1, 1, rollouts, board_size, board_size**2*5)
-            tree.set_root(game_state)
 
+            first_action = True
             terminated = False
 
             while not terminated:
                 if curr_turn == govars.WHITE:
-                    best_action_node, game_state, distribution = tree.search()
-                    state, reward, terminated, info = go_env.step(best_action_node.action)
+                    best_action_node, game_state, _ = tree.search()
+                    _, _, terminated, _ = go_env.step(best_action_node.action)
+
+                    tree.set_root_node(best_action_node)
                 else:
                     action = go_env.uniform_random_action()
-                    state, reward, terminated, info = go_env.step(action)
-                    
-                    # Update the tree, may be done better
-                    tree = MCTS(game_state, 1, 1, rollouts, board_size, board_size**2*5)
-                    tree.set_root(state)
+                    state, _, terminated, _ = go_env.step(action)
+
+                    # Need to set the root node to the state if it is the first move of the game
+                    if first_action:
+                        tree.set_root(state)
+                        first_action = False
+                    else:
+                        tree.set_root_node_with_action(action)
                 
                 curr_turn = go_env.turn()
                 #go_env.render()
