@@ -28,7 +28,7 @@ class TestMCTSvsRandom(unittest.TestCase):
 
             while not terminated:
                 if curr_turn == govars.BLACK:
-                    best_action_node, game_state, _ = tree.search()
+                    best_action_node, _ = tree.search()
                     _, _, terminated, _ = go_env.step(best_action_node.action)
                     tree.set_root_node(best_action_node)
                 else:
@@ -75,7 +75,7 @@ class TestMCTSvsRandom(unittest.TestCase):
 
             while not terminated:
                 if curr_turn == govars.WHITE:
-                    best_action_node, game_state, _ = tree.search()
+                    best_action_node, _ = tree.search()
                     _, _, terminated, _ = go_env.step(best_action_node.action)
 
                     tree.set_root_node(best_action_node)

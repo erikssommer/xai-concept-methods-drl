@@ -46,7 +46,7 @@ class TestMCTSvsNetwork(unittest.TestCase):
                     _, _, game_over, _ = go_env.step(action)
                 else:
                     actor_mcts.set_root(go_env.state())
-                    best_action_node, _, _ = actor_mcts.search()
+                    best_action_node, _ = actor_mcts.search()
                     _, _, game_over, _ = go_env.step(best_action_node.action)
             
             winner = go_env.winning()
@@ -96,7 +96,7 @@ class TestMCTSvsNetwork(unittest.TestCase):
                     _, _, game_over, _ = go_env.step(action)
                 else:
                     actor_mcts.set_root(go_env.state())
-                    best_action_node, _, _ = actor_mcts.search()
+                    best_action_node, _ = actor_mcts.search()
                     _, _, game_over, _ = go_env.step(best_action_node.action)
             
             winner = go_env.winning()
