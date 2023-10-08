@@ -56,7 +56,7 @@ def rl():
         go_env.reset()
 
         # Get the initial state
-        game_state = go_env.canonical_state()
+        game_state = go_env.state()
 
         # Create the initial tree
         tree = MCTS(game_state, epsilon, sigma, simulations,

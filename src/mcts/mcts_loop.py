@@ -23,7 +23,7 @@ def mcts_loop(args):
 
         go_env.reset()
 
-        game_state = go_env.canonical_state()
+        game_state = go_env.state()
 
         tree = MCTS(game_state, epsilon, sigma, simulations, board_size, move_cap, c, policy_nn)
         
