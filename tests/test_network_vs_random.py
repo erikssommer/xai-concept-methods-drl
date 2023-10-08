@@ -1,13 +1,13 @@
 import unittest
-import numpy as np
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir, 'src')))
 import env
 from policy import ActorCriticNet
-import os
 from utils import config
-from mcts import MCTS
 
-class TestMCTSvsNetwork(unittest.TestCase):
-    def test_network_as_black_vs_mcts(self):
+class TestMCTSvsRandom(unittest.TestCase):
+    def test_network_as_black_vs_random(self):
         go_env = env.GoEnv(size=5)
 
         go_env.reset()
@@ -26,9 +26,8 @@ class TestMCTSvsNetwork(unittest.TestCase):
         print("Loading model from: {}".format(path))
 
         actor_net = ActorCriticNet(5, path)
-        actor_mcts = MCTS(go_env.canonical_state(), 1, 1, 100, 5, 5**2*5)
 
-        games = 10
+        games = 100
         winns = 0
 
         for _ in range(games):
@@ -41,9 +40,8 @@ class TestMCTSvsNetwork(unittest.TestCase):
                     action = actor_net.best_action(go_env.state())
                     _, _, game_over, _ = go_env.step(action)
                 else:
-                    actor_mcts.set_root(go_env.state())
-                    best_action_node, _, _ = actor_mcts.search()
-                    _, _, game_over, _ = go_env.step(best_action_node.action)
+                    action = go_env.uniform_random_action()
+                    _, _, game_over, _ = go_env.step(action)
             
             winner = go_env.winning()
 
@@ -57,7 +55,7 @@ class TestMCTSvsNetwork(unittest.TestCase):
         assert win_probability >= 0.9
                 
 
-    def test_network_as_white_vs_mcts(self):
+    def test_network_as_white_vs_random(self):
         go_env = env.GoEnv(size=5)
 
         go_env.reset()
@@ -76,9 +74,8 @@ class TestMCTSvsNetwork(unittest.TestCase):
         print("Loading model from: {}".format(path))
 
         actor_net = ActorCriticNet(5, path)
-        actor_mcts = MCTS(go_env.canonical_state(), 1, 1, 100, 5, 5**2*5)
 
-        games = 10
+        games = 100
         winns = 0
 
         for _ in range(games):
@@ -91,9 +88,8 @@ class TestMCTSvsNetwork(unittest.TestCase):
                     action = actor_net.best_action(go_env.state())
                     _, _, game_over, _ = go_env.step(action)
                 else:
-                    actor_mcts.set_root(go_env.state())
-                    best_action_node, _, _ = actor_mcts.search()
-                    _, _, game_over, _ = go_env.step(best_action_node.action)
+                    action = go_env.uniform_random_action()
+                    _, _, game_over, _ = go_env.step(action)
             
             winner = go_env.winning()
 
