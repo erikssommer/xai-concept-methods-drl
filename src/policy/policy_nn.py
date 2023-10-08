@@ -102,10 +102,11 @@ class ActorCriticNet:
     def best_action(self, state):
         policy, _ = self.predict(state)
 
-        # Choose an action based on the policy
         if config.alpha > np.random.random():
+            # Selecting move randomly, but weighted by the distribution (0 = argmax, 1 = probablistic)
             return np.random.choice(len(policy), p=policy)
 
+        # Selecting move greedily
         return np.argmax(policy)
     
     def save_model(self, path):
