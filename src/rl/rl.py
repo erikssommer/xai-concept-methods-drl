@@ -73,7 +73,7 @@ def rl():
             # Get the player
             curr_player = go_env.turn()
             curr_state = go_env.state()
-            best_action_node, next_game_state, distribution = tree.search()
+            best_action_node, distribution = tree.search()
 
             # Visualize the tree
             if config.visualize_tree:
@@ -104,9 +104,7 @@ def rl():
                 go_env.render()
 
             # Update the root node of the mcts tree
-            tree.root = best_action_node
-
-            # tree.set_root(next_game_state)
+            tree.set_root_node(best_action_node)
 
             # Garbage collection
             gc.collect()

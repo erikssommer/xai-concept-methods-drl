@@ -33,7 +33,7 @@ def mcts_loop(args):
             current_player = go_env.turn()
             curr_game_state = go_env.state()
 
-            best_action_node, game_state, distribution = tree.search()
+            best_action_node, distribution = tree.search()
 
             # Remove the 3 and 5 index from the current state
             curr_game_state = np.delete(curr_game_state, [3, 5], axis=0)

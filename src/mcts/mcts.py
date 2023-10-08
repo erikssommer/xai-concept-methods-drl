@@ -197,17 +197,17 @@ class MCTS:
                 return
         raise ValueError("Action not found in root children")
 
-    def search(self) -> Tuple[Node, Any, List[float]]:
+    def search(self) -> Tuple[Node, List[float]]:
         for _ in range(self.simulations):
             leaf_node = self.__tree_search(self.root)  # Tree policy
             reward = self.__simulate(leaf_node.state)  # Rollout
             self.__backpropagate(leaf_node, reward)  # Backpropagation
 
         # Use the edge (from the root) with the highest visit count as the actual move.
-        best_move = self.__get_best_move()
+        best_move_node = self.__get_best_move()
         distribution = self.__get_distribution()
 
-        return best_move, best_move.state, distribution
+        return best_move_node, distribution
 
     def reset(self) -> None:
         del self.root
