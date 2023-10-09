@@ -8,7 +8,7 @@ from .agent import Agent
 import random
 from utils import config
 
-class Tournament:
+class Topp:
     def __init__(self, num_games, render: bool = False):
         self.num_nn = 0
         self.num_games = num_games

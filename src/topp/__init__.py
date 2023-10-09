@@ -1,1 +1,1 @@
-from .topp import Tournament
+from .topp import Topp

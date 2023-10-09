@@ -21,7 +21,3 @@ def folder_setup():
             else:
                 # Delete the file
                 os.remove(f'../models/training/board_size_{board_size}/{folder}')
-    
-    # Create the folder containing the visualizations if it doesn't exist
-    if not os.path.exists('../log/visualization'):
-        os.makedirs('../log/visualization')

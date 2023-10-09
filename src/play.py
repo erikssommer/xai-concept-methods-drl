@@ -1,11 +1,14 @@
 import env
 import os
 from policy import ActorCriticNet
-import numpy as np
 from utils import config
-from env import gogame
 
 if __name__ == "__main__":
+
+    """
+    Play against the best model
+    """
+
     go_env = env.GoEnv(size=5)
 
     go_env.reset()

@@ -6,20 +6,39 @@ Master Specialization Project
 pip install -r requirements.txt
 ```
 
-### Run the application
+### Set the environment variables in the config file
+```bash
+nano config.py
+```
+
+### Train models
 ```bash
 cd src
-python main.py
+python train.py
+```
+
+### Play against the trained models
+```bash
+cd src
+python play.py
+```
+
+### Topp - tournament of progressive policies
+```bash
+cd src
+python tournament.py
 ```
 
 ### Run the tests
+> From the tests directory
+```bash
+python test_name.py
+```
+
+### Run training on Idun
 > From the root directory
 ```bash
-python -m unittest tests."filename"
-```
-> Example
-```bash
-python -m unittest tests.random_play_test
+sbatch job.slurm
 ```
 
 ### Run the training on the server in the background with logs
@@ -34,4 +53,11 @@ nohup python train_multi_threading.py > train_log.txt &
 ```bash
 tensorboard --logdir tensorboard_logs/
 ```
+
+### Concept Activation Vectors
+> From the notebooks directory
+
+Run concept_detection.ipynb to get the concept activation vectors
+
+Run concept_detection.ipynb to get the concept activation vectors visualized
 

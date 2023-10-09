@@ -1,8 +1,5 @@
-import numpy as np
 from utils import config
-from env import gogame
 from policy import ActorCriticNet
-import random
 
 class Agent:
     def __init__(self, path, name):
