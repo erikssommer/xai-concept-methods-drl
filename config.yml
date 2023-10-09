@@ -1,5 +1,5 @@
 # MCTS config
-episodes: 10
+episodes: 1
 simulations: 10 # m
 epsilon: 1 # rollout
 epsilon_decay: 1
@@ -27,7 +27,7 @@ board_size: 5 # k
 komi: 0
 
 # Threads
-multi_process: false
+multi_process: true
 nr_of_threads: 4
 epochs: 10
 epoch_skip: 0
