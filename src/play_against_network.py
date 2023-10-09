@@ -11,7 +11,7 @@ if __name__ == "__main__":
     go_env.reset()
 
     # Find the model with the highest number in the name from the models/board_size_5 folder
-    path = f'../models/board_size_{config.board_size}/'
+    path = f'../models/best_models/board_size_{config.board_size}/'
 
     folders = os.listdir(path)
 

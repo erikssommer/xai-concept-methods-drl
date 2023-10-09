@@ -13,7 +13,7 @@ class TestMCTSvsRandom(unittest.TestCase):
         go_env.reset()
 
         # Find the model with the highest number in the name from the models/board_size_5 folder
-        path = f'../models/board_size_{config.board_size}/'
+        path = f'../models/training/board_size_{config.board_size}/'
 
         folders = os.listdir(path)
 
@@ -61,7 +61,7 @@ class TestMCTSvsRandom(unittest.TestCase):
         go_env.reset()
 
        # Find the model with the highest number in the name from the models/board_size_5 folder
-        path = f'../models/board_size_{config.board_size}/'
+        path = f'../models/training/board_size_{config.board_size}/'
 
         folders = os.listdir(path)
 
