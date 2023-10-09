@@ -1,7 +1,6 @@
 pyyaml
 tqdm
 numpy
-numba
 tensorflow==2.13.*
 scikit-learn
 scipy

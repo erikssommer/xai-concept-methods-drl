@@ -6,8 +6,6 @@ from sklearn import preprocessing
 import env.govars as govars
 import env.state_utils as state_utils
 
-from numba import njit
-
 """
 The state of the game is a numpy array
 * Are values are either 0 or 1
@@ -208,7 +206,6 @@ def prev_player_passed(state):
 def batch_prev_player_passed(batch_state):
     return np.max(batch_state[:, govars.PASS_CHNL], axis=(1, 2)) == 1
 
-@njit
 def game_ended(state):
     """
     :param state:
