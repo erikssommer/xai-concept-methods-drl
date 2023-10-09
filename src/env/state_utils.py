@@ -4,6 +4,11 @@ from scipy.ndimage import label
 
 from . import govars
 
+"""
+Code from cloned from: https://github.com/aigagror/GymGo
+Some ajustments has been made to fit the project
+"""
+
 group_struct = np.array([[[0, 0, 0],
                           [0, 0, 0],
                           [0, 0, 0]],

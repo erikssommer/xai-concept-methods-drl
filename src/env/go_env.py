@@ -4,6 +4,11 @@ import numpy as np
 from . import govars
 from . import gogame
 
+"""
+Code from cloned from: https://github.com/aigagror/GymGo
+Some ajustments has been made to fit the project
+"""
+
 class RewardMethod(Enum):
     """
     REAL: 0 = game is ongoing, 1 = black won, -1 = game tied or white won

@@ -1,3 +1,8 @@
+"""
+Code from cloned from: https://github.com/aigagror/GymGo
+Some ajustments has been made to fit the project
+"""
+
 ANYONE = None
 NOONE = -1
 

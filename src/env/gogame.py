@@ -7,6 +7,11 @@ import env.govars as govars
 import env.state_utils as state_utils
 
 """
+Code from cloned from: https://github.com/aigagror/GymGo
+Some ajustments has been made to fit the project
+"""
+
+"""
 The state of the game is a numpy array
 * Are values are either 0 or 1
 
