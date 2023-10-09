@@ -12,20 +12,20 @@ nano config.py
 ```
 
 ### Train models
+> From the src directory
 ```bash
-cd src
 python train.py
 ```
 
 ### Play against the trained models
+> From the src directory
 ```bash
-cd src
 python play.py
 ```
 
 ### Topp - tournament of progressive policies
+> From the src directory
 ```bash
-cd src
 python tournament.py
 ```
 
