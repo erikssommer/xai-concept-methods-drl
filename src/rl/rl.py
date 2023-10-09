@@ -69,20 +69,6 @@ def rl():
             curr_state = go_env.state()
             best_action_node, distribution = tree.search()
 
-            # Visualize the tree
-            if config.visualize_tree:
-                graph = node.visualize_tree()
-                graph.render(view=True)
-                node = best_action_node
-
-            if config.render:
-                # Print the distribution
-                print(f"Distribution: {distribution}")
-                # Print valid moves
-                print(f"Valid moves: {go_env.valid_moves()}")
-                # Plot the distribution
-                #plot_distribution(distribution)
-
             # Remove array index 3 and 5 from the current state making it an shape of (4, 5, 5)
             curr_state = np.delete(curr_state, [3, 5], axis=0)
 

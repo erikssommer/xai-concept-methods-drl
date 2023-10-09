@@ -36,7 +36,6 @@ epoch_skip: 0
 use_gpu: false
 
 # Debug config
-visualize_tree: false
 render: false
 plot: true
 
