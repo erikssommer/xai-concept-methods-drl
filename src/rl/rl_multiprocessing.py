@@ -80,8 +80,8 @@ def rl_multiprocessing():
             # Add the metrics to TensorBoard
             write_to_tensorboard(history, epoch, logdir)
 
-            epsilon = epsilon * config.epsilon_decay
-            sigma = sigma * config.sigma_decay
+            epsilon -= config.epsilon_decay
+            sigma -= config.sigma_decay
         
         if (epoch % save_interval) == 0:
             policy_nn.save_model(f"../models/training/board_size_{config.board_size}/net_{epoch}.keras")

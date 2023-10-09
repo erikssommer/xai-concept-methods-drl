@@ -116,8 +116,8 @@ def rl():
                 f'../models/training/board_size_{board_size}/net_{episode}.keras')
 
         # Updating sigma and epsilon
-        epsilon = epsilon * config.epsilon_decay
-        sigma = sigma * config.sigma_decay
+        epsilon -= config.epsilon_decay
+        sigma -= config.sigma_decay
 
         # Garbadge collection
         gc.collect()
