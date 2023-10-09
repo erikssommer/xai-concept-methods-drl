@@ -187,6 +187,7 @@ class MCTS:
         self.root = Node(state)
 
     def set_root_node(self, node: Node) -> None:
+        del self.root
         self.root = node
 
     def set_root_node_with_action(self, action) -> None:
@@ -206,6 +207,9 @@ class MCTS:
         # Use the edge (from the root) with the highest visit count as the actual move.
         best_move_node = self.__get_best_move()
         distribution = self.__get_distribution()
+
+        # Remove the reference to the parent node and delete the parent
+        best_move_node.parent = None
 
         return best_move_node, distribution
 
