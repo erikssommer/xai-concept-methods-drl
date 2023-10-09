@@ -48,7 +48,7 @@ def rl():
     tensorboard_callback, logdir = tensorboard_setup()
 
     # Save initial random weights
-    policy_nn.save_model(f"../models/board_size_{board_size}/net_0.keras")
+    policy_nn.save_model(f"../models/training/board_size_{board_size}/net_0.keras")
 
     # Loop through the number of episodes
     for episode in tqdm(range(config.episodes)):
@@ -136,7 +136,7 @@ def rl():
         if episode != 0 and episode % save_interval == 0:
             # Save the neural network model
             policy_nn.save_model(
-                f'../models/board_size_{board_size}/net_{episode}.keras')
+                f'../models/training/board_size_{board_size}/net_{episode}.keras')
 
         # Updating sigma and epsilon
         epsilon = epsilon * config.epsilon_decay
@@ -147,6 +147,6 @@ def rl():
 
     # Save the final neural network model
     policy_nn.save_model(
-        f'../models/board_size_{board_size}/net_{config.episodes}.keras')
+        f'../models/training/board_size_{board_size}/net_{config.episodes}.keras')
 
     logger.info("RL training loop ended")

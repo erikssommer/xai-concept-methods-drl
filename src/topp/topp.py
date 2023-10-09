@@ -17,7 +17,7 @@ class Tournament:
         self.move_cap = 100
 
     def add_agents(self):
-        path = f'../models/board_size_{config.board_size}'
+        path = f'../models/training/board_size_{config.board_size}'
 
         folders = os.listdir(path)
 

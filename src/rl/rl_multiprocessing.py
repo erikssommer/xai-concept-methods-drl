@@ -43,7 +43,7 @@ def rl_multiprocessing():
     tensorboard_callback, logdir = tensorboard_setup()
 
     # Save initial random weights
-    policy_nn.save_model(f"../models/board_size_{config.board_size}/net_0.keras")
+    policy_nn.save_model(f"../models/training/board_size_{config.board_size}/net_0.keras")
 
     for epoch in tqdm(range(1, config.epochs + 1)):
         with Pool(config.nr_of_threads) as pool:
@@ -88,10 +88,10 @@ def rl_multiprocessing():
             sigma = sigma * config.sigma_decay
         
         if (epoch % save_interval) == 0:
-            policy_nn.save_model(f"../models/board_size_{config.board_size}/net_{epoch}.keras")
+            policy_nn.save_model(f"../models/training/board_size_{config.board_size}/net_{epoch}.keras")
             model_name = epoch
     
     # Save the final neural network model
-    policy_nn.save_model(f"../models/board_size_{config.board_size}/net_{config.epochs}.keras")
+    policy_nn.save_model(f"../models/training/board_size_{config.board_size}/net_{config.epochs}.keras")
 
     logger.info("RL training loop ended")

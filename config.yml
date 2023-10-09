@@ -27,7 +27,7 @@ board_size: 5 # k
 komi: 0
 
 # Threads
-multi_process: true
+multi_process: false
 nr_of_threads: 4
 epochs: 10
 epoch_skip: 0

@@ -164,6 +164,6 @@ config.yml
 
 .vscode/
 
-models/
+models/training/
 
 tensorboard_logs/
