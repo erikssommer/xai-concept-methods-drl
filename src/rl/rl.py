@@ -8,7 +8,7 @@ from rbuf import RBUF
 from policy import ActorCriticNet
 import numpy as np
 import gc
-from utils import tensorboard_setup, write_to_tensorboard, plot_distribution
+from utils import tensorboard_setup, write_to_tensorboard
 
 import env
 
@@ -56,9 +56,6 @@ def rl():
         # Create the initial tree
         tree = MCTS(game_state, epsilon, sigma, simulations,
                     board_size, move_cap, c, policy_nn)
-
-        # For visualization only
-        node = tree.root
 
         # Play a game until termination
         game_over = False
