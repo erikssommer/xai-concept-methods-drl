@@ -1,7 +1,8 @@
-from rl import rl
+from rl import rl, rl_multiprocessing
 from utils import Timer, folder_setup
 import os
 import logging
+from utils import config
 
 def train_models():
     # Start a timer
@@ -9,7 +10,10 @@ def train_models():
     timer.start_timer()
 
     # Train the models with reinforcement learning
-    rl()
+    if config.multi_process:
+        rl_multiprocessing()
+    else:
+        rl()
 
     # End the timer
     timer.end_timer()
