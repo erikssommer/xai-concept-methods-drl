@@ -8,16 +8,11 @@ from rbuf import RBUF
 from policy import ActorCriticNet
 import numpy as np
 import gc
-import logging
-from utils import tensorboard_setup, write_to_tensorboard
+from utils import tensorboard_setup, write_to_tensorboard, plot_distribution
 
 import env
 
-logger = logging.getLogger(__name__)
-
-
 def rl():
-    logger.info("RL training loop started")
 
     gpus = tf.config.experimental.list_physical_devices('GPU')
 
@@ -63,10 +58,9 @@ def rl():
                     board_size, move_cap, c, policy_nn)
 
         # For visualization only
-
         node = tree.root
-        # Play a game until termination
 
+        # Play a game until termination
         game_over = False
 
         while not game_over:
@@ -78,7 +72,7 @@ def rl():
             # Visualize the tree
             if config.visualize_tree:
                 graph = node.visualize_tree()
-                graph.render('../../log/visualization/tree', view=True)
+                graph.render(view=True)
                 node = best_action_node
 
             if config.render:
@@ -87,7 +81,7 @@ def rl():
                 # Print valid moves
                 print(f"Valid moves: {go_env.valid_moves()}")
                 # Plot the distribution
-                # utils.plot_distribution(distribution)
+                #plot_distribution(distribution)
 
             # Remove array index 3 and 5 from the current state making it an shape of (4, 5, 5)
             curr_state = np.delete(curr_state, [3, 5], axis=0)
@@ -148,5 +142,3 @@ def rl():
     # Save the final neural network model
     policy_nn.save_model(
         f'../models/training/board_size_{board_size}/net_{config.episodes}.keras')
-
-    logger.info("RL training loop ended")

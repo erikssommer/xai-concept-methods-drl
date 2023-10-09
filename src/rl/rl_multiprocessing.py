@@ -8,12 +8,8 @@ from utils import config
 from mcts import mcts_loop
 from policy import ActorCriticNet
 from utils import tensorboard_setup, write_to_tensorboard
-import logging
-
-logger = logging.getLogger(__name__)
 
 def rl_multiprocessing():
-    logger.info("RL training loop started")
 
     gpus = tf.config.experimental.list_physical_devices('GPU')
 
@@ -93,5 +89,3 @@ def rl_multiprocessing():
     
     # Save the final neural network model
     policy_nn.save_model(f"../models/training/board_size_{config.board_size}/net_{config.epochs}.keras")
-
-    logger.info("RL training loop ended")
