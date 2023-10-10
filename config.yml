@@ -5,7 +5,7 @@ epsilon: 1.0 # rollout
 epsilon_decay: 0.002
 sigma: 1.0 # critic
 sigma_decay: 0.0007
-alpha: 0.8 # Selecting move randomly, but weighted by the distribution (0 = argmax, 1 = probablistic)
+alpha: 0.2 # Selecting move randomly, but weighted by the distribution (0 = argmax, 1 = probablistic)
 alpha_decay: 0.0007
 c: 1.3
 
