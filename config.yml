@@ -11,13 +11,14 @@ c: 1.3
 
 # Neural Network config
 nr_of_anets: 20 # m
-rbuf_size: 2048
-rbuf_cap: 10000
 learning_rate: 0.001
-batch_size: 512
-plot_accuracy: false
 move_cap: 200
+
+# Replay buffer config
+rbuf_size: 2048 # Single process
+rbuf_cap: 10000 # Multi process
 sample_ratio: 0.8
+batch_size: 512
 
 # Tensorboard config
 log_dir: tensorboard_logs
@@ -38,7 +39,7 @@ use_gpu: false
 
 # Debug config
 render: false
-plot: true
+plot: false
 
 # Topp config
 nr_of_topp_games: 2 # g
