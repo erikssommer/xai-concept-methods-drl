@@ -30,6 +30,7 @@ def rl():
     move_cap = board_size ** 2 * 5
     save_interval = config.episodes // config.nr_of_anets
     canonical_board = config.canonical_board
+    sample_ratio = config.sample_ratio
 
     # Creation replay buffer
     rbuf = RBUF(config.rbuf_size)
@@ -82,7 +83,8 @@ def rl():
             print(curr_state)
 
             # Add the case to the replay buffer
-            rbuf.add_case(curr_player, curr_state, distribution)
+            if np.random.random() < sample_ratio:
+                rbuf.add_case(curr_player, curr_state, distribution)
 
             # Apply the action to the environment
             _, _, game_over, _ = go_env.step(
