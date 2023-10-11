@@ -30,9 +30,6 @@ def rl():
     move_cap = board_size ** 2 * 5
     save_interval = config.episodes // config.nr_of_anets
 
-    # Create the environment
-    go_env = env.GoEnv(size=board_size)
-
     # Creation replay buffer
     rbuf = RBUF(config.rbuf_size)
 
@@ -47,14 +44,17 @@ def rl():
 
     # Loop through the number of episodes
     for episode in tqdm(range(config.episodes)):
+        # Create the environment
+        go_env = env.GoEnv(size=board_size)
+
         # Reset the environment
         go_env.reset()
 
         # Get the initial state
-        game_state = go_env.state()
+        init_state = go_env.state()
 
         # Create the initial tree
-        tree = MCTS(game_state, epsilon, sigma, simulations,
+        tree = MCTS(init_state, epsilon, sigma, simulations,
                     board_size, move_cap, c, policy_nn)
 
         # Play a game until termination
@@ -119,7 +119,9 @@ def rl():
         epsilon -= config.epsilon_decay
         sigma -= config.sigma_decay
 
-        # Garbadge collection
+        # Delete references and garbadge collection
+        del tree
+        del go_env
         gc.collect()
 
     # Save the final neural network model
