@@ -29,6 +29,7 @@ def rl():
     board_size = config.board_size
     move_cap = board_size ** 2 * 5
     save_interval = config.episodes // config.nr_of_anets
+    canonical_board = config.canonical_board
 
     # Creation replay buffer
     rbuf = RBUF(config.rbuf_size)
@@ -63,11 +64,22 @@ def rl():
         while not game_over:
             # Get the player
             curr_player = go_env.turn()
-            curr_state = go_env.state()
+            if canonical_board:
+                curr_state = go_env.canonical_state()
+            else:
+                curr_state = go_env.state()
+
             best_action_node, distribution = tree.search()
+
+            # Represent the board as a canonical board (black always to play)
+            if canonical_board and curr_player == env.govars.WHITE:
+                # Set the current player to the current player
+                env.state_utils.set_turn(curr_state)
 
             # Remove array index 3 and 5 from the current state making it an shape of (4, 5, 5)
             curr_state = np.delete(curr_state, [3, 5], axis=0)
+
+            print(curr_state)
 
             # Add the case to the replay buffer
             rbuf.add_case(curr_player, curr_state, distribution)
