@@ -183,18 +183,22 @@ class MCTS:
         return distribution
 
     def set_root(self, state) -> None:
+        self.root = None
         del self.root
         self.root = Node(state)
 
     def set_root_node(self, node: Node) -> None:
-        del self.root
         self.root = node
+        # Remove the reference to the parent node and delete the parent
+        self.root.parent = None
 
     def set_root_node_with_action(self, action) -> None:
         # Find the node with the given action
         for child in self.root.children:
             if child.action == action:
                 self.root = child
+                # Remove the reference to the parent node and delete the parent
+                self.root.parent = None
                 return
         raise ValueError("Action not found in root children")
 
@@ -207,9 +211,6 @@ class MCTS:
         # Use the edge (from the root) with the highest visit count as the actual move.
         best_move_node = self.__get_best_move()
         distribution = self.__get_distribution()
-
-        # Remove the reference to the parent node and delete the parent
-        best_move_node.parent = None
 
         return best_move_node, distribution
 
