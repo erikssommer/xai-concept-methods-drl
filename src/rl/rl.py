@@ -80,10 +80,8 @@ def rl():
             # Remove array index 3 and 5 from the current state making it an shape of (4, 5, 5)
             curr_state = np.delete(curr_state, [3, 5], axis=0)
 
-            print(curr_state)
-
             # Add the case to the replay buffer
-            if np.random.random() < sample_ratio:
+            if np.random.random() > sample_ratio:
                 rbuf.add_case(curr_player, curr_state, distribution)
 
             # Apply the action to the environment

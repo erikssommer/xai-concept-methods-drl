@@ -27,7 +27,7 @@ log_name: go
 # GO config
 board_size: 5 # k
 komi: 0
-canonical_board: true
+canonical_board: false
 
 # Threads
 multi_process: false
