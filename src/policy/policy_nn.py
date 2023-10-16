@@ -3,6 +3,7 @@ import numpy as np
 from utils import config
 from env import gogame
 import utils
+from tqdm import tqdm
 
 class ActorCriticNet:
     def __init__(self, board_size, load_path=None):
@@ -51,6 +52,25 @@ class ActorCriticNet:
             optimizer=tf.keras.optimizers.Adam(learning_rate=config.learning_rate),
             metrics=["accuracy"]
             )
+    
+    def get_all_resblock_outputs(self, boards):
+        """Returns a model that gives the activations from resnet-blocks"""
+        if len(boards.shape) == 3:
+            boards = np.reshape(boards, (1, *boards.shape))
+
+        # All inputs
+        inp = self.model.input
+        # All outputs of the residual blocks
+        outputs = [layer.output for layer in self.model.layers if "conv" in layer.name]
+        functor = tf.keras.backend.function([inp], outputs)
+
+        BATCH_SIZE = 32
+        all_layer_outs = []
+        for i in tqdm(range(0, boards.shape[0], BATCH_SIZE), desc="Getting resblock outputs"):
+            layer_outs = functor([boards[i:i + BATCH_SIZE]])
+            all_layer_outs.append(layer_outs)
+
+        return all_layer_outs
 
     def fit(self, states, distributions, values, callbacks=None, epochs=10):
         if config.use_gpu:
