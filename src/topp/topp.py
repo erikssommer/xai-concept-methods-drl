@@ -17,7 +17,7 @@ class Topp:
         self.move_cap = 100
         self.dir = dir
 
-    def add_agents(self):
+    def add_agents(self, greedy_move: bool = False):
         path = f'../models/{self.dir}/board_size_{config.board_size}'
 
         folders = os.listdir(path)
@@ -27,7 +27,7 @@ class Topp:
 
         # Add the agents
         for folder in sorted_folders:
-            self.agents.append(Agent(path, folder))
+            self.agents.append(Agent(path, folder, greedy_move))
             self.num_nn += 1
 
         if len(self.agents) == 0:

@@ -119,8 +119,11 @@ class ActorCriticNet:
         
         return policy
     
-    def best_action(self, state):
+    def best_action(self, state, greedy_move=False):
         policy, _ = self.predict(state)
+
+        if greedy_move:
+            return np.argmax(policy)
 
         if config.alpha > np.random.random():
             # Selecting move randomly, but weighted by the distribution (0 = argmax, 1 = probablistic)

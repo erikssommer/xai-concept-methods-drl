@@ -2,8 +2,9 @@ from utils import config
 from policy import ActorCriticNet
 
 class Agent:
-    def __init__(self, path, name):
+    def __init__(self, path, name, greedy_move: bool = False):
         self.name = name # Naming the player the same as the network for clarity
+        self.greedy_move = greedy_move
 
         self.player_black = 0
         self.player_white = 0
@@ -22,7 +23,7 @@ class Agent:
 
     # Play a round of the turnament
     def choose_action(self, state):
-        return self.nn.best_action(state)
+        return self.nn.best_action(state, self.greedy_move)
 
     # Add a win
     def add_win(self, player):
