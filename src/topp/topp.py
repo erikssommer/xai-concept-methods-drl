@@ -9,15 +9,16 @@ import random
 from utils import config
 
 class Topp:
-    def __init__(self, num_games, render: bool = False):
+    def __init__(self, num_games, render: bool = False, dir: str = 'training'):
         self.num_nn = 0
         self.num_games = num_games
         self.render = render
         self.agents: Agent = []
         self.move_cap = 100
+        self.dir = dir
 
     def add_agents(self):
-        path = f'../models/training/board_size_{config.board_size}'
+        path = f'../models/{self.dir}/board_size_{config.board_size}'
 
         folders = os.listdir(path)
 
@@ -119,7 +120,7 @@ class Topp:
                         starting_agent = i
 
 
-    def plot_results(self, block):
+    def plot_results(self, block=True):
         plt.clf()
         plt.ion()
         # x is agent name
@@ -131,7 +132,8 @@ class Topp:
 
         d = {'Agent': x*3, 'Wins': z_1 + z_2 + y, 'Player': ['Black']*len(x) + ['White']*len(x) + ['Total']*len(x)}
         df = pd.DataFrame(data=d)
-
+        # Set a larger width
+        plt.figure(figsize=(12, 8))
         sns.barplot(x='Agent', y='Wins', hue='Player', data=df)
         plt.show(block=block)
 
