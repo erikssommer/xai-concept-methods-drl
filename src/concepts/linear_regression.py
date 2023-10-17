@@ -11,6 +11,9 @@ def perform_regression(points, targets, validation_points, validation_targets, i
 
 
 def perform_logistic_regression(points, targets, validation_points, validation_targets):
+    """
+    Classification using logistic regression
+    """
     inputs = tf.keras.layers.Input((points.shape[1]))
     output = tf.keras.layers.Dense(1, activation="sigmoid", kernel_regularizer=tf.keras.regularizers.L1(l1=0.01))(inputs)
 
@@ -26,6 +29,9 @@ def perform_logistic_regression(points, targets, validation_points, validation_t
 
 
 def perform_linear_regression(points, targets, validation_points, validation_targets):
+    """
+    Regression using linear regression
+    """
     model = linear_model.LinearRegression()
     model = model.fit(points, targets)
     predictions = model.predict(validation_points)
