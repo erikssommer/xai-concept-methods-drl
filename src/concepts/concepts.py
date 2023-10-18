@@ -22,7 +22,7 @@ def concept_win_on_pass(game_state) -> bool:
     black_area, white_area = gogame.areas(game_state)
 
     # 4th index is the pass move
-    prev_move_is_pass = game_state[4][0] == 1
+    prev_move_is_pass = game_state[4][0][0] == 1
     
     if turn == govars.BLACK:
         return prev_move_is_pass and black_area > white_area
