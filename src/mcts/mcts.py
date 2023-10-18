@@ -1,7 +1,7 @@
 import numpy as np
 import random
 from .node import Node
-from typing import Tuple, List, Any
+from typing import Tuple, List
 from env import govars
 from env import gogame
 import utils
