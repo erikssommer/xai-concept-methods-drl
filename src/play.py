@@ -14,7 +14,7 @@ if __name__ == "__main__":
     go_env.reset()
 
     # Find the model with the highest number in the name from the models/board_size_5 folder
-    path = f'../models/best_models/board_size_{config.board_size}/'
+    path = f'../models/play_against/board_size_{config.board_size}/'
 
     folders = os.listdir(path)
 
@@ -24,11 +24,18 @@ if __name__ == "__main__":
     # Get the last folder
     path = path + sorted_folders[-1]
 
-    print("Loading model from: {}".format(path))
     actor_net = ActorCriticNet(config.board_size, path)
+    greedy_move = True
 
     games = 1
     winns = 0
+
+    start_player = input("Do you want to start? (y/n): ")
+
+    # Test if the user typed either y or n
+    while start_player not in ["y", "n"]:
+        print("Invalid input, try again")
+        start_player = input("Do you want to start? (y/n): ")
 
     for _ in range(games):
         go_env.reset()
@@ -36,8 +43,11 @@ if __name__ == "__main__":
         game_over = False
 
         while not game_over:
-            if go_env.turn() == 0:
-                action = actor_net.best_action(go_env.state())
+            if go_env.turn() == 0 and start_player == "n":
+                action = actor_net.best_action(go_env.state(), greedy_move)
+                _, _, game_over, _ = go_env.step(action)
+            elif go_env.turn() == 1 and start_player == "y":
+                action = actor_net.best_action(go_env.state(), greedy_move)
                 _, _, game_over, _ = go_env.step(action)
             else:
                 go_env.render()
