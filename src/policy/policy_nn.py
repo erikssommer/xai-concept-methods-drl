@@ -6,7 +6,7 @@ import utils
 from tqdm import tqdm
 
 class ActorCriticNet:
-    def __init__(self, board_size, load_path=None):
+    def __init__(self, board_size, load_path=None, summary=True):
         """
         Neural network for the actor-critic policy.
 
@@ -43,8 +43,9 @@ class ActorCriticNet:
             value_output = tf.keras.layers.Dense(1, name="value_output", activation="tanh")(val)
 
             self.model = tf.keras.Model(self.position_input, [policy_output, value_output])
-
-            self.model.summary()
+            
+            if summary:
+                self.model.summary()
 
         self.model.compile(
             loss={"policy_output": tf.keras.losses.CategoricalCrossentropy(), "value_output": tf.keras.losses.MeanSquaredError()},
