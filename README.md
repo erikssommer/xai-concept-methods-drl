@@ -61,3 +61,5 @@ Run concept_detection.ipynb to get the concept activation vectors
 
 Run concept_detection.ipynb to get the concept activation vectors visualized
 
+Run model_performance.ipynb to get the model performance
+
