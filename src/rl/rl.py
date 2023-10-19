@@ -31,17 +31,22 @@ def rl():
     save_interval = config.episodes // config.nr_of_anets
     canonical_board = config.canonical_board
     sample_ratio = config.sample_ratio
+    pre_trained = config.pre_trained
 
     # Creation replay buffer
     rbuf = RBUF(config.rbuf_size)
 
-    # Create the neural network
-    policy_nn = ActorCriticNet(board_size)
+    if pre_trained:
+        # Load the neural network
+        policy_nn = ActorCriticNet(board_size, config.pre_trained_path)
+    else:
+        # Create the neural network
+        policy_nn = ActorCriticNet(board_size)
 
     # Create the tensorboard callback
     tensorboard_callback, logdir = tensorboard_setup()
 
-    # Save initial random weights
+    # Save initial (random) weights
     policy_nn.save_model(f"../models/training/board_size_{board_size}/net_0.keras")
 
     # Loop through the number of episodes
