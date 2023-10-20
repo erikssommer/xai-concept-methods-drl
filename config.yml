@@ -1,9 +1,9 @@
 # MCTS config
 episodes: 2000
 simulations: 100 # m
-epsilon: 0.2 # rollout
+epsilon: 1 # rollout
 epsilon_decay: 0.002
-sigma: 0.2 # critic
+sigma: 0 # critic
 sigma_decay: 0.0007
 alpha: 0 # Selecting move randomly, but weighted by the distribution (0 = argmax, 1 = probablistic)
 alpha_decay: 0.0007
