@@ -3,8 +3,8 @@
 #SBATCH --account=share-ie-idi
 #SBATCH --time=3-00:00:00
 #SBATCH --nodes=1
-#SBATCH --cpus-per-task=1
-#SBATCH --mem=500G
+#SBATCH --cpus-per-task=5
+#SBATCH --mem=100G
 #SBATCH --output=log.txt
 #SBATCH --mail-user=erik.s.sommer@ntnu.no
 #SBATCH --mail-type=ALL
