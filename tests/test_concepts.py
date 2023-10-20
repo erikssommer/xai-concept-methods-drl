@@ -5,6 +5,8 @@ import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir, 'src')))
 
+import env
+
 import concepts
 
 class TestConcepts(unittest.TestCase):
@@ -70,6 +72,33 @@ class TestConcepts(unittest.TestCase):
             ]
         
         self.assertTrue(concepts.concept_eye(game_state))
+
+    
+    def test_concept_with_play(self):
+        go_env = env.GoEnv(5)
+
+        CONCEPT_FUNC = concepts.concept_eye
+
+        game_states_with_concept = []
+        game_states_without_concept = []
+
+        game_over = False
+
+        while not game_over:
+            action = go_env.uniform_random_action()
+            _, _, game_over, _ = go_env.step(action)
+
+            if CONCEPT_FUNC(go_env.state()):
+                game_states_with_concept.append(go_env.state())
+            else:
+                game_states_without_concept.append(go_env.state())
+        
+        print(len(game_states_without_concept))
+        print(len(game_states_with_concept))
+        print(game_states_with_concept)
+
+        assert len(game_states_with_concept) < len(game_states_without_concept)
+
 
 
 if __name__ == '__main__':
