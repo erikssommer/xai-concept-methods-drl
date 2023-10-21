@@ -73,14 +73,90 @@ def concept_eye(game_state) -> bool:
     return False
 
 
-def concept_eyes(game_state):
+def concept_two_eyes(game_state):
     """
     In the game of Go, an eye is a group of empty points surrounded by stones of a single color,
     such that no opposing stone can be placed in the group without being captured. Eyes are important
     because they allow a group of stones to have multiple liberties, making it more difficult for the
     opponent to capture the group.
     """
-    pass
+    black_pieces = game_state[0]
+    white_pieces = game_state[1]
+
+    board = [[0 for _ in range(len(black_pieces))] for j in range(len(black_pieces))]
+
+    # Combine black and white arrays into one array where black is 1 and white is -1
+    for i in range(len(black_pieces)):
+        for j in range(len(black_pieces[i])):
+            if black_pieces[i][j] == 1:
+                board[i][j] = 1
+            elif white_pieces[i][j] == 1:
+                board[i][j] = -1
+            else:
+                board[i][j] = 0
+
+    # Using numpy pad function, pad the board with 1s around the edges
+    black_board = np.pad(board, 1, 'constant', constant_values=1)
+
+    # In the black frame array, check if there is two 0s with one 1 between them and surrounded by only 1s
+    for i in range(len(black_board)):
+        for j in range(len(black_board[i])):
+            if black_board[i][j] == 0:
+                # Check if the surrounding indexes are all 1s
+                if black_board[i-1][j] == 1 and black_board[i+1][j] == 1 and black_board[i][j-1] == 1 and black_board[i][j+1] == 1:
+                    # Check if there is a 0 on the other side of the 1 to the left
+                    if black_board[i-2][j] == 0:
+                        # Check if the surrounding indexes are all 1s
+                        if black_board[i-1][j-1] == 1 and black_board[i-1][j+1] == 1 and black_board[i][j-2] == 1 and black_board[i][j+2] == 1:
+                            return True
+                    
+                    # Check if there is a 0 on the other side of the 1 to the right
+                    if black_board[i+2][j] == 0:
+                        # Check if the surrounding indexes are all 1s
+                        if black_board[i+1][j-1] == 1 and black_board[i+1][j+1] == 1 and black_board[i][j-2] == 1 and black_board[i][j+2] == 1:
+                            return True
+                    
+                    # Check if there is a 0 on the other side of the 1 to the top
+                    if black_board[i][j-2] == 0:
+                        # Check if the surrounding indexes are all 1s
+                        if black_board[i-1][j-1] == 1 and black_board[i+1][j-1] == 1 and black_board[i-2][j] == 1 and black_board[i+2][j] == 1:
+                            return True
+
+                    # Check if there is a 0 on the other side of the 1 to the bottom
+                    if black_board[i][j+2] == 0:
+                        # Check if the surrounding indexes are all 1s
+                        if black_board[i-1][j+1] == 1 and black_board[i+1][j+1] == 1 and black_board[i-2][j] == 1 and black_board[i+2][j] == 1:
+                            return True
+                              
+                    
+    # In the white frame array, check if there is two 0s with one -1 between them and surrounded by only -1s
+    white_board = np.pad(board, 1, 'constant', constant_values=-1)
+
+    for i in range(len(white_board)):
+        for j in range(len(white_board[i])):
+            if white_board[i][j] == 0:
+                # Check if the surrounding indexes are all -1s
+                if white_board[i - 1][j] == -1 and white_board[i + 1][j] == -1 and white_board[i][j - 1] == -1 and \
+                        white_board[i][j + 1] == -1:
+                    # Check if there is a 0 on the other side of the -1 and that it is surrounded by -1s
+                    if white_board[i - 2][j] == 0 and white_board[i - 1][j - 1] == -1 and white_board[i - 1][
+                        j + 1] == -1 and white_board[i][j - 2] == -1 and white_board[i][j + 2] == -1:
+                        return True
+                    
+                    if white_board[i + 2][j] == 0 and white_board[i + 1][j - 1] == -1 and white_board[i + 1][
+                        j + 1] == -1 and white_board[i][j - 2] == -1 and white_board[i][j + 2] == -1:
+                        return True
+                    
+                    if white_board[i][j - 2] == 0 and white_board[i - 1][j - 1] == -1 and white_board[i + 1][
+                        j - 1] == -1 and white_board[i - 2][j] == -1 and white_board[i + 2][j] == -1:
+                        return True
+                    
+                    if white_board[i][j + 2] == 0 and white_board[i - 1][j + 1] == -1 and white_board[i + 1][
+                        j + 1] == -1 and white_board[i - 2][j] == -1 and white_board[i + 2][j] == -1:
+                        return True
+
+                    
+    return False
     
 
 def concept_atari(game_state):
