@@ -108,7 +108,6 @@ def rl():
 
         # Set the values of the states
         rbuf.set_values(winner)
-        rbuf.clear_lists()
         tree.reset()
 
         # Train the neural network
