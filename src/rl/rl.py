@@ -135,6 +135,11 @@ def rl():
         epsilon -= config.epsilon_decay
         sigma -= config.sigma_decay
 
+        # For every 100 episode, delete the rbuf
+        if episode % 100 == 0:
+            del rbuf
+            rbuf = RBUF(config.rbuf_size)
+
         # Delete references and garbadge collection
         del tree
         del go_env
