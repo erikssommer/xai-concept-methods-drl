@@ -112,7 +112,7 @@ class MCTS:
         # Get the legal moves from the current state
         node.make_children()
 
-        # Tree policy: return the first child node
+        # Tree policy: randomly select one of the children
         return random.choice(node.children)
 
     def __simulate(self, game_state: np.ndarray) -> int:
@@ -124,7 +124,7 @@ class MCTS:
     def __critic(self, game_state: np.ndarray) -> float:
 
         # Get the value from the policy network
-        _, value = self.policy_nn.predict(game_state)
+        value = self.policy_nn.predict(game_state, value_only=True)
 
         # The network validates the value in respect of the current player.
         # Returns between 1 for good and -1 for bad even if the current player is white.
@@ -145,22 +145,22 @@ class MCTS:
             node = node.parent
             #reward = 1 - reward
 
-    def __tree_search(self, node: Node) -> Node:
+    def __tree_search(self, node: Node) -> Tuple[Node, int]:
         # Run while the current node is not a leaf node
         while len(node.children) != 0:
             node = self.__select_best_child(node)
 
         # Test if node is terminal
         if node.is_game_over():
-            return node
+            return node, self.root.reward(node.state)
 
         # Test if node has been visited before or if it is the root node
         if node.visits == 1 or node == self.root:
             # For each available action from the current state, create a child node and add it to the tree
-            return self.__node_expansion(node)
+            return self.__node_expansion(node), None
 
         # Return the node to be simulated (rollout)
-        return node
+        return node, None
 
     def __get_best_move(self) -> Node:
         max_visits = max(child.visits for child in self.root.children)
@@ -204,8 +204,9 @@ class MCTS:
 
     def search(self) -> Tuple[Node, List[float]]:
         for _ in range(self.simulations):
-            leaf_node = self.__tree_search(self.root)  # Tree policy
-            reward = self.__simulate(leaf_node.state)  # Rollout
+            leaf_node, reward = self.__tree_search(self.root)  # Tree policy
+            if not reward:
+                reward = self.__simulate(leaf_node.state)  # Rollout
             self.__backpropagate(leaf_node, reward)  # Backpropagation
 
         # Use the edge (from the root) with the highest visit count as the actual move.

@@ -13,7 +13,7 @@ from policy import ActorCriticNet
 class TestMctsBoardSizeSpeed(unittest.TestCase):
     def test_without_model(self):
         board_size = 5 # 5x5
-        ROLLOUTS = 100
+        ROLLOUTS = 1000
 
 
         go_env = env.GoEnv(size=board_size)
@@ -29,7 +29,7 @@ class TestMctsBoardSizeSpeed(unittest.TestCase):
         time_taken = round(time_taken, 3)
         print(f"Time taken for {ROLLOUTS} rollouts on a {board_size}x{board_size} board: {time_taken} seconds")
 
-        board_size = 8
+        board_size = 6
         
         go_env = env.GoEnv(size=board_size)
         game_state = go_env.state()

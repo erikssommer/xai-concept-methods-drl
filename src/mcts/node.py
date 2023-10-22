@@ -8,7 +8,7 @@ class Node:
     def __init__(self, state: np.ndarray, parent=None):
 
         # Game state
-        self.player = int(state[2][0][0])
+        self.player = gogame.turn(state)
         self.state = state
         self.action = None
 
