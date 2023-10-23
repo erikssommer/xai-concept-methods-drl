@@ -34,7 +34,7 @@ def concept_win_on_pass(game_state) -> bool:
         return prev_move_is_pass and white_area > black_area
 
 
-def concept_eye(game_state) -> bool:
+def concept_one_eye(game_state) -> bool:
     """
     In the game of Go, an eye is a empty point surrounded by stones of a single color
     """
@@ -89,7 +89,7 @@ def concept_two_eyes(game_state):
     white_pieces = game_state[1]
 
     board = [[0 for _ in range(len(black_pieces))]
-             for j in range(len(black_pieces))]
+             for _ in range(len(black_pieces))]
 
     # Combine black and white arrays into one array where black is 1 and white is -1
     for i in range(len(black_pieces)):
@@ -104,8 +104,6 @@ def concept_two_eyes(game_state):
     # Using numpy pad function, pad the board with 1s around the edges
     black_board = np.pad(board, 1, 'constant', constant_values=1)
 
-    print(black_board)
-
     # In the black frame array, check if there is two 0s with one 1 between them and surrounded by only 1s
     for i in range(len(black_board)):
         for j in range(len(black_board[i])):
@@ -115,28 +113,27 @@ def concept_two_eyes(game_state):
                     # Also need to test if the corners are 1s
                     if black_board[i-1][j-1] == 1 and black_board[i-1][j+1] == 1 and black_board[i+1][j-1] == 1 and black_board[i+1][j+1] == 1:
                         # Check if there is a 0 on the other side of the 1 to the left of the 0
-                        if black_board[i][j-2] == 0:
+                        if j - 2 >= 0 and black_board[i][j-2] == 0:
+                            # Is covered by the right check
                             pass
                         # Check if there is a 0 on the other side of the 1 to the right of the 0
-                        if black_board[i][j+2] == 0:
+                        if j + 2 < len(black_board[i]) and black_board[i][j+2] == 0:
                             # Test if the surrounding indexes are all 1s
                             if black_board[i-1][j+2] == 1 and black_board[i+1][j+2] == 1 and black_board[i][j+3] == 1 and black_board[i][j+1] == 1:
                                 # Also need to test if the corners are 1s
                                 if black_board[i-1][j+3] == 1 and black_board[i+1][j+3] == 1 and black_board[i-1][j+1] == 1 and black_board[i+1][j+1] == 1:
                                     return True
                         # Check if there is a 0 on the other side of the 1 above the 0
-                        if black_board[i-2][j] == 0:
+                        if i - 2 >= 0 and black_board[i-2][j] == 0:
+                            # Is covered by the bottom check
                             pass
                         # Check if there is a 0 on the other side of the 1 below the 0
-                        if black_board[i+2][j] == 0:
+                        if i+2 < len(black_board) and black_board[i+2][j] == 0:
                             # Test if the surrounding indexes are all 1s
                             if black_board[i-1][j] == 1 and black_board[i+3][j] == 1 and black_board[i][j+1] == 1 and black_board[i][j-1] == 1:
                                 # Also need to test if the corners are 1s
                                 if black_board[i-1][j-1] == 1 and black_board[i+3][j-1] == 1 and black_board[i-1][j+1] == 1 and black_board[i+3][j+1] == 1:
                                     return True
-                            
-
-    
 
     white_board = np.pad(board, 1, 'constant', constant_values=-1)
 
@@ -148,26 +145,26 @@ def concept_two_eyes(game_state):
                 if white_board[i-1][j] == -1 and white_board[i+1][j] == -1 and white_board[i][j-1] == -1 and white_board[i][j+1] == -1:
                     # Also need to test if the corners are -1s
                     if white_board[i-1][j-1] == -1 and white_board[i-1][j+1] == -1 and white_board[i+1][j-1] == -1 and white_board[i+1][j+1] == -1:
-                        # Check if there is a 0 on the other side of the 1 to the left of the 0
-                        if white_board[i][j-2] == 0:
+                        # Check if there is a 0 on the other side of the -1 to the left of the 0
+                        if j - 2 >= 0 and white_board[i][j-2] == 0:
                             pass
-                        # Check if there is a 0 on the other side of the 1 to the right of the 0
-                        if white_board[i][j+2] == 0:
-                            # Test if the surrounding indexes are all 1s
-                            if white_board[i-1][j+2] == 1 and white_board[i+1][j+2] == 1 and white_board[i][j+3] == 1 and white_board[i][j+1] == 1:
-                                # Also need to test if the corners are 1s
-                                if white_board[i-1][j+3] == 1 and white_board[i+1][j+3] == 1 and white_board[i-1][j+1] == 1 and white_board[i+1][j+1] == 1:
+                        # Check if there is a 0 on the other side of the -1 to the right of the 0
+                        if j + 2 < len(black_board[i]) and white_board[i][j+2] == 0:
+                            # Test if the surrounding indexes are all -1s
+                            if white_board[i-1][j+2] == -1 and white_board[i+1][j+2] == -1 and white_board[i][j+3] == -1 and white_board[i][j+1] == -1:
+                                # Also need to test if the corners are -1s
+                                if white_board[i-1][j+3] == -1 and white_board[i+1][j+3] == -1 and white_board[i-1][j+1] == -1 and white_board[i+1][j+1] == -1:
                                     return True
-                        # Check if there is a 0 on the other side of the 1 above the 0
-                        if white_board[i-2][j] == 0:
+                        # Check if there is a 0 on the other side of the -1 above the 0
+                        if i - 2 >= 0 and white_board[i-2][j] == 0:
                             pass
-                        # Check if there is a 0 on the other side of the 1 below the 0
-                        if white_board[i+2][j] == 0:
-                            # Test if the surrounding indexes are all 1s
-                            if white_board[i-1][j] == 1 and white_board[i+3][j] == 1 and white_board[i][j+1] == 1 and white_board[i][j-1] == 1:
-                                # Also need to test if the corners are 1s
-                                if white_board[i-1][j-1] == 1 and white_board[i+3][j-1] == 1 and white_board[i-1][j+1] == 1 and white_board[i+3][j+1] == 1:
-                                    return True     
+                        # Check if there is a 0 on the other side of the -1 below the 0
+                        if i+2 < len(black_board) and white_board[i+2][j] == 0:
+                            # Test if the surrounding indexes are all -1s
+                            if white_board[i-1][j] == -1 and white_board[i+3][j] == -1 and white_board[i][j+1] == -1 and white_board[i][j-1] == -1:
+                                # Also need to test if the corners are -1s
+                                if white_board[i-1][j-1] == -1 and white_board[i+3][j-1] == -1 and white_board[i-1][j+1] == -1 and white_board[i+3][j+1] == -1:
+                                    return True
 
     return False
 
