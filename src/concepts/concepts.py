@@ -1,7 +1,5 @@
 import numpy as np
 from env import gogame, govars
-import scipy.signal
-
 
 def concept_area_advantage(game_state) -> bool:
     """
