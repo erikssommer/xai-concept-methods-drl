@@ -27,7 +27,7 @@ log_dir: tensorboard_logs
 log_name: go
 
 # GO config
-board_size: 6 # k
+board_size: 5 # k
 komi: 0
 canonical_board: false
 

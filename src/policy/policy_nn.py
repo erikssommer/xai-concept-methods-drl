@@ -81,7 +81,7 @@ class ActorCriticNet:
             return self.model.fit(states, [distributions, values], verbose=0, epochs=epochs, batch_size=128, callbacks=callbacks)
     
     # Define a prediction function
-    def predict(self, state):
+    def predict(self, state, value_only=False):
         state_copy = state.copy()
 
         # Remove array index 3 and 5 from the current state making it an shape of (4, 5, 5)
@@ -100,6 +100,9 @@ class ActorCriticNet:
         # Get the policy array and value number from the result
         policy = policy[0]
         value = value[0][0]
+
+        if value_only:
+            return value
 
         policy = self.mask_invalid_moves(policy, state_copy)
         

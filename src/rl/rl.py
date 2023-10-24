@@ -108,7 +108,6 @@ def rl():
 
         # Set the values of the states
         rbuf.set_values(winner)
-        rbuf.clear_lists()
         tree.reset()
 
         # Train the neural network
@@ -135,6 +134,11 @@ def rl():
         # Updating sigma and epsilon
         epsilon -= config.epsilon_decay
         sigma -= config.sigma_decay
+
+        # For every 100 episode, delete the rbuf
+        if episode % 100 == 0:
+            del rbuf
+            rbuf = RBUF(config.rbuf_size)
 
         # Delete references and garbadge collection
         del tree
