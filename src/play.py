@@ -9,12 +9,14 @@ if __name__ == "__main__":
     Play against the best model
     """
 
-    go_env = env.GoEnv(size=5)
+    board_size = config.board_size
+
+    go_env = env.GoEnv(size=board_size)
 
     go_env.reset()
 
     # Find the model with the highest number in the name from the models/board_size_5 folder
-    path = f'../models/play_against/board_size_{config.board_size}/'
+    path = f'../models/play_against/board_size_{board_size}/'
 
     folders = os.listdir(path)
 

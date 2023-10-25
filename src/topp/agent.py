@@ -1,8 +1,7 @@
-from utils import config
 from policy import ActorCriticNet
 
 class Agent:
-    def __init__(self, path, name, greedy_move: bool = False):
+    def __init__(self, board_size, path, name, greedy_move: bool = False):
         self.name = name # Naming the player the same as the network for clarity
         self.greedy_move = greedy_move
 
@@ -19,7 +18,7 @@ class Agent:
         self.win = 0
         self.loss = 0
         self.draw = 0
-        self.nn = ActorCriticNet(config.board_size, (f'{path}/{name}'))
+        self.nn = ActorCriticNet(board_size, (f'{path}/{name}'))
 
     # Play a round of the turnament
     def choose_action(self, state):
