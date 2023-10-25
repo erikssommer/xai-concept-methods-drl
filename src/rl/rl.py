@@ -19,11 +19,11 @@ def rl():
     for gpu in gpus:
         tf.config.experimental.set_memory_growth(gpu, True)
     
-    # Setting the activation of default policy network and critic network
+    # Get the config variables
     epsilon = config.epsilon
     sigma = config.sigma
-
-    # Set the number of simulations and c constant
+    epsilon_decay = config.epsilon_decay
+    sigma_decay = config.sigma_decay
     simulations = config.simulations
     c = config.c
     board_size = config.board_size
@@ -32,13 +32,18 @@ def rl():
     canonical_board = config.canonical_board
     sample_ratio = config.sample_ratio
     pre_trained = config.pre_trained
+    clear_rbuf = config.clear_rbuf
+    batch_size = config.batch_size
+    rbuf_size = config.rbuf_size
+    episodes = config.episodes
+    pre_trained_path = config.pre_trained_path
 
     # Creation replay buffer
-    rbuf = RBUF(config.rbuf_size)
+    rbuf = RBUF(rbuf_size)
 
     if pre_trained:
         # Load the neural network
-        policy_nn = ActorCriticNet(board_size, config.pre_trained_path)
+        policy_nn = ActorCriticNet(board_size, pre_trained_path)
     else:
         # Create the neural network
         policy_nn = ActorCriticNet(board_size)
@@ -50,7 +55,7 @@ def rl():
     policy_nn.save_model(f"../models/training/board_size_{board_size}/net_0.keras")
 
     # Loop through the number of episodes
-    for episode in tqdm(range(config.episodes)):
+    for episode in tqdm(range(episodes)):
         # Create the environment
         go_env = env.GoEnv(size=board_size)
 
@@ -112,7 +117,7 @@ def rl():
 
         # Train the neural network
         state_buffer, distribution_buffer, value_buffer = zip(
-            *rbuf.get(config.batch_size))
+            *rbuf.get(batch_size))
 
         # Train the neural network
         history = policy_nn.fit(
@@ -132,13 +137,14 @@ def rl():
                 f'../models/training/board_size_{board_size}/net_{episode}.keras')
 
         # Updating sigma and epsilon
-        epsilon -= config.epsilon_decay
-        sigma -= config.sigma_decay
+        epsilon -= epsilon_decay
+        sigma -= sigma_decay
 
         # For every 100 episode, delete the rbuf
-        if episode % 100 == 0:
-            del rbuf
-            rbuf = RBUF(config.rbuf_size)
+        if clear_rbuf:
+            if episode % 100 == 0:
+                del rbuf
+                rbuf = RBUF(rbuf_size)
 
         # Delete references and garbadge collection
         del tree
@@ -147,4 +153,4 @@ def rl():
 
     # Save the final neural network model
     policy_nn.save_model(
-        f'../models/training/board_size_{board_size}/net_{config.episodes}.keras')
+        f'../models/training/board_size_{board_size}/net_{episodes}.keras')
