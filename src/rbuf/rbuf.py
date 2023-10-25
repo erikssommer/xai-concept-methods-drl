@@ -6,7 +6,7 @@ class RBUF:
     """
     Replay buffer for storing training cases for neural network
     """
-    def __init__(self, max_size=256):
+    def __init__(self, max_size=2048):
         self.max_size = max_size
         self.buffer = deque([], maxlen=max_size)
 
@@ -40,6 +40,9 @@ class RBUF:
             value = self.winning(player, winner)
 
             # Add the case to the buffer
+            # we push a new case to memory, if max size is reached we pop left
+            if len(self.buffer) >= self.max_size:
+                self.buffer.popleft()
             self.buffer.append((state, dist, value))
         
         self.clear_lists()
