@@ -1,6 +1,15 @@
 import numpy as np
 from env import gogame, govars
 
+def concept_random(game_state) -> bool:
+    """
+    Control concept that randomly returns True or False
+    
+    The random concept control ensures that what we are learning relates to specific concepts, 
+    rather than simply separability of arbitrary points.
+    """
+    return np.random.random() < 0.5
+
 def concept_area_advantage(game_state) -> bool:
     """
     In the game of Go, area advantage is a concept that describes the difference between the number of
