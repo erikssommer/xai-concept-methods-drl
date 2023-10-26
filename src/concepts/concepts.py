@@ -175,6 +175,20 @@ def concept_two_eyes(game_state):
 
     return False
 
+def concept_tsumego(game_state):
+    """
+    In the game of Go, tsumego is a situation where one player has no legal moves remaining and has lost the game.
+    This is an equivalent concept to checkmate in chess.
+    """
+    # Check if the current player has any legal moves remaining
+    legal_moves = gogame.valid_moves(game_state)
+
+    # If there are only zeros in the legal moves array, then the current player has no legal moves remaining
+    if np.all(legal_moves == 0):
+        return True
+    return False
+    
+
 
 def concept_atari(game_state):
     """
