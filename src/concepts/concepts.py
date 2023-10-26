@@ -183,8 +183,8 @@ def concept_tsumego(game_state):
     # Check if the current player has any legal moves remaining
     legal_moves = gogame.valid_moves(game_state)
 
-    # If there are only zeros in the legal moves array, then the current player has no legal moves remaining
-    if np.all(legal_moves == 0):
+    # If there is only one legal move (pass), then the player has lost the game
+    if np.sum(legal_moves) == 1:
         return True
     return False
     
