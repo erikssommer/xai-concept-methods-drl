@@ -45,6 +45,11 @@ if __name__ == "__main__":
         game_over = False
 
         while not game_over:
+            # Get the value estimation of the current state
+            value = actor_net.value_estimation(go_env.state())
+            
+            print(f"Value estimation of the current state: {value}")
+
             if go_env.turn() == 0 and start_player == "n":
                 action = actor_net.best_action(go_env.state(), greedy_move)
                 _, _, game_over, _ = go_env.step(action)

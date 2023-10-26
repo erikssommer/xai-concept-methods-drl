@@ -136,5 +136,9 @@ class ActorCriticNet:
         # Selecting move greedily
         return np.argmax(policy)
     
+    def value_estimation(self, state):
+        value = self.predict(state, value_only=True)
+        return value
+    
     def save_model(self, path):
         self.model.save(path)
