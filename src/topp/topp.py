@@ -20,13 +20,14 @@ class Topp:
         self.dir = dir
 
     def add_agents(self, greedy_move: bool = False):
-        path = f'../models/{self.dir}/board_size_{self.board_size}'
+        if self.dir == 'saved_sessions':
+            path = f'../models/{self.dir}/board_size_{self.board_size}/falcon'
+        else:
+            path = f'../models/{self.dir}/board_size_{self.board_size}'
 
         print(f"Loading agents from {path}")
 
         folders = os.listdir(path)
-
-        print(folders)
 
         # Sort the folders by the number in the name
         sorted_folders = sorted(folders, key=lambda x: int(
