@@ -4,7 +4,7 @@ simulations: 100 # m
 epsilon: 1 # rollout
 epsilon_decay: 0 # 0.002
 sigma: 1 # critic
-sigma_decay: 0.0007
+sigma_decay: 0.001
 alpha: 0 # Selecting move randomly, but weighted by the distribution (0 = argmax, 1 = probablistic)
 alpha_decay: 0.0007
 c: 1.3 # Exploration constant
