@@ -44,18 +44,20 @@ def rl():
     if pre_trained:
         # Load the neural network
         policy_nn = ActorCriticNet(board_size, pre_trained_path)
+        start_episode = int(pre_trained_path.split('_')[-1].split('.')[0])
     else:
         # Create the neural network
         policy_nn = ActorCriticNet(board_size)
 
+        # Save initial (random) weights
+        policy_nn.save_model(f"../models/training/board_size_{board_size}/net_0.keras")
+        start_episode = 0
+
     # Create the tensorboard callback
     tensorboard_callback, logdir = tensorboard_setup()
 
-    # Save initial (random) weights
-    policy_nn.save_model(f"../models/training/board_size_{board_size}/net_0.keras")
-
     # Loop through the number of episodes
-    for episode in tqdm(range(episodes)):
+    for _ in tqdm(range(start_episode, episodes)):
         # Create the environment
         go_env = env.GoEnv(size=board_size)
 
@@ -129,12 +131,12 @@ def rl():
         )
 
         # Add the metrics to TensorBoard
-        write_to_tensorboard(history, episode, logdir)
+        write_to_tensorboard(history, start_episode, logdir)
         
-        if episode != 0 and episode % save_interval == 0:
+        if start_episode != 0 and start_episode % save_interval == 0:
             # Save the neural network model
             policy_nn.save_model(
-                f'../models/training/board_size_{board_size}/net_{episode}.keras')
+                f'../models/training/board_size_{board_size}/net_{start_episode}.keras')
 
         # Updating sigma and epsilon
         epsilon -= epsilon_decay
@@ -142,7 +144,7 @@ def rl():
 
         # For every 100 episode, delete the rbuf
         if clear_rbuf:
-            if episode % 100 == 0:
+            if start_episode % 100 == 0:
                 del rbuf
                 rbuf = RBUF(rbuf_size)
 
@@ -150,6 +152,8 @@ def rl():
         del tree
         del go_env
         gc.collect()
+
+        start_episode += 1
 
     # Save the final neural network model
     policy_nn.save_model(
