@@ -10,7 +10,7 @@ from utils import config
 
 
 class Topp:
-    def __init__(self, board_size, num_games, render: bool = False, dir: str = 'training'):
+    def __init__(self, board_size, num_games, render: bool = False, dir: str = 'training', version: str = None):
         self.board_size = board_size
         self.num_nn = 0
         self.num_games = num_games
@@ -18,10 +18,11 @@ class Topp:
         self.agents: Agent = []
         self.move_cap = 100
         self.dir = dir
+        self.version = version
 
     def add_agents(self, greedy_move: bool = False):
         if self.dir == 'saved_sessions':
-            path = f'../models/{self.dir}/board_size_{self.board_size}/falcon'
+            path = f'../models/{self.dir}/board_size_{self.board_size}/{self.version}'
         else:
             path = f'../models/{self.dir}/board_size_{self.board_size}'
 
