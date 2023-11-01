@@ -42,9 +42,21 @@ def rl():
     rbuf = RBUF(rbuf_size)
 
     if pre_trained:
+        # Try to get the first file in the pre trained path directory
+        try:
+            # Get the first file in the directory
+            model_name = os.listdir(pre_trained_path)[0]
+            model_path = pre_trained_path + model_name
+            
+            start_episode = int(model_name.split("_")[-1].split(".")[0])
+        except:
+            # Print error message and exit
+            print("Error: Could not find a pre trained model in the specified directory")
+            exit()
+        
         # Load the neural network
-        policy_nn = ActorCriticNet(board_size, pre_trained_path)
-        start_episode = int(pre_trained_path.split('_')[-1].split('.')[0])
+        policy_nn = ActorCriticNet(board_size, model_path)
+        
     else:
         # Create the neural network
         policy_nn = ActorCriticNet(board_size)

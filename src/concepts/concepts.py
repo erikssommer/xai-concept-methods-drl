@@ -1,7 +1,7 @@
 import numpy as np
 from env import gogame, govars
 
-def concept_random(game_state) -> bool:
+def random(game_state) -> bool:
     """
     Control concept that randomly returns True or False
     
@@ -10,7 +10,7 @@ def concept_random(game_state) -> bool:
     """
     return np.random.random() < 0.5
 
-def concept_area_advantage(game_state) -> bool:
+def area_advantage(game_state) -> bool:
     """
     In the game of Go, area advantage is a concept that describes the difference between the number of
     points that a player has surrounded, and the number of points that their opponent has surrounded.
@@ -25,7 +25,7 @@ def concept_area_advantage(game_state) -> bool:
         return white_area > black_area
 
 
-def concept_win_on_pass(game_state) -> bool:
+def win_on_pass(game_state) -> bool:
     """
     In the game of Go, the game ends when both players pass in succession. The player with the most area advantage wins.
     """
@@ -41,7 +41,7 @@ def concept_win_on_pass(game_state) -> bool:
         return prev_move_is_pass and white_area > black_area
 
 
-def concept_one_eye(game_state) -> bool:
+def one_eye(game_state) -> bool:
     """
     In the game of Go, an eye is a empty point surrounded by stones of a single color
     """
@@ -85,7 +85,7 @@ def concept_one_eye(game_state) -> bool:
     return False
 
 
-def concept_two_eyes(game_state):
+def two_eyes(game_state):
     """
     In the game of Go, an eye is a group of empty points surrounded by stones of a single color,
     such that no opposing stone can be placed in the group without being captured. Eyes are important
@@ -175,7 +175,7 @@ def concept_two_eyes(game_state):
 
     return False
 
-def concept_tsumego(game_state):
+def tsumego(game_state):
     """
     In the game of Go, tsumego is a situation where one player has no legal moves remaining and has lost the game.
     This is an equivalent concept to checkmate in chess.
@@ -190,7 +190,7 @@ def concept_tsumego(game_state):
     
 
 
-def concept_atari(game_state):
+def atari(game_state):
     """
     In the game of Go, atari is a situation in which a group of stones has only one liberty remaining.
     If the opponent places a stone on that liberty, the group will be captured. Atari is an important
@@ -200,7 +200,7 @@ def concept_atari(game_state):
     pass
 
 
-def concept_ko():
+def ko():
     """
     In the game of Go, ko is a situation in which a group of stones can be captured, but the opponent
     is not allowed to recapture the group immediately. Ko is an important concept because it can be
@@ -210,7 +210,7 @@ def concept_ko():
     pass
 
 
-def concept_liberty():
+def liberty():
     """
     In the game of Go, a liberty is an empty point adjacent to a group of stones. A group of stones
     has as many liberties as there are empty points adjacent to the group. Liberties are important
@@ -219,7 +219,7 @@ def concept_liberty():
     pass
 
 
-def concept_territory():
+def territory():
     """
     In the game of Go, territory is an area of the board that is surrounded by stones of a single
     color. Territory is important because it is used to determine the winner of the game.
@@ -227,7 +227,7 @@ def concept_territory():
     pass
 
 
-def concept_ladder():
+def ladder():
     """
     In the game of Go, a ladder is a sequence of moves in which a group of stones is chased across
     the board. Ladders are important because they can be used to capture stones, or to defend stones
@@ -236,7 +236,7 @@ def concept_ladder():
     pass
 
 
-def concept_seki():
+def seki():
     """
     In the game of Go, seki is a situation in which two groups of stones are adjacent to each other,
     and neither group can capture the other. Seki is important because it can be used to prevent the
@@ -245,7 +245,7 @@ def concept_seki():
     pass
 
 
-def concept_sente():
+def sente():
     """
     In the game of Go, sente is a situation in which a player is forced to respond to their opponent's
     move. Sente is important because it can be used to force the opponent to defend their stones, or
@@ -254,7 +254,7 @@ def concept_sente():
     pass
 
 
-def concept_gote():
+def gote():
     """
     In the game of Go, gote is a situation in which a player is not forced to respond to their opponent's
     move. Gote is important because it can be used to force the opponent to defend their stones, or to
@@ -263,7 +263,7 @@ def concept_gote():
     pass
 
 
-def concept_sabaki():
+def sabaki():
     """
     In the game of Go, sabaki is a technique in which a player sacrifices stones in order to gain
     a better position elsewhere on the board. Sabaki is important because it can be used to gain
@@ -272,7 +272,7 @@ def concept_sabaki():
     pass
 
 
-def concept_life_and_death():
+def life_and_death():
     """
     A group of stones is said to be "alive" if it has at least two eyes, or if it cannot be captured by the opponent. 
     A group of stones is said to be "dead" if it can be captured by the opponent.
