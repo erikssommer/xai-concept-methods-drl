@@ -15,22 +15,22 @@ class TestConcepts(unittest.TestCase):
         # Game state where previous move was a pass, and black has more area, 4th array is only ones
         game_state = None
 
-        self.assertTrue(concepts.concept_win_on_pass(game_state))
+        self.assertTrue(concepts.win_on_pass(game_state))
 
         # Game state where previous move was a pass, and white has more area, 4th array is only ones
         game_state = None
 
-        self.assertFalse(concepts.concept_win_on_pass(game_state))
+        self.assertFalse(concepts.win_on_pass(game_state))
 
         # Game state where previous move was not a pass, and black has more area, 4th array is only ones
         game_state = None
 
-        self.assertFalse(concepts.concept_win_on_pass(game_state))
+        self.assertFalse(concepts.win_on_pass(game_state))
 
         # Game state where previous move was not a pass, and white has more area, 4th array is only ones
         game_state = None
 
-        self.assertFalse(concepts.concept_win_on_pass(game_state))
+        self.assertFalse(concepts.win_on_pass(game_state))
     
     def test_concept_eye(self):
         game_state = [
@@ -71,7 +71,7 @@ class TestConcepts(unittest.TestCase):
                 [0., 0., 0., 0., 0.]],
             ]
         
-        self.assertTrue(concepts.concept_eye(game_state))
+        self.assertTrue(concepts.one_eye(game_state))
 
 
     def test_concept_two_eyes(self):
@@ -89,7 +89,7 @@ class TestConcepts(unittest.TestCase):
                 [0., 0., 0., 1., 0.]],
             ]
         
-        self.assertTrue(concepts.concept_two_eyes(game_state))
+        self.assertTrue(concepts.two_eyes(game_state))
 
         game_state = [
                 [[0., 1., 0., 1., 0.],
@@ -105,7 +105,7 @@ class TestConcepts(unittest.TestCase):
                 [0., 0., 0., 1., 0.]],
             ]
         
-        self.assertFalse(concepts.concept_two_eyes(game_state))
+        self.assertFalse(concepts.two_eyes(game_state))
 
 
         game_state = [
@@ -122,7 +122,7 @@ class TestConcepts(unittest.TestCase):
                 [0., 0., 0., 1., 0.]],
             ]
         
-        self.assertTrue(concepts.concept_two_eyes(game_state))
+        self.assertTrue(concepts.two_eyes(game_state))
 
         game_state = [
                 [[0., 1., 0., 0., 0.],
@@ -138,7 +138,7 @@ class TestConcepts(unittest.TestCase):
                 [0., 0., 0., 1., 0.]]
             ]
         
-        self.assertTrue(concepts.concept_two_eyes(game_state))
+        self.assertTrue(concepts.two_eyes(game_state))
 
         game_state = [
                 [[0., 1., 0., 0., 0.],
@@ -154,13 +154,46 @@ class TestConcepts(unittest.TestCase):
                 [0., 0., 0., 1., 0.]]
             ]
         
-        self.assertFalse(concepts.concept_two_eyes(game_state))
+        self.assertFalse(concepts.two_eyes(game_state))
+    
+    def test_concept_play_center_in_opening(self):
+        game_state = [
+                [[0., 1., 0., 0., 0.],
+                [1., 0., 1., 1., 0.],
+                [0., 1., 0., 1., 0.],
+                [1., 1., 1., 0., 0.],
+                [0., 1., 0., 0., 0.]],
+
+                [[0., 0., 0., 0., 0.],
+                [0., 0., 0., 0., 0.],
+                [0., 0., 0., 0., 0.],
+                [0., 0., 0., 0., 0.],
+                [0., 0., 0., 1., 0.]]
+            ]
+        
+        self.assertFalse(concepts.play_center_in_opening(game_state))
+
+        game_state = [
+                [[0., 0., 0., 0., 0.],
+                [0., 0., 1., 1., 0.],
+                [0., 1., 0., 1., 0.],
+                [0., 1., 0., 0., 0.],
+                [0., 0., 0., 0., 0.]],
+
+                [[0., 0., 0., 0., 0.],
+                [0., 0., 0., 0., 0.],
+                [0., 0., 0., 0., 0.],
+                [0., 0., 0., 1., 0.],
+                [0., 0., 0., 0., 0.]]
+            ]
+        
+        self.assertTrue(concepts.play_center_in_opening(game_state))
 
     
     def test_concept_with_play(self):
         go_env = env.GoEnv(5)
 
-        CONCEPT_FUNC = concepts.concept_eye
+        CONCEPT_FUNC = concepts.one_eye
 
         game_states_with_concept = []
         game_states_without_concept = []
@@ -181,8 +214,7 @@ class TestConcepts(unittest.TestCase):
         print(game_states_with_concept)
 
         assert len(game_states_with_concept) < len(game_states_without_concept)
-
-
+        
 
 if __name__ == '__main__':
     unittest.main()
