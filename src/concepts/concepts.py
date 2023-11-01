@@ -261,7 +261,9 @@ def play_center_in_opening(game_state):
     """
     In Go, it is bad to play on the edge of the board during the opening phase of the game.
     """
-    early_play_threshold = 10
+    board_size = len(game_state[0])
+    early_play_threshold = 9 if board_size == 5 else 13
+
     # Count the number of black and white stones
     black_pieces = game_state[0]
     white_pieces = game_state[1]
@@ -270,14 +272,22 @@ def play_center_in_opening(game_state):
     total_pieces_sum = black_pieces_sum + white_pieces_sum
 
     if early_play_threshold >= total_pieces_sum and total_pieces_sum > 0:
-        # Check if the board contains a black or white piece on the edge of the board
-        concatinated_board = np.concatenate((black_pieces, white_pieces), axis=0)
-        for i in range(len(concatinated_board)):
-            if concatinated_board[i][0] == 1 or concatinated_board[i][len(concatinated_board[i])-1] == 1:
-                return False
-        for i in range(len(concatinated_board[0])):
-            if concatinated_board[0][i] == 1 or concatinated_board[len(concatinated_board)-1][i] == 1:
-                return False
+        # Combine black and white arrays into one array
+        combined_board = black_pieces
+        for i in range(len(white_pieces)):
+            for j in range(len(white_pieces[i])):
+                if white_pieces[i][j] == 1:
+                    combined_board[i][j] = 1
+        
+        combined_board = np.array(combined_board)
+
+        # Check if the first or last row contains a black or white piece
+        if np.sum(combined_board[0]) > 0 or np.sum(combined_board[-1]) > 0:
+            return False
+        # Check if the first or last column contains a black or white piece
+        if np.sum(combined_board[:, 0]) > 0 or np.sum(combined_board[:, -1]) > 0:
+            return False
+        
         return True
     
     # Not in the opening phase of the game
