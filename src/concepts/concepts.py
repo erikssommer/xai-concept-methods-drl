@@ -187,7 +187,76 @@ def tsumego(game_state):
     if np.sum(legal_moves) == 1:
         return True
     return False
+
+def has_winning_move(game_state):
+    """
+    The current player can play a move that will result in the next player having no legal moves remaining.
+    This is an equivalent concept of having the ability to checkmate in chess.
+    """
+    # Loop through all legal moves and test if the next player has any legal moves remaining after making that move
+    legal_moves = gogame.valid_moves(game_state)
+
+    # If there is only one legal move (pass), then the player has lost the game
+    if np.sum(legal_moves) == 1:
+        return False
     
+    for i in range(len(legal_moves)):
+        if legal_moves[i] == 1:
+            # Make a copy of the game state and play the move
+            game_state_copy = game_state.copy()
+            next_state = gogame.next_state(game_state_copy, i)
+
+            # Check if the next player has any legal moves remaining
+            next_player_legal_moves = gogame.valid_moves(next_state)
+            if np.sum(next_player_legal_moves) == 1:
+                return True
+
+    return False
+
+def capture_stones(game_state):
+    """
+    In the game of Go, capture is a situation in which a group of stones is surrounded by the opponent's stones,
+    and cannot escape. Capturing stones is an important concept because it can be used to gain an advantage over the opponent.
+    """
+    # Check if the current player has any legal moves remaining
+    legal_moves = gogame.valid_moves(game_state)
+
+    # If there is only one legal move (pass), then the player has lost the game
+    if np.sum(legal_moves) == 1:
+        return False
+    
+    current_player = gogame.turn(game_state)
+    
+    # For every legal move, check if the move will capture any of the opponent's stones
+    for i in range(len(legal_moves)):
+        if legal_moves[i] == 1:
+            # Make a copy of the game state and play the move
+            game_state_copy = game_state.copy()
+
+            # Count the number of black and white stones before the move
+            black_pieces = game_state_copy[0]
+            white_pieces = game_state_copy[1]
+            black_pieces_sum = np.sum(black_pieces)
+            white_pieces_sum = np.sum(white_pieces)
+
+            next_state = gogame.next_state(game_state_copy, i)
+            
+            # Count the number of black and white stones after the move
+            black_pieces_after = next_state[0]
+            white_pieces_after = next_state[1]
+            black_pieces_sum_after = np.sum(black_pieces_after)
+            white_pieces_sum_after = np.sum(white_pieces_after)
+
+            # If the current player is black, check if the number of white stones has decreased
+            if current_player == govars.BLACK:
+                if white_pieces_sum_after < white_pieces_sum:
+                    return True
+            else:
+                if black_pieces_sum_after < black_pieces_sum:
+                    return True
+                
+    return False
+            
 
 
 def atari(game_state):
@@ -210,25 +279,9 @@ def ko():
     pass
 
 
-def liberty():
-    """
-    In the game of Go, a liberty is an empty point adjacent to a group of stones. A group of stones
-    has as many liberties as there are empty points adjacent to the group. Liberties are important
-    because they allow a group of stones to remain on the board.
-    """
-    pass
-
-
-def territory():
-    """
-    In the game of Go, territory is an area of the board that is surrounded by stones of a single
-    color. Territory is important because it is used to determine the winner of the game.
-    """
-    pass
-
-
 def ladder():
     """
+    Possible: Detect sequence of moves concepts
     In the game of Go, a ladder is a sequence of moves in which a group of stones is chased across
     the board. Ladders are important because they can be used to capture stones, or to defend stones
     from capture.
