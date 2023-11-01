@@ -213,7 +213,7 @@ def has_winning_move(game_state):
 
     return False
 
-def capture_stones(game_state):
+def capture_stones_threat(game_state):
     """
     In the game of Go, capture is a situation in which a group of stones is surrounded by the opponent's stones,
     and cannot escape. Capturing stones is an important concept because it can be used to gain an advantage over the opponent.
@@ -256,6 +256,13 @@ def capture_stones(game_state):
                     return True
                 
     return False
+
+def play_center_in_opening(game_state):
+    """
+    In Go, it is bad to play on the edge of the board during the opening phase of the game.
+    """
+    # Check wether the game is in the opening phase
+    pass
             
 
 
