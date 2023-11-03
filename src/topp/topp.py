@@ -21,7 +21,7 @@ class Topp:
         self.version = version
 
     def add_agents(self, greedy_move: bool = False):
-        if self.dir == 'saved_sessions':
+        if self.dir in 'saved_sessions' or 'model_performance' in self.dir:
             path = f'../models/{self.dir}/board_size_{self.board_size}/{self.version}'
         else:
             path = f'../models/{self.dir}/board_size_{self.board_size}'
