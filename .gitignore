@@ -166,4 +166,4 @@ config.yml
 
 #models/training/
 
-tensorboard_logs/
+#tensorboard_logs/
