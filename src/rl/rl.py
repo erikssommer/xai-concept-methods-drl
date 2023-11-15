@@ -161,6 +161,7 @@ def rl():
                 rbuf = RBUF(rbuf_size)
 
         # Delete references and garbadge collection
+        del tree.root
         del tree
         del go_env
         gc.collect()
