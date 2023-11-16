@@ -11,7 +11,7 @@ c: 1.3 # Exploration constant
 
 # Neural Network config
 resnet: true
-resnet_blocks: 5 # n
+resnet_blocks: 3 # n
 resnet_filters: 64 # f
 convnet_filters: 32 # f
 nr_of_anets: 10 # m
