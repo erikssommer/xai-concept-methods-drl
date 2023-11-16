@@ -5,7 +5,7 @@ from tqdm import tqdm
 from utils import config
 from mcts import MCTS
 from rbuf import RBUF
-from policy import ActorCriticNet
+from policy import ActorCriticNet, ResNet
 import numpy as np
 import gc
 from utils import tensorboard_setup, write_to_tensorboard
@@ -55,11 +55,17 @@ def rl():
             exit()
         
         # Load the neural network
-        policy_nn = ActorCriticNet(board_size, model_path)
+        if config.resnet:
+            policy_nn = ResNet(board_size, model_path)
+        else:
+            policy_nn = ActorCriticNet(board_size, model_path)
         
     else:
         # Create the neural network
-        policy_nn = ActorCriticNet(board_size)
+        if config.resnet:
+            policy_nn = ResNet(board_size)
+        else:
+            policy_nn = ActorCriticNet(board_size)
 
         # Save initial (random) weights
         policy_nn.save_model(f"../models/training/board_size_{board_size}/net_0.keras")
