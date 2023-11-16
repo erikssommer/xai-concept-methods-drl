@@ -1,6 +1,6 @@
 import env
 import os
-from policy import ActorCriticNet
+from policy import ActorCriticNet, ResNet
 from utils import config
 
 if __name__ == "__main__":
@@ -26,7 +26,11 @@ if __name__ == "__main__":
     # Get the last folder
     path = path + sorted_folders[-1]
 
-    actor_net = ActorCriticNet(config.board_size, path)
+    if config.resnet:
+        actor_net = ResNet(config.board_size, path)
+    else:
+        actor_net = ActorCriticNet(config.board_size, path)
+        
     greedy_move = True
 
     games = 1
