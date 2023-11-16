@@ -4,8 +4,9 @@ from utils import config
 from env import gogame
 import utils
 from tqdm import tqdm
+from .basenet import BaseNet
 
-class ActorCriticNet:
+class ActorCriticNet(BaseNet):
     def __init__(self, board_size, load_path=None, summary=True):
         """
         Convolutional neural network for the actor-critic policy.

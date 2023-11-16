@@ -4,9 +4,10 @@ from tqdm import tqdm
 from utils import config
 from env import gogame
 import utils
+from .basenet import BaseNet
 
 
-class ResNet:
+class ResNet(BaseNet):
     def __init__(self, board_size, load_path=None, summary=True):
         """
         Residual neural network for the actor-critic policy.
