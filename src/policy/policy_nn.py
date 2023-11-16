@@ -8,14 +8,15 @@ from tqdm import tqdm
 class ActorCriticNet:
     def __init__(self, board_size, load_path=None, summary=True):
         """
-        Neural network for the actor-critic policy.
+        Convolutional neural network for the actor-critic policy.
 
         Args:
             board_size (int): The size of the board.
             load_path (str, optional): The path to the model to load. Defaults to None.
+            summary (bool, optional): Whether to print the summary of the model. Defaults to True.
         """
 
-        BLOCK_FILTER_SIZE = 32
+        BLOCK_FILTER_SIZE = config.conv_filters
 
         self.board_size = board_size
         self.load_path = load_path
@@ -54,7 +55,7 @@ class ActorCriticNet:
             metrics=["accuracy"]
             )
     
-    def get_all_activation_values(self, boards):
+    def get_all_activation_values(self, boards, keyword="conv"):
         """Returns a list of all the activation values for each layer in the model"""
         if len(boards.shape) == 3:
             boards = np.reshape(boards, (1, *boards.shape))
@@ -62,7 +63,7 @@ class ActorCriticNet:
         # All inputs
         inp = self.model.input
         # All outputs of the conv blocks
-        outputs = [layer.output for layer in self.model.layers if "conv" in layer.name]
+        outputs = [layer.output for layer in self.model.layers if keyword in layer.name]
         functor = tf.keras.backend.function([inp], outputs)
 
         BATCH_SIZE = 32
