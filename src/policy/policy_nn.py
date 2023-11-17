@@ -17,7 +17,7 @@ class ActorCriticNet(BaseNet):
             summary (bool, optional): Whether to print the summary of the model. Defaults to True.
         """
 
-        BLOCK_FILTER_SIZE = config.conv_filters
+        BLOCK_FILTER_SIZE = config.convnet_filters
 
         self.board_size = board_size
         self.load_path = load_path
