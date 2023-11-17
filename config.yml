@@ -10,7 +10,7 @@ alpha_decay: 0.0007
 c: 1.3 # Exploration constant
 
 # Neural Network config
-resnet: true
+resnet: false
 resnet_blocks: 3 # n
 resnet_filters: 64 # f
 convnet_filters: 32 # f
