@@ -1,7 +1,7 @@
 import tensorflow as tf
 import numpy as np
 from utils import config
-from env import gogame
+from env import gogame, govars
 import utils
 from tqdm import tqdm
 from .basenet import BaseNet
@@ -85,6 +85,13 @@ class ActorCriticNet(BaseNet):
     # Define a prediction function
     def predict(self, state, value_only=False):
         state_copy = state.copy()
+
+        # Current players stones is allways first layer
+        if gogame.turn(state) == govars.WHITE:
+            channels = np.arange(govars.NUM_CHNLS)
+            channels[govars.BLACK] = govars.WHITE
+            channels[govars.WHITE] = govars.BLACK
+            state = state[channels]
 
         # Remove array index 3 and 5 from the current state making it an shape of (4, 5, 5)
         state = np.delete(state, [3, 5], axis=0)

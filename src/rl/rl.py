@@ -106,7 +106,14 @@ def rl():
             if canonical_board and curr_player == env.govars.WHITE:
                 # Set the current player to the current player
                 env.state_utils.set_turn(curr_state)
-
+            else:
+                # Current players stones is allways first layer
+                if env.turn(curr_state) == env.WHITE:
+                    channels = np.arange(env.NUM_CHNLS)
+                    channels[env.BLACK] = env.WHITE
+                    channels[env.WHITE] = env.BLACK
+                    curr_state = curr_state[channels]
+            
             # Remove array index 3 and 5 from the current state making it an shape of (4, 5, 5)
             curr_state = np.delete(curr_state, [3, 5], axis=0)
 
