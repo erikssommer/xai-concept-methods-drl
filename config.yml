@@ -1,6 +1,6 @@
 # MCTS config
-episodes: 3000
-simulations: 200 # m
+episodes: 100
+simulations: 100 # m
 epsilon: 1 # rollout
 epsilon_decay: 0 # 0.002
 sigma: 0 # critic
@@ -23,7 +23,7 @@ pre_trained_path: ../models/pre_trained/board_size_5/
 # Replay buffer config
 rbuf_size: 2048 # Single process (2048)
 rbuf_cap: 10000 # Multi process
-sample_ratio: 0.8 # 50% chance of adding case to replay buffer, helps with overfitting
+sample_ratio: 1.0 # 50% chance of adding case to replay buffer, helps with overfitting
 batch_size: 512 # 512
 clear_rbuf: false
 
@@ -31,9 +31,12 @@ clear_rbuf: false
 log_dir: tensorboard_logs
 log_name: go
 
+# AlphaZero config
+rl_zero: true
+
 # GO config
 board_size: 5 # k
-komi: 0 # gives white a bonus of x points at the end of the game due to black going first
+komi: 0.5 # gives white a bonus of x points at the end of the game due to black going first
 canonical_board: false
 
 # Threads
@@ -46,7 +49,7 @@ epoch_skip: 0
 use_gpu: false
 
 # Debug config
-render: false
+render: true
 plot: false
 
 # Topp config
