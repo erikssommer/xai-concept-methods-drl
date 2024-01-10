@@ -57,7 +57,7 @@ class RBUF:
         elif player == govars.WHITE and winner == 1:
             return -1
         else:
-            return 0
+            AssertionError("Invalid winner")
 
     def __len__(self):
         return len(self.buffer)

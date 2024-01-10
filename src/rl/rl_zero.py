@@ -79,6 +79,8 @@ def rl_zero():
         # Create the initial tree
         tree = MCTS(init_state, simulations, board_size, move_cap, c, komi, policy_nn)
 
+        root = tree.root
+
         # Play a game until termination
         game_over = False
 
@@ -87,9 +89,11 @@ def rl_zero():
             curr_player = go_env.turn()
             curr_state = go_env.state()
 
+            assert curr_state.all() == tree.root.state.all()
+
             best_action_node, distribution = tree.search()
 
-            #graph = best_action_node.visualize_tree()
+            #graph = root.visualize_tree()
             #graph.render('./visualization/images/tree', view=True)
                 
             # Current players stones is allways first layer
@@ -119,10 +123,11 @@ def rl_zero():
             # Garbage collection
             gc.collect()
 
-        # Get the winner of the game
-        winner = go_env.winning()
+        # Get the winner of the game in black's perspective
+        winner = go_env.winner()
 
-        print(f"Winner: {winner}")
+        if config.render:
+            print(f"Winner: {winner}")
 
         # Set the values of the states
         rbuf.set_values(winner)

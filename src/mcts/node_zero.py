@@ -30,10 +30,17 @@ class Node:
         """
         Select the best child node using PUCT algorithm
         """
-        best_idx = np.argmax([child.q_value() + child.u_value(c) for child in self.children])
+        # finds the maximum value based on value method for each of the child node
+        values = np.array([child.q_value() + child.u_value(c) for child in self.children])
+        max_value = np.max(values)
+        
+        # getting index of child with max value - ties breaks randomly
+        random_max_index = np.random.choice(np.flatnonzero(values == max_value))
+
+        #best_idx = np.argmax([child.q_value() + child.u_value(c) for child in self.children])
 
         # Return the best child
-        return self.children[best_idx]
+        return self.children[random_max_index]
 
     def update(self, reward):
         self.n_visit_count += 1
@@ -54,7 +61,7 @@ class Node:
         Exploration bonus: calculate the U(s,a) value for a given node
         Using upper confidence bound for trees (UCT)
         """
-        return c * self.p_prior_probability * (np.sqrt(np.log(self.parent.n_visit_count)) / (1 + self.n_visit_count))
+        return c * self.p_prior_probability * ((np.sqrt(np.log(self.parent.n_visit_count))) / (1 + self.n_visit_count))
 
     def make_childnode(self, action, state, prior_probability):
         child_node = Node(state, self, prior_probability)

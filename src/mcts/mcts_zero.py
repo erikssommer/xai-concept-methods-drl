@@ -53,9 +53,9 @@ class MCTSzero:
         # If the node is a terminal node, return the winner
         if node.is_game_over():
             if gogame.turn(node.state) == govars.BLACK:
-                return gogame.winning(node.state)
+                return gogame.winning(node.state, self.komi)
             else:
-                return gogame.winning(node.state)
+                return gogame.winning(node.state, self.komi) * -1
         
         # Use the neural network to get the prior probabilities
         policy, value = self.policy_nn.predict(node.state)
@@ -103,9 +103,8 @@ class MCTSzero:
         max_visits = max(child.n_visit_count for child in self.root.children)
         best_moves = [
             child for child in self.root.children if child.n_visit_count == max_visits]
+        
         # Add some randomness and not always choose the same move eagerly
-        # Could use argmax
-
         node = random.choice(best_moves)
 
         # Get the distribution from the root node

@@ -1,5 +1,5 @@
 # MCTS config
-episodes: 100
+episodes: 500
 simulations: 100 # m
 epsilon: 1 # rollout
 epsilon_decay: 0 # 0.002
@@ -7,7 +7,7 @@ sigma: 0 # critic
 sigma_decay: 0.001
 alpha: 0.1 # Selecting move randomly, but weighted by the distribution (0 = argmax, 1 = probablistic)
 alpha_decay: 0.0007
-c: 1.3 # Exploration constant
+c: 1 # Exploration constant
 
 # Neural Network config
 resnet: false
@@ -49,7 +49,7 @@ epoch_skip: 0
 use_gpu: false
 
 # Debug config
-render: true
+render: false
 plot: false
 
 # Topp config
