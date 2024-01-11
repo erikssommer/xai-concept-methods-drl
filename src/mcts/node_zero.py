@@ -76,12 +76,11 @@ class Node:
 
         return child_node
 
-    def make_children(self, prior_probabilities: list):
+    def make_children(self, prior_probabilities: list, valid_moves: np.ndarray):
         """
         :return: Padded children numpy states
         """
         child_states = gogame.children(self.state)
-        valid_moves = gogame.valid_moves(self.state)
 
         actions = np.argwhere(valid_moves).flatten()
 

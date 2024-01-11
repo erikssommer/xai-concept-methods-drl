@@ -60,13 +60,16 @@ class MCTSzero:
         # Use the neural network to get the prior probabilities
         policy, value = self.policy_nn.predict(node.state)
 
+        # Get valid moves
+        valid_moves = gogame.valid_moves(node.state)
+
+        # Convert valid_moves to a numpy array of integers
+        valid_moves_mask = np.array(valid_moves, dtype=int)
+
         # Make a list of only valid moves
-        prior_probabilities = []
-        for i in range(len(policy)):
-            if policy[i] != 0:
-                prior_probabilities.append(policy[i])
-        
-        node.make_children(prior_probabilities)
+        prior_probabilities = policy[valid_moves_mask == 1]
+
+        node.make_children(prior_probabilities, valid_moves)
 
         node.expanded = True
 
