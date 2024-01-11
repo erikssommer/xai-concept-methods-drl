@@ -1,5 +1,5 @@
 # MCTS config
-episodes: 500
+episodes: 2000
 simulations: 100 # m
 epsilon: 1 # rollout
 epsilon_decay: 0 # 0.002
@@ -49,7 +49,7 @@ epoch_skip: 0
 use_gpu: false
 
 # Debug config
-render: true
+render: false
 plot: false
 
 # Topp config
