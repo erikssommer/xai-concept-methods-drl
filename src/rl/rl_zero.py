@@ -126,6 +126,8 @@ def rl_zero():
         # Get the winner of the game in black's perspective
         winner = go_env.winner()
 
+        assert winner != 0
+
         if config.render:
             print(f"Winner: {winner}")
 

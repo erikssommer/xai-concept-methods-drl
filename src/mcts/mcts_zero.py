@@ -64,24 +64,11 @@ class MCTSzero:
         prior_probabilities = []
         for i in range(len(policy)):
             if policy[i] != 0:
-                prior_probabilities.append(i)
+                prior_probabilities.append(policy[i])
         
         node.make_children(prior_probabilities)
 
         node.expanded = True
-
-        return value
-
-    def __evaluate(self, node: Node) -> int:
-        """
-        Evaluate a node using the value head of the neural network
-
-        :param node: The node to evaluate
-        :return: The reward of the node
-        """
-
-        # Get the value from the policy network
-        value = self.policy_nn.predict(node.state, value_only=True)
 
         return value
     

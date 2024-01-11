@@ -2,6 +2,7 @@ import env
 import os
 from policy import ActorCriticNet, ResNet
 from utils import config
+from mcts import MCTSzero as MCTS
 
 if __name__ == "__main__":
 
@@ -42,6 +43,13 @@ if __name__ == "__main__":
     while start_player not in ["y", "n"]:
         print("Invalid input, try again")
         start_player = input("Do you want to start? (y/n): ")
+    
+    lookahead = input("Do you want to use lookahead? (y/n): ")
+
+    # Test if the user typed either y or n
+    while lookahead not in ["y", "n"]:
+        print("Invalid input, try again")
+        lookahead = input("Do you want the model to use lookahead with MCTS? (y/n): ")
 
     for _ in range(games):
         go_env.reset()
@@ -54,7 +62,15 @@ if __name__ == "__main__":
             
             print(f"Value estimation of the current state: {value}")
 
-            if go_env.turn() == 0 and start_player == "n":
+            if go_env.turn() == 0 and start_player == "n" and lookahead:
+                tree = MCTS(go_env.state(), config.simulations, board_size, config.move_cap, config.c, actor_net)
+                node, _ = tree.search()
+                _, _, game_over, _ = go_env.step(node.action)
+            elif go_env.turn() == 1 and start_player == "y" and lookahead:
+                tree = MCTS(go_env.state(), config.simulations, board_size, config.move_cap, config.c, actor_net)
+                node, _ = tree.search()
+                _, _, game_over, _ = go_env.step(node.action)
+            elif go_env.turn() == 0 and start_player == "n":
                 action = actor_net.best_action(go_env.state(), greedy_move)
                 _, _, game_over, _ = go_env.step(action)
             elif go_env.turn() == 1 and start_player == "y":

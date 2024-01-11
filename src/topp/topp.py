@@ -10,7 +10,7 @@ from utils import config
 
 
 class Topp:
-    def __init__(self, board_size, num_games, render: bool = False, dir: str = 'training', version: str = None):
+    def __init__(self, board_size, num_games, render: bool = False, komi=0, dir: str = 'training', version: str = None):
         self.board_size = board_size
         self.num_nn = 0
         self.num_games = num_games
@@ -19,6 +19,7 @@ class Topp:
         self.move_cap = 100
         self.dir = dir
         self.version = version
+        self.komi = komi
 
     def add_agents(self, greedy_move: bool = False):
         if self.dir in 'saved_sessions' or 'model_performance' in self.dir:
@@ -49,7 +50,7 @@ class Topp:
                 # Starting agent plays as black
                 starting_agent = random.choice([i, j])
 
-                if config.render:
+                if self.render:
                     # Print playing agents
                     print(
                         f'Playing agents: {self.agents[i].name} vs {self.agents[j].name}')
@@ -59,7 +60,7 @@ class Topp:
                 # Play the games
                 for _ in range(self.num_games):
                     # Create the environment
-                    go_env = env.GoEnv(size=self.board_size)
+                    go_env = env.GoEnv(size=self.board_size, komi=self.komi)
 
                     # Reset the environment
                     go_env.reset()

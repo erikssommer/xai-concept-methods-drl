@@ -32,6 +32,8 @@ class Node:
         """
         # finds the maximum value based on value method for each of the child node
         values = np.array([child.q_value() + child.u_value(c) for child in self.children])
+
+        # Applying argmax to the values array to get the index of the max value
         max_value = np.max(values)
         
         # getting index of child with max value - ties breaks randomly
@@ -83,7 +85,8 @@ class Node:
 
         actions = np.argwhere(valid_moves).flatten()
 
-        assert len(actions) == len(prior_probabilities)
+        # Assert the number of actions and prior probabilities are the same and print a warning with the lengths if not
+        assert len(actions) == len(prior_probabilities), f"Number of actions ({len(actions)}) and prior probabilities ({len(prior_probabilities)}) are not the same"
 
         # Using enumerate to get the index of the action
         for i, action in enumerate(actions):
