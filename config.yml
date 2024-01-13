@@ -8,6 +8,7 @@ sigma_decay: 0.001
 alpha: 0.1 # Selecting move randomly, but weighted by the distribution (0 = argmax, 1 = probablistic)
 alpha_decay: 0.0007
 c: 1 # Exploration constant
+nondet_plies: 8 # Number of plies to use for non-deterministic playouts
 
 # Neural Network config
 resnet: false
@@ -17,7 +18,7 @@ convnet_filters: 32 # f
 nr_of_anets: 10 # m
 learning_rate: 0.001
 move_cap: 200
-pre_trained: true # Remember to set sigma and epsilon to 0 for faster training
+pre_trained: false # Remember to set sigma and epsilon to 0 for faster training
 pre_trained_path: ../models/pre_trained/board_size_5/
 
 # Replay buffer config
@@ -32,7 +33,8 @@ log_dir: tensorboard_logs
 log_name: go
 
 # AlphaZero config
-rl_zero: true
+rl_zero: false
+rl_uct: true
 
 # GO config
 board_size: 5 # k

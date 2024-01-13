@@ -66,7 +66,7 @@ class Node:
         return c * self.p_prior_probability * ((np.sqrt(np.log(self.parent.n_visit_count))) / (1 + self.n_visit_count))
 
     def make_childnode(self, action, state, prior_probability):
-        child_node = Node(state, self, prior_probability)
+        child_node = Node(state=state, parent=self, prior_probability=prior_probability)
 
         # Set the action from the parent to the child node
         child_node.action = action
@@ -90,6 +90,15 @@ class Node:
         # Using enumerate to get the index of the action
         for i, action in enumerate(actions):
             self.make_childnode(action, child_states[action], prior_probabilities[i])
+    
+    def delete_children(self):
+        # Recursively in-order delete all children
+        for child in self.children:
+            child.delete_children()
+            del child
+        
+        # Delete the children list
+        #self.children.clear()
 
     def visualize_tree(self, graph=None):
         if graph is None:

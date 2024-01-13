@@ -79,7 +79,7 @@ def rl_zero():
         # Create the initial tree
         tree = MCTS(init_state, simulations, board_size, move_cap, c, komi, policy_nn)
 
-        root = tree.root
+        #root = tree.root
 
         # Play a game until termination
         game_over = False
@@ -161,7 +161,7 @@ def rl_zero():
                 del rbuf
                 rbuf = RBUF(rbuf_size)
 
-        # Delete references and garbadge collection
+        # Delete references and garbadge collection        
         del tree.root
         del tree
         del go_env
