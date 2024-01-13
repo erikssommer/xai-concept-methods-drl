@@ -1,4 +1,4 @@
-from rl import rl, rl_multiprocessing, rl_zero
+from rl import rl, rl_multiprocessing, rl_zero, rl_uct
 from utils import Timer, folder_setup
 from utils import config
     
@@ -13,6 +13,8 @@ if __name__ == "__main__":
     # Train the models with reinforcement learning
     if config.rl_zero:
         rl_zero()
+    elif config.rl_uct:
+        rl_uct()
     elif config.multi_process:
         rl_multiprocessing()
     else:
