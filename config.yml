@@ -1,5 +1,5 @@
 # MCTS config
-episodes: 3000
+episodes: 4000
 simulations: 100 # m
 epsilon: 1 # rollout
 epsilon_decay: 0 # 0.002
