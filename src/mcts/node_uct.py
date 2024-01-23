@@ -33,7 +33,7 @@ class Node:
         valid_moves = gogame.valid_moves(state)
         # Using valid moves as a mask, we can set illegal moves to 0
         self.illegal_moves_mask = np.ones(self.child_priors.shape)
-        self.illegal_moves_mask[valid_moves == 0] = 0
+        self.illegal_moves_mask[valid_moves == 1] = 0
 
 
     @property
@@ -58,7 +58,7 @@ class Node:
             child_move = current.best_child()
             # This is a (deferred) leaf, have to create it
             if child_move not in current.children:
-                current.add_child(child_move, self.child_priors[child_move])
+                current.add_child(child_move)
             current = current.children[child_move]
         return current
 
@@ -82,7 +82,8 @@ class Node:
         return math.sqrt(self.number_visits) * (self.child_priors / (1 + self.child_number_visits))
 
     def best_child(self):
-        return np.argmax(self.child_Q() + self.child_U() - self.illegal_moves_mask * 100000)
+        res = np.argmax(self.child_Q() + self.child_U() - self.illegal_moves_mask * 100000)
+        return np.unravel_index(res, self.child_priors.shape)[0]
     
     def get_move_to_make_for_search(self, ply_count):
         distribution = self.child_number_visits.flatten()
