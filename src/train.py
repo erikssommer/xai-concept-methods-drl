@@ -1,4 +1,4 @@
-from rl import rl, rl_multiprocessing, rl_zero, rl_uct
+from rl import rl, rl_multiprocessing, rl_zero, rl_uct, rl_canonical
 from utils import Timer, folder_setup
 from utils import config
     
@@ -11,7 +11,9 @@ if __name__ == "__main__":
     timer.start_timer()
 
     # Train the models with reinforcement learning
-    if config.rl_zero:
+    if config.rl_canonical:
+        rl_canonical()
+    elif config.rl_zero:
         rl_zero()
     elif config.rl_uct:
         rl_uct()
