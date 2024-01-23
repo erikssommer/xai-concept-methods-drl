@@ -1,5 +1,5 @@
 # MCTS config
-episodes: 4000
+episodes: 1500
 simulations: 100 # m
 epsilon: 1 # rollout
 epsilon_decay: 0 # 0.002
@@ -33,8 +33,9 @@ log_dir: tensorboard_logs
 log_name: go
 
 # AlphaZero config
+rl_canonical: true
 rl_zero: false
-rl_uct: true
+rl_uct: false
 
 # GO config
 board_size: 5 # k
