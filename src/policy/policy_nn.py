@@ -114,6 +114,9 @@ class ActorCriticNet(BaseNet):
             return value
 
         policy = self.mask_invalid_moves(policy, state_copy)
+
+        del state
+        del state_copy
         
         return policy, value
     
@@ -129,6 +132,8 @@ class ActorCriticNet(BaseNet):
     
         # Normalize the policy
         policy = utils.normalize(policy)
+
+        del valid_moves
         
         return policy
     
@@ -146,8 +151,7 @@ class ActorCriticNet(BaseNet):
         return np.argmax(policy)
     
     def value_estimation(self, state):
-        value = self.predict(state, value_only=True)
-        return value
+        return self.predict(state, value_only=True)
     
     def save_model(self, path):
         self.model.save(path)
