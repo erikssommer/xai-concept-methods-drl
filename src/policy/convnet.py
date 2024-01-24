@@ -79,7 +79,15 @@ class ConvNet(BaseNet):
         return self.model.fit(states, [distributions, values], verbose=0, epochs=epochs, batch_size=128, callbacks=callbacks)
     
     # Define a prediction function
-    def predict(self, state, player, value_only=False):
+    def predict(self, state, player, value_only=False, mock_data=False):
+
+        if mock_data:
+            policy = np.random.random(self.board_size ** 2 + 1)
+            policy = self.mask_invalid_moves(policy, state)
+
+            value = np.random.random()
+            return policy, value
+
         state_copy = state.copy()
 
         # Remove array index 3 and 5 from the current state making it an shape of (4, 5, 5)
@@ -89,9 +97,9 @@ class ConvNet(BaseNet):
 
         if len(state.shape) == 3:
             state = np.reshape(state, (1, *state.shape))
-        
+
         res = self.model(state, training=False)
-        
+
         policy, value = res
 
         # Get the policy array and value number from the result

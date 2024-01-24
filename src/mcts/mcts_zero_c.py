@@ -3,11 +3,11 @@ from .node_zero_c import Node
 from typing import Tuple
 from env import gogame
 import utils
-from policy import BaseNet
+from policy import FastPredictor
 import random
 
 class MCTSzero:
-    def __init__(self, game_state, simulations, board_size, move_cap, c=1.3, komi=0.5, neural_network: BaseNet=None):
+    def __init__(self, game_state, simulations, board_size, move_cap, neural_network: FastPredictor, c=1.3, komi=0.5):
         """
         Initialize the Monte Carlo Tree Search
 

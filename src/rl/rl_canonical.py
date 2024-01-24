@@ -4,6 +4,8 @@ from utils import config
 from mcts import MCTSzero as MCTS
 from rbuf import RBUF
 from policy import ConvNet, ResNet
+from policy import FastPredictor
+from policy import LiteModel
 import numpy as np
 import gc
 from utils import tensorboard_setup, write_to_tensorboard
@@ -65,8 +67,12 @@ def rl_canonical():
 
     # Loop through the number of episodes
     for _ in tqdm(range(start_episode, episodes)):
+
         # Create the environment
         go_env = env.GoEnv(size=board_size, komi=komi)
+
+        # Create the fast predictor for speed and memory efficiency
+        model = FastPredictor(LiteModel.from_keras_model(neural_network.model))
 
         # Reset the environment
         go_env.reset()
@@ -75,7 +81,7 @@ def rl_canonical():
         init_state = go_env.canonical_state()
 
         # Create the initial tree
-        tree = MCTS(init_state, simulations, board_size, move_cap, c, komi, neural_network)
+        tree = MCTS(init_state, simulations, board_size, move_cap, model, c, komi)
 
         #root = tree.root
 
@@ -158,10 +164,11 @@ def rl_canonical():
                 del rbuf
                 rbuf = RBUF(rbuf_size)
 
-        # Delete references and garbadge collection        
+        # Delete references and garbadge collection      
         del tree.root
         del tree
         del go_env
+        del model
         gc.collect()
 
         start_episode += 1

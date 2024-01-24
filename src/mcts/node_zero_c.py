@@ -92,15 +92,7 @@ class Node:
         # Using enumerate to get the index of the action
         for i, action in enumerate(actions):
             self.make_childnode(action, child_states[action], prior_probabilities[i], child_player)
-    
-    def delete_children(self):
-        # Recursively in-order delete all children
-        for child in self.children:
-            child.delete_children()
-            del child
-        
-        # Delete the children list
-        #self.children.clear()
+
 
     def visualize_tree(self, graph=None):
         if graph is None:
