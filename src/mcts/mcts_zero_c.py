@@ -7,7 +7,7 @@ from policy import FastPredictor
 import random
 
 class MCTSzero:
-    def __init__(self, game_state, simulations, board_size, move_cap, neural_network: FastPredictor, c=1.3, komi=0.5):
+    def __init__(self, game_state, simulations, board_size, move_cap, neural_network: FastPredictor, c=1, komi=0.5):
         """
         Initialize the Monte Carlo Tree Search
 

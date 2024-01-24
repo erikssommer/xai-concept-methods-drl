@@ -2,13 +2,13 @@ import os
 from tqdm import tqdm
 from utils import config
 from mcts import MCTSzero as MCTS
-from rbuf import RBUF
 from policy import ConvNet, ResNet
 from policy import FastPredictor
 from policy import LiteModel
 import numpy as np
 import gc
 from utils import tensorboard_setup, write_to_tensorboard
+from env import govars
 
 import env
 
@@ -28,9 +28,6 @@ def rl_canonical():
     rbuf_size = config.rbuf_size
     episodes = config.episodes
     pre_trained_path = config.pre_trained_path
-
-    # Creation replay buffer
-    rbuf = RBUF(rbuf_size)
 
     if pre_trained:
         # Try to get the first file in the pre trained path directory
@@ -67,6 +64,15 @@ def rl_canonical():
 
     # Loop through the number of episodes
     for _ in tqdm(range(start_episode, episodes)):
+
+        turns = []
+        states = []
+        distributions = []
+
+        turn_buffer = []
+        state_buffer = []
+        distribution_buffer = []
+        value_buffer = []
 
         # Create the environment
         go_env = env.GoEnv(size=board_size, komi=komi)
@@ -108,7 +114,11 @@ def rl_canonical():
                 # If current player is 1, change the 2nd array to all 1's
                 if curr_player == 1:
                     curr_state[2] = np.ones((board_size, board_size))
-                rbuf.add_case(curr_player, curr_state, distribution)
+
+                # Add the case to the replay buffer
+                turns.append(curr_player)
+                states.append(curr_state)
+                distributions.append(distribution)
 
             # Apply the action to the environment
             _, _, game_over, _ = go_env.step(best_action_node.action)
@@ -135,11 +145,21 @@ def rl_canonical():
             print(f"Winner: {winner}")
 
         # Set the values of the states
-        rbuf.set_values(winner)
+        for (dist, state, turn) in zip(distributions, states, turns):
+            if turn == govars.BLACK and winner == 1:
+                outcome = 1
+            elif turn == govars.WHITE and winner == -1:
+                outcome = 1
+            elif turn == govars.BLACK and winner == -1:
+                outcome = -1
+            elif turn == govars.WHITE and winner == 1:
+                outcome = -1
+            else:
+                AssertionError("Invalid winner")
 
-        # Train the neural network
-        state_buffer, distribution_buffer, value_buffer = zip(
-            *rbuf.get(batch_size))
+            state_buffer.append(state)
+            distribution_buffer.append(dist)
+            value_buffer.append(outcome)
 
         # Train the neural network
         history = neural_network.fit(
@@ -158,17 +178,21 @@ def rl_canonical():
             neural_network.save_model(
                 f'../models/training/board_size_{board_size}/net_{start_episode}.keras')
 
-        # For every 100 episode, delete the rbuf
-        if clear_rbuf:
-            if start_episode % 100 == 0:
-                del rbuf
-                rbuf = RBUF(rbuf_size)
-
         # Delete references and garbadge collection      
         del tree.root
         del tree
         del go_env
         del model
+
+        # Clear the replay buffer lists
+        turns = []
+        states = []
+        distributions = []
+
+        state_buffer = []
+        distribution_buffer = []
+        value_buffer = []
+
         gc.collect()
 
         start_episode += 1

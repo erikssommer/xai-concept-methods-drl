@@ -1,5 +1,5 @@
 # MCTS config
-episodes: 4000
+episodes: 5000
 simulations: 100 # m
 epsilon: 1 # rollout
 epsilon_decay: 0 # 0.002
@@ -18,7 +18,7 @@ convnet_filters: 32 # f
 nr_of_anets: 10 # m
 learning_rate: 0.001
 move_cap: 200
-pre_trained: true # Remember to set sigma and epsilon to 0 for faster training
+pre_trained: false # Remember to set sigma and epsilon to 0 for faster training
 pre_trained_path: ../models/pre_trained/board_size_5/
 
 # Replay buffer config

@@ -4,7 +4,7 @@
 #SBATCH --time=4-00:00:00
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
-#SBATCH --mem=100G
+#SBATCH --mem=10G
 #SBATCH --output=log.txt
 #SBATCH --mail-user=erik.s.sommer@ntnu.no
 #SBATCH --mail-type=ALL
