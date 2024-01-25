@@ -143,8 +143,9 @@ def rl_canonical():
             gc.collect()
 
         # Get the winner of the game in black's perspective (1 for win and -1 for loss)
-        winner = go_env.winner()
+        winner = go_env.winning()
 
+        # Do not allow draws
         assert winner != 0
 
         if config.render:
@@ -201,7 +202,6 @@ def rl_canonical():
 
         gc.collect()
 
-        move_nr = 0
         start_episode += 1
 
     # Save the final neural network model
