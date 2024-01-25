@@ -201,6 +201,7 @@ def rl_canonical():
 
         gc.collect()
 
+        move_nr = 0
         start_episode += 1
 
     # Save the final neural network model
