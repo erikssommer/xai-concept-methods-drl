@@ -83,6 +83,9 @@ def rl_canonical():
         # Reset the environment
         go_env.reset()
 
+        # Number of moves in the game
+        move_nr = 0
+
         # Get the initial state
         init_state = go_env.canonical_state()
 
@@ -96,7 +99,7 @@ def rl_canonical():
         # Black always starts
         curr_player = 0
 
-        while not game_over:
+        while not game_over and move_nr < move_cap:
             # Get the player
             curr_state = go_env.canonical_state()
 
@@ -132,6 +135,9 @@ def rl_canonical():
 
             # Flipp the player
             curr_player = 1 - curr_player
+
+            # Increment the move number
+            move_nr += 1
 
             # Garbage collection
             gc.collect()
