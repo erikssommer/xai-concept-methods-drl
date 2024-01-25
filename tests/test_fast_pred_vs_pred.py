@@ -1,5 +1,6 @@
 import unittest
 import numpy as np
+import time
 
 import os
 # Add the src folder to the path
@@ -44,8 +45,18 @@ class TestFastPredVsPred(unittest.TestCase):
         state_slow = np.reshape(state, (1, *state.shape))
 
         # Predicting
+        # Set a timer for the slow model
+        start = time.time()
+        #dist, value = model.model.predict(state_slow) even slower!!! Don't use this
         dist, value = model.model(state_slow)
+        end = time.time()
+        print("Slow model time: ", end - start)
+
+        # Set a timer for the fast model
+        start = time.time()
         fast_dist, fast_value = fast_model.model.predict_single(state)
+        end = time.time()
+        print("Fast model time: ", end - start)
 
         print("Dist: ", dist)
         print("Fast dist: ", fast_dist)
