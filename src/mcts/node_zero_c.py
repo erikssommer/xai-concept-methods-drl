@@ -48,9 +48,6 @@ class Node:
         self.n_visit_count += 1
         self.w_total_action_value += reward
         self.q_mean_action_value = self.w_total_action_value / self.n_visit_count
-
-    def is_game_over(self):
-        return gogame.game_ended(self.state)
     
     def q_value(self) -> float:
         """
@@ -63,18 +60,7 @@ class Node:
         Exploration bonus: calculate the U(s,a) value for a given node
         Using upper confidence bound for trees (UCT)
         """
-        return c * self.p_prior_probability * ((np.sqrt(np.log(self.parent.n_visit_count))) / (1 + self.n_visit_count))
-
-    def make_childnode(self, action, state, prior_probability, player):
-        child_node = Node(state=state, player=player, parent=self, prior_probability=prior_probability)
-
-        # Set the action from the parent to the child node
-        child_node.action = action
-
-        # Add the child node to the list of children
-        self.children.append(child_node)
-
-        return child_node
+        return c * self.p_prior_probability * (np.sqrt(self.parent.n_visit_count) / (1 + self.n_visit_count))
 
     def make_children(self, prior_probabilities: list, valid_moves: np.ndarray):
         """
@@ -86,12 +72,18 @@ class Node:
 
         child_player = 1 - self.player
 
-        # Assert the number of actions and prior probabilities are the same and print a warning with the lengths if not
-        assert len(actions) == len(prior_probabilities), f"Number of actions ({len(actions)}) and prior probabilities ({len(prior_probabilities)}) are not the same"
-
         # Using enumerate to get the index of the action
         for i, action in enumerate(actions):
-            self.make_childnode(action, child_states[action], prior_probabilities[i], child_player)
+            child_node = Node(state=child_states[action], 
+                              player=child_player, 
+                              parent=self, 
+                              prior_probability=prior_probabilities[i])
+
+            # Set the action from the parent to the child node
+            child_node.action = action
+
+            # Add the child node to the list of children
+            self.children.append(child_node)
 
 
     def visualize_tree(self, graph=None):

@@ -51,14 +51,14 @@ class MCTSzero:
         """
 
         # If the node is a terminal node, return the winner
-        if node.is_game_over():
+        if gogame.game_ended(node.state):
             return gogame.winning(node.state, self.komi)
         
-        # Use the neural network to get the prior probabilities
-        policy, value = self.neural_network.predict(node.state, node.player)
-
         # Get valid moves
         valid_moves = gogame.valid_moves(node.state)
+        
+        # Use the neural network to get the prior probabilities
+        policy, value = self.neural_network.predict(node.state, node.player, valid_moves)
 
         # Convert valid_moves to a numpy array of integers
         valid_moves_mask = np.array(valid_moves, dtype=int)

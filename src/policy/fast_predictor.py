@@ -7,7 +7,7 @@ class FastPredictor:
     def __init__(self, model: LiteModel):
         self.model = model
 
-    def predict(self, board, player):
+    def predict(self, board, player, valid_moves):
         state = np.delete(board, [3,5], axis=0)
         if player == 1:
             state[2] = np.ones((board.shape[1], board.shape[2]))
@@ -16,13 +16,11 @@ class FastPredictor:
 
         policy, value = res
 
-        policy = self.mask_invalid_moves(policy, board)
+        policy = self.mask_invalid_moves(policy, valid_moves)
 
         return policy, value[0]
     
-    def mask_invalid_moves(self, policy, state):
-        # Get invalid moves
-        valid_moves = gogame.valid_moves(state)
+    def mask_invalid_moves(self, policy, valid_moves):
 
         # Mask the invalid moves
         policy = policy * valid_moves
@@ -32,7 +30,5 @@ class FastPredictor:
     
         # Normalize the policy
         policy = utils.normalize(policy)
-
-        del valid_moves
         
         return policy
