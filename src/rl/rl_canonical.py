@@ -168,15 +168,17 @@ def rl_canonical():
             state_buffer.append(state)
             distribution_buffer.append(dist)
             value_buffer.append(outcome)
-
-        # Train the neural network
-        history = neural_network.fit(
-            np.array(state_buffer),
-            np.array(distribution_buffer),
-            np.array(value_buffer),
-            epochs=1,
-            callbacks=[tensorboard_callback]
-        )
+        
+        # Test if value buffer is not empty
+        if len(value_buffer) > 0:
+            # Train the neural network
+            history = neural_network.fit(
+                np.array(state_buffer),
+                np.array(distribution_buffer),
+                np.array(value_buffer),
+                epochs=1,
+                callbacks=[tensorboard_callback]
+            )
 
         # Add the metrics to TensorBoard
         write_to_tensorboard(history, start_episode, logdir)
