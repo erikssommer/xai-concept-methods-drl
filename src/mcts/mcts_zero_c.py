@@ -7,7 +7,7 @@ from policy import FastPredictor
 import random
 
 class MCTSzero:
-    def __init__(self, game_state, simulations, board_size, move_cap, neural_network: FastPredictor, c=1, komi=0.5):
+    def __init__(self, game_state, simulations, board_size, move_cap, neural_network: FastPredictor, c=1, komi=0.5, deterministic_moves=8):
         """
         Initialize the Monte Carlo Tree Search
 
@@ -25,6 +25,7 @@ class MCTSzero:
         self.board_size = board_size
         self.move_cap = move_cap
         self.komi = komi
+        self.deterministic_moves = deterministic_moves
 
     def __select(self, node: Node) -> Node:
         """
@@ -85,21 +86,32 @@ class MCTSzero:
         if node.parent:
             self.__backpropagate(node.parent, reward)
 
-    def __best_action(self) -> Tuple[np.ndarray, float]:
-        max_visits = max(child.n_visit_count for child in self.root.children)
-        best_moves = [
-            child for child in self.root.children if child.n_visit_count == max_visits]
+    def __best_action(self, num_moves) -> Tuple[np.ndarray, float]:
         
-        # Add some randomness and not always choose the same move eagerly
-        node = random.choice(best_moves)
+        valid_moves_distribution = []
 
-        # Get the distribution from the root node
+        for child in self.root.children:
+            valid_moves_distribution.append(child.n_visit_count)
+        
+        valid_moves_distribution = utils.normalize(valid_moves_distribution)
+
+        if num_moves > self.deterministic_moves:
+            # Choose the best action
+            action = np.argmax(valid_moves_distribution)
+        else:
+            # Choose an action based on the distribution
+            action = np.random.choice(len(valid_moves_distribution), p=valid_moves_distribution)
+        
+        # Get the node of the best action
+        node = self.root.children[action]
+
+        # Get the distribution from the root node including the invalid moves
         distribution = np.zeros(self.board_size ** 2 + 1)
         
         for child in self.root.children:
             distribution[child.action] = child.n_visit_count
 
-        # Softmax the distribution
+        # Normalize the distribution
         distribution = utils.normalize(distribution)
 
         return node, distribution
@@ -109,7 +121,7 @@ class MCTSzero:
         # Remove the reference to the parent node and delete the parent
         self.root.parent = None
 
-    def search(self) -> Tuple[np.ndarray, float]:
+    def search(self, num_moves) -> Tuple[np.ndarray, float]:
         """
         Run the Monte Carlo Tree Search
 
@@ -127,4 +139,4 @@ class MCTSzero:
             self.__backpropagate(node, value)
 
         # Return the best action
-        return self.__best_action()
+        return self.__best_action(num_moves)

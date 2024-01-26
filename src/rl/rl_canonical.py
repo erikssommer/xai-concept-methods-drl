@@ -28,6 +28,7 @@ def rl_canonical():
     rbuf_size = config.rbuf_size
     episodes = config.episodes
     pre_trained_path = config.pre_trained_path
+    det_moves = config.det_moves
 
     if pre_trained:
         # Try to get the first file in the pre trained path directory
@@ -90,7 +91,7 @@ def rl_canonical():
         init_state = go_env.canonical_state()
 
         # Create the initial tree
-        tree = MCTS(init_state, simulations, board_size, move_cap, model, c, komi)
+        tree = MCTS(init_state, simulations, board_size, move_cap, model, c, komi, det_moves)
 
         #root = tree.root
 
@@ -105,7 +106,7 @@ def rl_canonical():
 
             assert curr_state.all() == tree.root.state.all()
 
-            best_action_node, distribution = tree.search()
+            best_action_node, distribution = tree.search(move_nr)
 
             #graph = root.visualize_tree()
             #graph.render('./visualization/images/tree', view=True)
