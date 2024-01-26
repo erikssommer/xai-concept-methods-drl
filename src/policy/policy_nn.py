@@ -137,7 +137,7 @@ class ActorCriticNet(BaseNet):
         
         return policy
     
-    def best_action(self, state, greedy_move=False, alpha=config.alpha):
+    def best_action(self, state, player=None, greedy_move=False, alpha=config.alpha):
         policy, _ = self.predict(state)
 
         if greedy_move:

@@ -1,7 +1,9 @@
 from policy import ActorCriticNet
+from policy import ConvNet
+from policy import ResNet
 
 class Agent:
-    def __init__(self, board_size, path, name, greedy_move: bool = False):
+    def __init__(self, board_size, path, name, greedy_move: bool = False, convnet: bool = False):
         self.name = name # Naming the player the same as the network for clarity
         self.greedy_move = greedy_move
 
@@ -18,11 +20,14 @@ class Agent:
         self.win = 0
         self.loss = 0
         self.draw = 0
-        self.nn = ActorCriticNet(board_size, (f'{path}/{name}'))
+        if convnet:
+            self.nn = ConvNet(board_size, (f'{path}/{name}'))
+        else:
+            self.nn = ActorCriticNet(board_size, (f'{path}/{name}'))
 
     # Play a round of the turnament
-    def choose_action(self, state):
-        return self.nn.best_action(state, self.greedy_move)
+    def choose_action(self, state, player):
+        return self.nn.best_action(state, player, self.greedy_move)
 
     # Add a win
     def add_win(self, player):

@@ -133,18 +133,14 @@ class ConvNet(BaseNet):
         
         return policy
     
-    def best_action(self, state, greedy_move=False, alpha=config.alpha):
-        policy, _ = self.predict(state)
+    def best_action(self, state, player, greedy_move=False, alpha=config.alpha):
+        policy, _ = self.predict(state, player)
 
         if greedy_move:
             return np.argmax(policy)
 
-        if alpha > np.random.random():
-            # Selecting move randomly, but weighted by the distribution (0 = argmax, 1 = probablistic)
-            return np.random.choice(len(policy), p=policy)
-
-        # Selecting move greedily
-        return np.argmax(policy)
+        # Selecting move randomly, but weighted by the distribution (0 = argmax, 1 = probablistic)
+        return np.random.choice(len(policy), p=policy)
     
     def value_estimation(self, state):
         return self.predict(state, value_only=True)

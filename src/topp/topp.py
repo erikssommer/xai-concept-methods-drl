@@ -10,7 +10,7 @@ from utils import config
 
 
 class Topp:
-    def __init__(self, board_size, num_games, render: bool = False, komi=0, dir: str = 'training', version: str = None):
+    def __init__(self, board_size, num_games, render: bool = False, komi=0, dir: str = 'training', version: str = None, canonical: bool = False):
         self.board_size = board_size
         self.num_nn = 0
         self.num_games = num_games
@@ -20,8 +20,9 @@ class Topp:
         self.dir = dir
         self.version = version
         self.komi = komi
+        self.canonical = canonical
 
-    def add_agents(self, greedy_move: bool = False):
+    def add_agents(self, greedy_move: bool = False, convnet: bool = False):
         if self.dir in 'saved_sessions' or 'model_performance' in self.dir:
             path = f'../models/{self.dir}/board_size_{self.board_size}/{self.version}'
         else:
@@ -38,7 +39,7 @@ class Topp:
         # Add the agents
         for folder in sorted_folders:
             self.agents.append(
-                Agent(self.board_size, path, folder, greedy_move))
+                Agent(self.board_size, path, folder, greedy_move, convnet=convnet))
             self.num_nn += 1
 
         if len(self.agents) == 0:
@@ -65,6 +66,8 @@ class Topp:
                     # Reset the environment
                     go_env.reset()
 
+                    current_player = 0
+
                     # Track the number of times as black and white
                     # Starting player is black
                     if starting_agent == i:
@@ -89,7 +92,10 @@ class Topp:
                             break
 
                         agent: Agent = self.agents[current_agent]
-                        action = agent.choose_action(go_env.state())
+                        if self.canonical:
+                            action = agent.choose_action(go_env.canonical_state(), player=current_player)
+                        else:
+                            action = agent.choose_action(go_env.state())
 
                         _, _, terminated, _ = go_env.step(action)
                         moves += 1
@@ -102,6 +108,8 @@ class Topp:
                             current_agent = j
                         else:
                             current_agent = i
+
+                        current_player = 1 - current_player
 
                     # Winner in perspective of the starting agent, 1 if won, -1 if lost, 0 if draw
                     winner = go_env.winner()
