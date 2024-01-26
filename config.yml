@@ -8,7 +8,7 @@ sigma_decay: 0.001
 alpha: 0.1 # Selecting move randomly, but weighted by the distribution (0 = argmax, 1 = probablistic)
 alpha_decay: 0.0007
 c: 1 # Exploration constant
-nondet_plies: 8 # Number of plies to use for non-deterministic playouts
+det_moves: 8 # Number of plies to use for non-deterministic playouts
 
 # Neural Network config
 resnet: false
