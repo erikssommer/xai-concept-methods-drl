@@ -1,5 +1,5 @@
 # MCTS config
-episodes: 5000
+episodes: 10000
 simulations: 200 # m
 c: 1.3 # Exploration constant
 det_moves: 5 # Number of plies to use for non-deterministic playouts
