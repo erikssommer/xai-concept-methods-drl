@@ -1,14 +1,16 @@
 # MCTS config
 episodes: 5000
-simulations: 100 # m
+simulations: 200 # m
+c: 1.3 # Exploration constant
+det_moves: 5 # Number of plies to use for non-deterministic playouts
+
+# Epsilon-greedy config (not needed for AlphaZero)
 epsilon: 1 # rollout
 epsilon_decay: 0 # 0.002
 sigma: 0 # critic
 sigma_decay: 0.001
 alpha: 0.1 # Selecting move randomly, but weighted by the distribution (0 = argmax, 1 = probablistic)
 alpha_decay: 0.0007
-c: 1 # Exploration constant
-det_moves: 8 # Number of plies to use for non-deterministic playouts
 
 # Neural Network config
 resnet: false
