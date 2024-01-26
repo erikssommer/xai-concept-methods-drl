@@ -14,6 +14,8 @@ import env
 
 def rl_canonical():
 
+    low_counter = []
+
     # Get the config variables
     simulations = config.simulations
     c = config.c
@@ -70,7 +72,6 @@ def rl_canonical():
         states = []
         distributions = []
 
-        turn_buffer = []
         state_buffer = []
         distribution_buffer = []
         value_buffer = []
@@ -179,6 +180,8 @@ def rl_canonical():
                 epochs=1,
                 callbacks=[tensorboard_callback]
             )
+        else:
+            print("No cases in the replay buffer")
 
         # Add the metrics to TensorBoard
         write_to_tensorboard(history, start_episode, logdir)
@@ -205,8 +208,13 @@ def rl_canonical():
 
         gc.collect()
 
+        if move_nr < 5:
+            low_counter.append(move_nr)
+
         start_episode += 1
 
     # Save the final neural network model
     neural_network.save_model(
         f'../models/training/board_size_{board_size}/net_{episodes}.keras')
+    
+    print(f"Low counter: {low_counter}")
