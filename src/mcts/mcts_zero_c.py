@@ -52,7 +52,10 @@ class MCTSzero:
 
         # If the node is a terminal node, return the winner
         if gogame.game_ended(node.state):
-            return gogame.winning(node.state, self.komi)
+            if node.player == 1:
+                return gogame.winning(node.state, self.komi) * -1
+            else:
+                return gogame.winning(node.state, self.komi)
         
         # Get valid moves
         valid_moves = gogame.valid_moves(node.state)
