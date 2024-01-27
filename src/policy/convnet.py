@@ -27,7 +27,7 @@ class ConvNet(BaseNet):
             self.model = tf.keras.models.load_model(load_path)
         else:
             # Input
-            self.position_input = tf.keras.Input(shape=(4, self.board_size, self.board_size))
+            self.position_input = tf.keras.Input(shape=(2, self.board_size, self.board_size))
             
             # Residual block
             base = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (3, 3), activation="elu", padding="same", name="res_block_output_base")(self.position_input)
@@ -134,7 +134,9 @@ class ConvNet(BaseNet):
         return policy
     
     def best_action(self, state, player, greedy_move=False, alpha=config.alpha):
-        policy, _ = self.predict(state, player)
+        policy, value = self.predict(state, player)
+
+        print("Value: ", value)
 
         if greedy_move:
             return np.argmax(policy)

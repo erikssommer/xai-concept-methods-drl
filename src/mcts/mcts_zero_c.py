@@ -60,6 +60,9 @@ class MCTSzero:
         # Use the neural network to get the prior probabilities
         policy, value = self.neural_network.predict(node.state, node.player, valid_moves)
 
+        if node.player == 1:
+            value *= -1
+
         # Convert valid_moves to a numpy array of integers
         valid_moves_mask = np.array(valid_moves, dtype=int)
 

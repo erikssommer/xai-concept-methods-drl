@@ -8,9 +8,9 @@ class FastPredictor:
         self.model = model
 
     def predict(self, board, player, valid_moves):
-        state = np.delete(board, [3,5], axis=0)
-        if player == 1:
-            state[2] = np.ones((board.shape[1], board.shape[2]))
+        state = np.delete(board, [2,3,4,5], axis=0)
+        #if player == 1:
+            #state[2] = np.ones((board.shape[1], board.shape[2]))
 
         res = self.model.predict_single(state)
 

@@ -10,7 +10,7 @@ from utils import config
 
 
 class Topp:
-    def __init__(self, board_size, num_games, render: bool = False, komi=0, dir: str = 'training', version: str = None, canonical: bool = False):
+    def __init__(self, board_size, num_games, render: bool = False, komi=0.5, dir: str = 'training', version: str = None, canonical: bool = False):
         self.board_size = board_size
         self.num_nn = 0
         self.num_games = num_games

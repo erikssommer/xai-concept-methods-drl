@@ -9,6 +9,7 @@ import numpy as np
 import gc
 from utils import tensorboard_setup, write_to_tensorboard
 from env import govars
+#import time
 
 import env
 
@@ -115,10 +116,10 @@ def rl_canonical():
             # Add the case to the replay buffer
             if np.random.random() < sample_ratio:
                 # Remove array index 3 and 5 from the current state making it an shape of (4, 5, 5)
-                curr_state = np.delete(curr_state, [3, 5], axis=0)
+                curr_state = np.delete(curr_state, [2, 3, 4, 5], axis=0)
                 # If current player is 1, change the 2nd array to all 1's
-                if curr_player == 1:
-                    curr_state[2] = np.ones((board_size, board_size))
+                #if curr_player == 1:
+                    #curr_state[2] = np.ones((board_size, board_size))
 
                 # Add the case to the replay buffer
                 turns.append(curr_player)
@@ -130,6 +131,7 @@ def rl_canonical():
 
             if config.render:
                 # Render the board
+                print(distribution)
                 go_env.render()
 
             # Update the root node of the mcts tree

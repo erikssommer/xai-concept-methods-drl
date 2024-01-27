@@ -30,11 +30,17 @@ class Node:
         """
         Select the best child node using PUCT algorithm
         """
-        # finds the maximum value based on value method for each of the child node
-        values = np.array([child.q_value() + child.u_value(c) for child in self.children])
 
-        # Applying argmax to the values array to get the index of the max value
-        max_value = np.max(values)
+        if self.player == 0:
+            # finds the maximum value based on value method for each of the child node
+            values = np.array([child.q_value() + child.u_value(c) for child in self.children])
+             # Applying argmax to the values array to get the index of the max value
+            max_value = np.max(values)
+        else:
+            # finds the minimum value based on value method for each of the child node
+            values = np.array([child.q_value() - child.u_value(c) for child in self.children])
+            # Applying argmin to the values array to get the index of the min value
+            max_value = np.min(values)
         
         # getting index of child with max value - ties breaks randomly
         random_max_index = np.random.choice(np.flatnonzero(values == max_value))
