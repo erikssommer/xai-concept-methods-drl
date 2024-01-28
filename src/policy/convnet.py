@@ -30,19 +30,22 @@ class ConvNet(BaseNet):
             self.position_input = tf.keras.Input(shape=(2, self.board_size, self.board_size))
             
             # Residual block
-            base = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (3, 3), activation="elu", padding="same", name="res_block_output_base")(self.position_input)
-            base = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (3, 3), activation="elu", padding="same")(base)
-            base = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (3, 3), activation="elu", padding="same")(base)
+            base = tf.keras.layers.Conv2D(32, (3, 3), activation="relu", padding="same", name="res_block_output_base")(self.position_input)
+            base = tf.keras.layers.Conv2D(48, (3, 3), activation="relu", padding="same")(base)
+            base = tf.keras.layers.Conv2D(64, (2, 2), activation="relu", padding="same")(base)
+            base = tf.keras.layers.Conv2D(64, (2, 2), activation="relu", padding="same")(base)
+
+            # Flatten the base
+            base = tf.keras.layers.Flatten()(base)
+
+            base = tf.keras.layers.Dense(128, activation="relu")(base)
+            base = tf.keras.layers.Dense(64, activation="relu")(base)
 
             # Policy head
-            policy = tf.keras.layers.Conv2D(self.output, (1, 1), activation="elu", padding="same")(base)
-            policy = tf.keras.layers.Flatten()(policy)
-            policy_output = tf.keras.layers.Dense(self.output, activation="softmax", name="policy_output")(policy)
+            policy_output = tf.keras.layers.Dense(self.output, activation="softmax", name="policy_output")(base)
 
             # Value head
-            val = tf.keras.layers.Conv2D(16, (1, 1), name="value_conv", activation="elu", padding="same")(base)
-            val = tf.keras.layers.Flatten()(val)
-            value_output = tf.keras.layers.Dense(1, name="value_output", activation="tanh")(val)
+            value_output = tf.keras.layers.Dense(1, activation="tanh", name="value_output")(base)
 
             self.model = tf.keras.Model(self.position_input, [policy_output, value_output])
             
@@ -91,9 +94,9 @@ class ConvNet(BaseNet):
         state_copy = state.copy()
 
         # Remove array index 3 and 5 from the current state making it an shape of (4, 5, 5)
-        state = np.delete(state, [3,5], axis=0)
-        if player == 1:
-            state[2] = np.ones((self.board_size, self.board_size))
+        state = np.delete(state, [2,3,4,5], axis=0)
+        #if player == 1:
+            #state[2] = np.ones((self.board_size, self.board_size))
 
         if len(state.shape) == 3:
             state = np.reshape(state, (1, *state.shape))

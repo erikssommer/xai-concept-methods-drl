@@ -25,9 +25,6 @@ class FastPredictor:
         # Mask the invalid moves
         policy = policy * valid_moves
 
-        # Reduce to 8 decimal places
-        policy = np.round(policy, 8)
-    
         # Normalize the policy
         policy = utils.normalize(policy)
         
