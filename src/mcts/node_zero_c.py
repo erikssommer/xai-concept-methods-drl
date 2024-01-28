@@ -30,22 +30,10 @@ class Node:
         """
         Select the best child node using PUCT algorithm
         """
-
         if self.player == 0:
-            # finds the maximum value based on value method for each of the child node
-            values = np.array([child.q_value() + child.u_value(c) for child in self.children])
-             # Applying argmax to the values array to get the index of the max value
-            index = np.argmax(values)
+            index = np.argmax([child.q_value() + child.u_value(c) for child in self.children])
         else:
-            # finds the minimum value based on value method for each of the child node
-            values = np.array([child.q_value() - child.u_value(c) for child in self.children])
-            # Applying argmin to the values array to get the index of the min value
-            index = np.argmin(values)
-        
-        # getting index of child with max value - ties breaks randomly
-        #random_max_index = np.random.choice(np.flatnonzero(values == max_value))
-
-        #best_idx = np.argmax([child.q_value() + child.u_value(c) for child in self.children])
+            index = np.argmin([child.q_value() - child.u_value(c) for child in self.children])
 
         # Return the best child
         return self.children[index]
@@ -66,7 +54,7 @@ class Node:
         Exploration bonus: calculate the U(s,a) value for a given node
         Using upper confidence bound for trees (UCT)
         """
-        return c * self.p_prior_probability * (np.sqrt(self.parent.n_visit_count) / (1 + self.n_visit_count))
+        return c * self.p_prior_probability * np.sqrt(self.parent.n_visit_count) / (1 + self.n_visit_count)
 
     def make_children(self, prior_probabilities: list, valid_moves: np.ndarray):
         """
@@ -97,7 +85,7 @@ class Node:
             graph = graphviz.Digraph()
 
         graph.node(str(
-            id(self)), label=f'Player: {self.player}\nVisits: {self.n_visit_count}\nRewards: {self.q_mean_action_value}\nState ([black][white]):\n{self.state[0]}\n{self.state[1]}]')
+            id(self)), label=f'Player: {self.player}\nVisits: {self.n_visit_count}\nRewards: {self.q_mean_action_value}\nState ([black][white]):\n{self.state[0]}\n{self.state[1]}')
 
         for child in self.children:
             graph.edge(str(id(self)), str(id(child)))

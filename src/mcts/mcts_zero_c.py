@@ -4,7 +4,6 @@ from typing import Tuple
 from env import gogame
 import utils
 from policy import FastPredictor
-import random
 
 class MCTSzero:
     def __init__(self, game_state, simulations, board_size, move_cap, neural_network: FastPredictor, c=1, komi=0.5, deterministic_moves=8):
@@ -34,12 +33,11 @@ class MCTSzero:
         :param node: The node to select from
         :return: The node to expand
         """
-        # If the node is not fully expanded, return it
-        if not node.is_expanded():
-            return node
-
-        # Otherwise, select the best child
-        return self.__select(node.best_child(self.c))
+        while node.is_expanded():
+            # Otherwise, select the best child
+            node = node.best_child(self.c)
+        
+        return node
 
     
     def __expand_and_evaluate(self, node: Node):
@@ -63,9 +61,6 @@ class MCTSzero:
         # Use the neural network to get the prior probabilities
         policy, value = self.neural_network.predict(node.state, node.player, valid_moves)
 
-        if node.player == 1:
-            value *= -1
-
         # Convert valid_moves to a numpy array of integers
         valid_moves_mask = np.array(valid_moves, dtype=int)
 
@@ -76,7 +71,10 @@ class MCTSzero:
 
         node.expanded = True
 
-        return value
+        if node.player == 1:
+            return value * -1
+        else:
+            return value
     
     def __backpropagate(self, node: Node, reward: int):
         """
@@ -85,14 +83,11 @@ class MCTSzero:
         :param node: The node to backpropagate from
         :param reward: The reward to backpropagate
         """
-        # Update the node
-        node.update(reward)
+        while node is not None:
+            node.update(reward)
+            node = node.parent
 
-        # If the node has a parent, backpropagate from it
-        if node.parent:
-            self.__backpropagate(node.parent, reward)
-
-    def __best_action(self, num_moves) -> Tuple[np.ndarray, float]:
+    def __best_action(self, num_moves) -> Tuple[Node, np.ndarray]:
         
         valid_moves_distribution = []
 
@@ -107,7 +102,7 @@ class MCTSzero:
         else:
             # Choose an action based on the distribution
             action = np.random.choice(len(valid_moves_distribution), p=valid_moves_distribution)
-        
+
         # Get the node of the best action
         node = self.root.children[action]
 
@@ -127,7 +122,7 @@ class MCTSzero:
         # Remove the reference to the parent node and delete the parent
         self.root.parent = None
 
-    def search(self, num_moves) -> Tuple[np.ndarray, float]:
+    def search(self, num_moves) -> Tuple[Node, np.ndarray]:
         """
         Run the Monte Carlo Tree Search
 
