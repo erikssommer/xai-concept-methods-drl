@@ -14,6 +14,7 @@ from env import govars
 import env
 
 def rl_canonical():
+    print("Starting RL with canonical board representation")
 
     low_counter = []
 

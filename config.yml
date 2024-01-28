@@ -54,7 +54,7 @@ epoch_skip: 0
 use_gpu: false
 
 # Debug config
-render: true
+render: false
 plot: false
 
 # Topp config
