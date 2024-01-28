@@ -17,7 +17,7 @@ class TestFastPredVsPred(unittest.TestCase):
         # Loading model
         board_size = 5
         komi = 0.5
-        model_path = f"../models/pre_trained/board_size_{board_size}/net_2400.keras"
+        model_path = f"../models/training/board_size_{board_size}/net_0.keras"
 
         model = ConvNet(board_size, model_path)
         fast_model = FastPredictor(LiteModel.from_keras_model(model.model))
@@ -36,11 +36,11 @@ class TestFastPredVsPred(unittest.TestCase):
         # Getting the state
         state = go_env.canonical_state()
 
-        state = np.delete(state, [3,5], axis=0)
+        state = np.delete(state, [2,3,4,5], axis=0)
 
-        if current_player == 1:
-            print("Current player is 1")
-            state[2] = np.ones((board_size, board_size))
+        #if current_player == 1:
+            #print("Current player is 1")
+            #state[2] = np.ones((board_size, board_size))
 
         state_slow = np.reshape(state, (1, *state.shape))
 
