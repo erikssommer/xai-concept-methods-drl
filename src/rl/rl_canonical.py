@@ -9,21 +9,22 @@ import numpy as np
 import gc
 from utils import tensorboard_setup, write_to_tensorboard
 from env import govars
-#import time
 
 import env
 
 def rl_canonical():
     print("Starting RL with canonical board representation")
 
-    low_counter = []
+    low_counter = 0
+    black_winner = 0
+    white_winner = 0
+    limit_reached = 0
 
     # Get the config variables
     simulations = config.simulations
     c = config.c
     komi = config.komi
     board_size = config.board_size
-    move_cap = board_size ** 2 * 5
     save_interval = config.episodes // config.nr_of_anets
     sample_ratio = config.sample_ratio
     pre_trained = config.pre_trained
@@ -33,6 +34,8 @@ def rl_canonical():
     episodes = config.episodes
     pre_trained_path = config.pre_trained_path
     det_moves = config.det_moves
+
+    move_cap = board_size ** 2 * 4
 
     if pre_trained:
         # Try to get the first file in the pre trained path directory
@@ -184,7 +187,8 @@ def rl_canonical():
                 callbacks=[tensorboard_callback]
             )
         else:
-            print("No cases in the replay buffer")
+            if config.render:
+                print("No cases in the replay buffer")
 
         # Add the metrics to TensorBoard
         write_to_tensorboard(history, start_episode, logdir)
@@ -209,15 +213,25 @@ def rl_canonical():
         distribution_buffer = []
         value_buffer = []
 
-        gc.collect()
+        if winner == 1:
+            black_winner += 1
+        else:
+            white_winner += 1
+
+        if move_nr >= move_cap:
+            limit_reached += 1
 
         if move_nr < 5:
-            low_counter.append(move_nr)
+            low_counter += 1
 
         start_episode += 1
+
+        gc.collect()
 
     # Save the final neural network model
     neural_network.save_model(
         f'../models/training/board_size_{board_size}/net_{episodes}.keras')
     
     print(f"Low counter: {low_counter}")
+    print(f"Black winner: {black_winner}")
+    print(f"White winner: {white_winner}")
