@@ -57,9 +57,22 @@ class MCTSzero:
         
         # Get valid moves
         valid_moves = gogame.valid_moves(node.state)
+
+        curr_state = node.state.copy()
+        if node.parent and node.parent.parent:
+            curr_state[2] = node.parent.parent.state[0]
+        else:
+            curr_state[2] = np.zeros((self.board_size, self.board_size))
+
+        curr_state[3] = node.parent.state[0] if node.parent else np.zeros((self.board_size, self.board_size))
+        
+        if node.player == 1:
+            curr_state[4] = np.ones((self.board_size, self.board_size))
+
+        curr_state = np.delete(curr_state, [5], axis=0)
         
         # Use the neural network to get the prior probabilities
-        policy, value = self.neural_network.predict(node.state, node.player, valid_moves)
+        policy, value = self.neural_network.predict(curr_state, valid_moves)
 
         # Convert valid_moves to a numpy array of integers
         valid_moves_mask = np.array(valid_moves, dtype=int)

@@ -103,8 +103,13 @@ def rl_canonical():
 
         # Play a game until termination
         game_over = False
+
         # Black always starts
         curr_player = 0
+
+        prev_black_state = np.zeros((board_size, board_size))
+        prev_prev_black_state = np.zeros((board_size, board_size))
+        prev_white_state = np.zeros((board_size, board_size))
 
         while not game_over and move_nr < move_cap:
             # Get the player
@@ -120,10 +125,12 @@ def rl_canonical():
             # Add the case to the replay buffer
             if np.random.random() < sample_ratio:
                 # Remove array index 3 and 5 from the current state making it an shape of (4, 5, 5)
-                curr_state = np.delete(curr_state, [2, 3, 4, 5], axis=0)
+                curr_state = np.delete(curr_state, [5], axis=0)
+                curr_state[2] = prev_black_state
+                curr_state[3] = prev_white_state
                 # If current player is 1, change the 2nd array to all 1's
-                #if curr_player == 1:
-                    #curr_state[2] = np.ones((board_size, board_size))
+                if curr_player == 1:
+                    curr_state[4] = np.ones((board_size, board_size))
 
                 # Add the case to the replay buffer
                 turns.append(curr_player)
@@ -144,6 +151,11 @@ def rl_canonical():
             # Flipp the player
             curr_player = 1 - curr_player
 
+            # Update the previous state
+            prev_black_state = prev_prev_black_state
+            prev_white_state = curr_state[0]
+            prev_prev_black_state = prev_white_state
+
             # Increment the move number
             move_nr += 1
 
@@ -152,7 +164,7 @@ def rl_canonical():
 
         # Get the winner of the game in black's perspective (1 for win and -1 for loss)
         winner = go_env.winning()
-
+        
         # Do not allow draws
         assert winner != 0
 
