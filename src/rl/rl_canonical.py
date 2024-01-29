@@ -107,9 +107,9 @@ def rl_canonical():
         # Black always starts
         curr_player = 0
 
-        prev_black_state = np.zeros((board_size, board_size))
-        prev_prev_black_state = np.zeros((board_size, board_size))
-        prev_white_state = np.zeros((board_size, board_size))
+        prev_turn_state = np.zeros((board_size, board_size))
+        temp_prev_turn_state = np.zeros((board_size, board_size))
+        prev_opposing_state = np.zeros((board_size, board_size))
 
         while not game_over and move_nr < move_cap:
             # Get the player
@@ -124,17 +124,14 @@ def rl_canonical():
 
             # Add the case to the replay buffer
             if np.random.random() < sample_ratio:
-                # Remove array index 3 and 5 from the current state making it an shape of (4, 5, 5)
-                curr_state = np.delete(curr_state, [5], axis=0)
-                curr_state[2] = prev_black_state
-                curr_state[3] = prev_white_state
-                # If current player is 1, change the 2nd array to all 1's
-                if curr_player == 1:
-                    curr_state[4] = np.ones((board_size, board_size))
+                if curr_player == 0:
+                    state = np.array([curr_state[0], prev_turn_state, curr_state[1], prev_opposing_state, np.zeros((board_size, board_size))])
+                else:
+                    state = np.array([curr_state[0], prev_turn_state, curr_state[1], prev_opposing_state, np.ones((board_size, board_size))])
 
                 # Add the case to the replay buffer
                 turns.append(curr_player)
-                states.append(curr_state)
+                states.append(state)
                 distributions.append(distribution)
 
             # Apply the action to the environment
@@ -152,9 +149,9 @@ def rl_canonical():
             curr_player = 1 - curr_player
 
             # Update the previous state
-            prev_black_state = prev_prev_black_state
-            prev_white_state = curr_state[0]
-            prev_prev_black_state = prev_white_state
+            prev_turn_state = temp_prev_turn_state
+            prev_opposing_state = curr_state[0]
+            temp_prev_turn_state = prev_opposing_state
 
             # Increment the move number
             move_nr += 1

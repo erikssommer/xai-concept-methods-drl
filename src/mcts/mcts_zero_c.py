@@ -58,21 +58,24 @@ class MCTSzero:
         # Get valid moves
         valid_moves = gogame.valid_moves(node.state)
 
-        curr_state = node.state.copy()
+        # Creating the state for the neural network
         if node.parent and node.parent.parent:
-            curr_state[2] = node.parent.parent.state[0]
+            prev_turn_state = node.parent.parent.state[0]
         else:
-            curr_state[2] = np.zeros((self.board_size, self.board_size))
-
-        curr_state[3] = node.parent.state[0] if node.parent else np.zeros((self.board_size, self.board_size))
+            prev_turn_state = np.zeros((self.board_size, self.board_size))
+        
+        if node.parent:
+            prev_opposing_state = node.parent.state[0]
+        else:
+            prev_opposing_state = np.zeros((self.board_size, self.board_size))
         
         if node.player == 1:
-            curr_state[4] = np.ones((self.board_size, self.board_size))
-
-        curr_state = np.delete(curr_state, [5], axis=0)
+            state = np.array([node.state[0], prev_turn_state, node.state[1], prev_opposing_state, np.ones((self.board_size, self.board_size))])
+        else:
+            state = np.array([node.state[0], prev_turn_state, node.state[1], prev_opposing_state, np.zeros((self.board_size, self.board_size))])
         
         # Use the neural network to get the prior probabilities
-        policy, value = self.neural_network.predict(curr_state, valid_moves)
+        policy, value = self.neural_network.predict(state, valid_moves)
 
         # Convert valid_moves to a numpy array of integers
         valid_moves_mask = np.array(valid_moves, dtype=int)
