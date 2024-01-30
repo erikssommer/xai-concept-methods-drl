@@ -10,16 +10,19 @@ if __name__ == "__main__":
     timer = Timer()
     timer.start_timer()
 
-    # Train the models with reinforcement learning
     if config.rl_canonical:
         rl_canonical()
     elif config.rl_zero:
+        folder_setup()
         rl_zero()
     elif config.rl_uct:
+        folder_setup()
         rl_uct()
     elif config.multi_process:
+        folder_setup()
         rl_multiprocessing()
     else:
+        folder_setup()
         rl()
 
     # End the timer
