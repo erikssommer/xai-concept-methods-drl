@@ -11,10 +11,16 @@ pip install -r requirements.txt
 nano config.py
 ```
 
-### Train models
+### Train models single threaded
 > From the src directory
 ```bash
-python train.py
+python train_single_thread.py
+```
+
+### Train models multi threaded (MPI)
+> From the src directory
+```bash
+mpirun -np 4 python train_hpc.py
 ```
 
 ### Play against the trained models
@@ -38,14 +44,7 @@ python test_name.py
 ### Run training on Idun
 > From the root directory
 ```bash
-sbatch job.slurm
-```
-
-### Run the training on the server in the background with logs
-> From src directory
-```bash
-nohup python train.py > train_log.txt &
-nohup python train_multi_threading.py > train_log.txt &
+sbatch hpc.sh
 ```
 
 ### Tensorboard
