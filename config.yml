@@ -49,6 +49,7 @@ multi_process: false
 nr_of_threads: 4
 epochs: 10
 epoch_skip: 0
+episodes_per_refresh: 10
 
 # System
 use_gpu: false
