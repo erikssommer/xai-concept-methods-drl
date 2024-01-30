@@ -1,8 +1,9 @@
 import env
 import os
-from policy import ActorCriticNet, ResNet
+from policy import ConvNet, ResNet, FastPredictor, LiteModel
 from utils import config
 from mcts import MCTSzero as MCTS
+import numpy as np
 
 if __name__ == "__main__":
 
@@ -11,6 +12,11 @@ if __name__ == "__main__":
     """
 
     board_size = config.board_size
+    simulations = config.simulations
+    move_cap = board_size ** 2 * 4
+    c = config.c
+    komi = config.komi
+    det_moves = 0
 
     go_env = env.GoEnv(size=board_size)
 
@@ -30,7 +36,9 @@ if __name__ == "__main__":
     if config.resnet:
         actor_net = ResNet(config.board_size, path)
     else:
-        actor_net = ActorCriticNet(config.board_size, path)
+        actor_net = ConvNet(config.board_size, path)
+
+    model = FastPredictor(LiteModel.from_keras_model(actor_net.model))
         
     greedy_move = True
 
@@ -56,25 +64,31 @@ if __name__ == "__main__":
 
         game_over = False
 
+        curr_player = 0
+        move_nr = 0
+
         while not game_over:
+            game_state = go_env.canonical_state()
+            state = np.delete(game_state, [2,3,4,5], axis=0)
+            valid_moves = go_env.valid_moves()
             # Get the value estimation of the current state
-            value = actor_net.value_estimation(go_env.state())
+            value = actor_net.value_estimation(state, valid_moves)
             
             print(f"Value estimation of the current state: {value}")
 
-            if go_env.turn() == 0 and start_player == "n" and lookahead:
-                tree = MCTS(go_env.state(), config.simulations, board_size, config.move_cap, config.c, actor_net)
-                node, _ = tree.search()
+            if curr_player == 0 and start_player == "n" and lookahead:
+                tree = MCTS(game_state, simulations, board_size, move_cap, model, c, komi, det_moves)
+                node, _ = tree.search(move_nr)
                 _, _, game_over, _ = go_env.step(node.action)
-            elif go_env.turn() == 1 and start_player == "y" and lookahead:
-                tree = MCTS(go_env.state(), config.simulations, board_size, config.move_cap, config.c, actor_net)
-                node, _ = tree.search()
+            elif curr_player == 1 and start_player == "y" and lookahead:
+                tree = MCTS(game_state, simulations, board_size, move_cap, model, c, komi, det_moves)
+                node, _ = tree.search(move_nr)
                 _, _, game_over, _ = go_env.step(node.action)
-            elif go_env.turn() == 0 and start_player == "n":
-                action = actor_net.best_action(go_env.state(), greedy_move)
+            elif curr_player == 0 and start_player == "n":
+                action = actor_net.best_action(state, valid_moves, greedy_move)
                 _, _, game_over, _ = go_env.step(action)
-            elif go_env.turn() == 1 and start_player == "y":
-                action = actor_net.best_action(go_env.state(), greedy_move)
+            elif curr_player == 1 and start_player == "y":
+                action = actor_net.best_action(state, valid_moves, greedy_move)
                 _, _, game_over, _ = go_env.step(action)
             else:
                 go_env.render()
@@ -98,6 +112,9 @@ if __name__ == "__main__":
                     user_input_action = tuple(int(n) for n in input("Enter action, eks: 2,1 or enter for pass: ").split(","))
 
                 _, _, game_over, _ = go_env.step(user_input_action)
+
+            curr_player = 1 - curr_player
+            move_nr += 1
         
         winner = go_env.winning()
 
