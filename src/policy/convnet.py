@@ -27,7 +27,7 @@ class ConvNet(BaseNet):
             self.model = tf.keras.models.load_model(load_path)
         else:
             # Input
-            self.position_input = tf.keras.Input(shape=(2, self.board_size, self.board_size))
+            self.position_input = tf.keras.Input(shape=(5, self.board_size, self.board_size))
             
             # Residual block
             base = tf.keras.layers.Conv2D(32, (3, 3), activation="relu", padding="same", name="res_block_output_base")(self.position_input)
@@ -82,21 +82,15 @@ class ConvNet(BaseNet):
         return self.model.fit(states, [distributions, values], verbose=0, epochs=epochs, batch_size=128, callbacks=callbacks)
     
     # Define a prediction function
-    def predict(self, state, player, value_only=False, mock_data=False):
-
+    def predict(self, state, valid_moves, value_only=False, mock_data=False):
+        """
         if mock_data:
             policy = np.random.random(self.board_size ** 2 + 1)
             policy = self.mask_invalid_moves(policy, state)
 
             value = np.random.random()
             return policy, value
-
-        state_copy = state.copy()
-
-        # Remove array index 3 and 5 from the current state making it an shape of (4, 5, 5)
-        state = np.delete(state, [2,3,4,5], axis=0)
-        #if player == 1:
-            #state[2] = np.ones((self.board_size, self.board_size))
+        """
 
         if len(state.shape) == 3:
             state = np.reshape(state, (1, *state.shape))
@@ -112,27 +106,19 @@ class ConvNet(BaseNet):
         if value_only:
             return value
 
-        policy = self.mask_invalid_moves(policy, state_copy)
+        policy = self.mask_invalid_moves(policy, valid_moves)
 
         del state
-        del state_copy
         
         return policy, value
     
-    def mask_invalid_moves(self, policy, state):
-        # Get invalid moves
-        valid_moves = gogame.valid_moves(state)
+    def mask_invalid_moves(self, policy, valid_moves):
 
         # Mask the invalid moves
         policy = policy * valid_moves
-
-        # Reduce to 8 decimal places
-        policy = np.round(policy, 8)
     
         # Normalize the policy
         policy = utils.normalize(policy)
-
-        del valid_moves
         
         return policy
     
