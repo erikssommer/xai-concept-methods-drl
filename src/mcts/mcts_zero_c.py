@@ -138,6 +138,21 @@ class MCTSzero:
         # Remove the reference to the parent node and delete the parent
         self.root.parent = None
 
+    def set_root_node_with_action(self, action) -> None:
+        for child in self.root.children:
+            if child.action == action:
+                self.root = child
+                self.root.parent = None
+                return
+        
+        raise Exception("Action not found in children")
+    
+    def set_root(self, state, player) -> None:
+        """Needed in junittests"""
+        self.root = None
+        del self.root
+        self.root = Node(state, player)
+
     def search(self, num_moves) -> Tuple[Node, np.ndarray]:
         """
         Run the Monte Carlo Tree Search
