@@ -7,6 +7,7 @@ import seaborn as sns
 from .agent import Agent
 import random
 from utils import config
+import numpy as np
 
 
 class Topp:
@@ -83,8 +84,24 @@ class Topp:
                     terminated = False
                     moves = 0
 
+                    prev_turn_state = np.zeros((self.board_size, self.board_size))
+                    temp_prev_turn_state = np.zeros((self.board_size, self.board_size))
+                    prev_opposing_state = np.zeros((self.board_size, self.board_size))
+
                     # Play a game until termination
                     while not terminated:
+                        
+                        if self.canonical:
+                            curr_state = go_env.canonical_state()
+                            valid_moves = go_env.valid_moves()
+                            if current_player == 0:
+                                state = np.array([curr_state[0], prev_turn_state, curr_state[1], prev_opposing_state, np.zeros((self.board_size, self.board_size))])
+                            else:
+                                state = np.array([curr_state[0], prev_turn_state, curr_state[1], prev_opposing_state, np.ones((self.board_size, self.board_size))])
+                        else:
+                            state = go_env.state()
+                            valid_moves = go_env.valid_moves()
+
                         if moves > self.move_cap:
                             print("Move cap reached in game between {} and {}, termination game!".format(
                                 self.agents[i].name, self.agents[j].name))
@@ -92,10 +109,8 @@ class Topp:
                             break
 
                         agent: Agent = self.agents[current_agent]
-                        if self.canonical:
-                            action = agent.choose_action(go_env.canonical_state(), player=current_player)
-                        else:
-                            action = agent.choose_action(go_env.state())
+                        
+                        action = agent.choose_action(state, valid_moves)
 
                         _, _, terminated, _ = go_env.step(action)
                         moves += 1
@@ -110,11 +125,16 @@ class Topp:
                             current_agent = i
 
                         current_player = 1 - current_player
+                        # Update the previous state
+                        if self.canonical:
+                            prev_turn_state = temp_prev_turn_state
+                            prev_opposing_state = curr_state[0]
+                            temp_prev_turn_state = prev_opposing_state
 
                     # Winner in perspective of the starting agent, 1 if won, -1 if lost, 0 if draw
                     winner = go_env.winner()
 
-                    if config.render:
+                    if self.render:
                         # Print the winner
                         print(f"Winner: {winner}")
 

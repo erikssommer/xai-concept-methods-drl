@@ -26,8 +26,8 @@ class Agent:
             self.nn = ActorCriticNet(board_size, (f'{path}/{name}'))
 
     # Play a round of the turnament
-    def choose_action(self, state, player):
-        return self.nn.best_action(state, player, self.greedy_move)
+    def choose_action(self, state, valid_moves):
+        return self.nn.best_action(state, valid_moves, self.greedy_move)
 
     # Add a win
     def add_win(self, player):
