@@ -67,10 +67,19 @@ if __name__ == "__main__":
         curr_player = 0
         move_nr = 0
 
+        prev_turn_state = np.zeros((board_size, board_size))
+        temp_prev_turn_state = np.zeros((board_size, board_size))
+        prev_opposing_state = np.zeros((board_size, board_size))
+
         while not game_over:
             game_state = go_env.canonical_state()
-            state = np.delete(game_state, [2,3,4,5], axis=0)
+            
             valid_moves = go_env.valid_moves()
+
+            if curr_player == 0:
+                state = np.array([game_state[0], prev_turn_state, game_state[1], prev_opposing_state, np.zeros((board_size, board_size))])
+            else:
+                state = np.array([game_state[0], prev_turn_state, game_state[1], prev_opposing_state, np.ones((board_size, board_size))])
             # Get the value estimation of the current state
             value = actor_net.value_estimation(state, valid_moves)
             
@@ -115,6 +124,11 @@ if __name__ == "__main__":
 
             curr_player = 1 - curr_player
             move_nr += 1
+
+            # Update the previous state
+            prev_turn_state = temp_prev_turn_state
+            prev_opposing_state = game_state[0]
+            temp_prev_turn_state = prev_opposing_state
         
         winner = go_env.winning()
 
