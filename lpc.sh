@@ -15,4 +15,4 @@ module purge
 module load Anaconda3/2022.10
 conda activate go-tf
 cd src/
-python train.py
+python train_single_thread.py

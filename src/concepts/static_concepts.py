@@ -1,6 +1,12 @@
 import numpy as np
 from env import gogame, govars
 
+"""
+Static concepts are concepts that can be determined from a single gamestate.
+
+Note: Gamestates are represented as canonical states, meaning that the current player is always black.
+"""
+
 def random(game_state) -> bool:
     """
     Control concept that randomly returns True or False
@@ -16,29 +22,21 @@ def area_advantage(game_state) -> bool:
     points that a player has surrounded, and the number of points that their opponent has surrounded.
     Area advantage is important because it is used to determine the winner of the game.
     """
-    player = gogame.turn(game_state)
     black_area, white_area = gogame.areas(game_state)
 
-    if player == govars.BLACK:
-        return black_area > white_area
-    else:
-        return white_area > black_area
+    return black_area > white_area
 
 
 def win_on_pass(game_state) -> bool:
     """
     In the game of Go, the game ends when both players pass in succession. The player with the most area advantage wins.
     """
-    turn = gogame.turn(game_state)
     black_area, white_area = gogame.areas(game_state)
 
     # 4th index is the pass move
     prev_move_is_pass = bool(game_state[4][0][0] == 1)
 
-    if turn == govars.BLACK:
-        return prev_move_is_pass and black_area > white_area
-    else:
-        return prev_move_is_pass and white_area > black_area
+    return prev_move_is_pass and black_area > white_area
 
 
 def one_eye(game_state) -> bool:
@@ -204,7 +202,7 @@ def has_winning_move(game_state):
         if legal_moves[i] == 1:
             # Make a copy of the game state and play the move
             game_state_copy = game_state.copy()
-            next_state = gogame.next_state(game_state_copy, i)
+            next_state = gogame.next_state(game_state_copy, i, canonical=True)
 
             # Check if the next player has any legal moves remaining
             next_player_legal_moves = gogame.valid_moves(next_state)
@@ -225,8 +223,6 @@ def capture_stones_threat(game_state):
     if np.sum(legal_moves) == 1:
         return False
     
-    current_player = gogame.turn(game_state)
-    
     # For every legal move, check if the move will capture any of the opponent's stones
     for i in range(len(legal_moves)):
         if legal_moves[i] == 1:
@@ -234,26 +230,18 @@ def capture_stones_threat(game_state):
             game_state_copy = game_state.copy()
 
             # Count the number of black and white stones before the move
-            black_pieces = game_state_copy[0]
-            white_pieces = game_state_copy[1]
-            black_pieces_sum = np.sum(black_pieces)
-            white_pieces_sum = np.sum(white_pieces)
+            opposing_pieces = game_state_copy[1]
+            opposing_pieces_sum = np.sum(opposing_pieces)
 
-            next_state = gogame.next_state(game_state_copy, i)
+            next_state = gogame.next_state(game_state_copy, i, canonical=True)
             
             # Count the number of black and white stones after the move
-            black_pieces_after = next_state[0]
-            white_pieces_after = next_state[1]
-            black_pieces_sum_after = np.sum(black_pieces_after)
-            white_pieces_sum_after = np.sum(white_pieces_after)
+            opposing_pieces_after = next_state[0]
+            opposing_pieces_sum_after = np.sum(opposing_pieces_after)
 
             # If the current player is black, check if the number of white stones has decreased
-            if current_player == govars.BLACK:
-                if white_pieces_sum_after < white_pieces_sum:
-                    return True
-            else:
-                if black_pieces_sum_after < black_pieces_sum:
-                    return True
+            if opposing_pieces_sum_after < opposing_pieces_sum:
+                return True
                 
     return False
 
