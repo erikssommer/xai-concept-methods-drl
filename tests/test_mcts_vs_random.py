@@ -1,4 +1,5 @@
 import unittest
+import numpy as np
 
 import os
 # Add the src folder to the path
@@ -8,7 +9,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.
 from env import GoEnv
 from env import govars
 from mcts import MCTSzero as MCTS
-from policy import ConvNet, ResNet, ActorCriticNet, FastPredictor, LiteModel
+from policy import ConvNet, ResNet, FastPredictor, LiteModel
 
 
 class TestMCTSvsRandom(unittest.TestCase):
@@ -22,7 +23,7 @@ class TestMCTSvsRandom(unittest.TestCase):
         komi = 0.5
         c = 1.3
         det_moves = 0
-        path = '../models/saved_sessions/board_size_5/blueorigin/net_10000.keras'
+        path = '../models/training/board_size_5/net_10000.keras'
         policy = ConvNet(board_size, path)
 
         model = FastPredictor(LiteModel.from_keras_model(policy.model))
@@ -78,7 +79,7 @@ class TestMCTSvsRandom(unittest.TestCase):
         komi = 0.5
         c = 1.3
         det_moves = 0
-        path = '../models/saved_sessions/board_size_5/blueorigin/net_10000.keras'
+        path = '../models/training/board_size_5/net_10000.keras'
         policy = ConvNet(board_size, path)
 
         model = FastPredictor(LiteModel.from_keras_model(policy.model))
