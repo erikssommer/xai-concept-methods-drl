@@ -116,18 +116,25 @@ class ConvNet(BaseNet):
 
         # Mask the invalid moves
         policy = policy * valid_moves
+
+        # Convert to 8 decimals
+        policy = np.round(policy, 8)
     
         # Normalize the policy
         policy = utils.normalize(policy)
         
         return policy
     
-    def best_action(self, state, valid_moves, greedy_move=False, alpha=config.alpha):
+    def best_action(self, state, valid_moves, greedy_move=False, alpha=None):
         policy, value = self.predict(state, valid_moves)
 
         #print("Value: ", value)
 
         if greedy_move:
+            return np.argmax(policy)
+        
+        if alpha and np.random.random() < alpha:
+            # Selecting move randomly, but weighted by the distribution (0 = argmax, 1 = probablistic)
             return np.argmax(policy)
 
         # Selecting move randomly, but weighted by the distribution (0 = argmax, 1 = probablistic)
