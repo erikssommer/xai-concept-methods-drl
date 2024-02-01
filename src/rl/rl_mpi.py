@@ -146,7 +146,7 @@ def rl_mpi():
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
     ranksize = comm.Get_size()
-    print("Rank {} of {} started.".format(rank, ranksize), flush=True)
+    #print("Rank {} of {} started.".format(rank, ranksize), flush=True)
     amount_of_gpus = 1
     np.seterr(over="ignore")
     if rank == 0:
@@ -203,8 +203,8 @@ def rl_mpi():
         # Calculate the number of games in total
         total = NUM_THEADS_GENERATING_DATA * EPISODES_PER_THREAD_INSTANCE * EPOCHS
 
-        print("Episodes per thread instance: {}".format(EPISODES_PER_THREAD_INSTANCE))
-        print("Total number of games: {}".format(total))
+        print("Episodes per thread instance: {}".format(EPISODES_PER_THREAD_INSTANCE), flush=True)
+        print("Total number of games: {}".format(total), flush=True)
 
 
     for epoch in tqdm(range(1, EPOCHS + 1)):
@@ -278,7 +278,7 @@ def rl_mpi():
                 winrate += 1
         winrate /= len(outcomes)
 
-        print("Winrate as black: {}".format(winrate))
+        print("Winrate as black: {}".format(winrate), flush=True)
 
         # End the timer
         timer.end_timer()

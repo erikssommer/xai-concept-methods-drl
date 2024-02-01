@@ -170,3 +170,5 @@ tensorboard_logs/
 
 # Log from training
 log.txt
+
+models/fastpred/
