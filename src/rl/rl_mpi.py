@@ -16,7 +16,13 @@ def perform_mcts_episodes(args):
 
     np.seterr(over="ignore", invalid="raise")
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # or any {'0', '1', '2'}
-    os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+    
+    import tensorflow as tf
+
+    gpus = tf.config.experimental.list_physical_devices('GPU')
+    for gpu in gpus:
+        tf.config.experimental.set_memory_growth(gpu, True)
+    
     episodes, fast_predictor_path, simulations, sample_ratio, c, komi, board_size, det_moves, move_cap, thread = args
 
     state_buffer = []
