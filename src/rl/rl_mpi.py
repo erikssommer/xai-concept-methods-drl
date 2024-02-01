@@ -149,7 +149,7 @@ def rl_mpi():
     amount_of_gpus = 1
     np.seterr(over="ignore")
     if rank == 0:
-        os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+        os.environ['TF_CPP_MIN_LOG_LEVEL'] = '0'
         # Start a timer
         timer = Timer()
         timer.start_timer()
