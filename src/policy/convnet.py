@@ -79,7 +79,8 @@ class ConvNet(BaseNet):
         return all_layer_outs
 
     def fit(self, states, distributions, values, callbacks=None, epochs=10):
-        return self.model.fit(states, [distributions, values], verbose=0, epochs=epochs, batch_size=128, callbacks=callbacks)
+        with tf.device("/GPU:0"):
+            return self.model.fit(states, [distributions, values], verbose=0, epochs=epochs, batch_size=128, callbacks=callbacks)
     
     # Define a prediction function
     def predict(self, state, valid_moves, value_only=False, mock_data=False):
@@ -95,7 +96,8 @@ class ConvNet(BaseNet):
         if len(state.shape) == 3:
             state = np.reshape(state, (1, *state.shape))
 
-        res = self.model(state, training=False)
+        with tf.device("/CPU:0"):
+            res = self.model(state, training=False)
 
         policy, value = res
 
