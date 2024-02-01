@@ -10,7 +10,8 @@ import numpy as np
 import os
 import gc
 from mpi4py import MPI
-
+import absl.logging
+absl.logging.set_verbosity(absl.logging.ERROR)
 
 def perform_mcts_episodes(args):
 
