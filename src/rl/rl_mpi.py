@@ -169,7 +169,9 @@ def rl_mpi():
     SAMPLE_RATIO = config.sample_ratio
 
     EPISODES = config.episodes
-    #EPISODES_PER_THREAD_INSTANCE = EPISODES_PER_REFRESH // (ranksize - 1)
+    NUM_THEADS_GENERATING_DATA = ranksize - 1
+    # Take the number of epochs into account
+    EPISODES_PER_THREAD_INSTANCE = EPISODES // (NUM_THEADS_GENERATING_DATA) // EPOCHS
 
     SAVE_INTERVAL = EPOCHS // config.nr_of_anets
     EPOCHS_SKIP = config.epoch_skip
@@ -199,12 +201,9 @@ def rl_mpi():
         agent.save_model(f"../models/training/board_size_{BOARD_SIZE}/net_0.keras")
 
         # Calculate the number of games in total
-        num_threads = ranksize - 1
-        episodes_per_thread = EPISODES
-        epochs = EPOCHS
+        total = NUM_THEADS_GENERATING_DATA * EPISODES_PER_THREAD_INSTANCE * EPOCHS
 
-        total = num_threads * episodes_per_thread * epochs
-
+        print("Episodes per thread instance: {}".format(EPISODES_PER_THREAD_INSTANCE))
         print("Total number of games: {}".format(total))
 
 
@@ -217,7 +216,7 @@ def rl_mpi():
         comm.Barrier()
         if rank != 0:
             results = perform_mcts_episodes((
-                EPISODES,
+                EPISODES_PER_THREAD_INSTANCE,
                 FAST_PREDICTOR_PATH,
                 SIM_STEPS,
                 SAMPLE_RATIO,
@@ -240,7 +239,6 @@ def rl_mpi():
             del data
             del results
         else:
-            outcomes = []
             for _ in range(1, ranksize):
                 results = comm.recv()
                 #print("A result is recieved!", flush=True)
@@ -248,7 +246,6 @@ def rl_mpi():
                 distribution_buffer.extend(results["distributions"])
                 value_buffer.extend(results["values"])
                 outcomes.extend(results["winners"])
-            outcomes = np.array(outcomes)
         # Generate stuff for three epochs before starting to checkpoint and train
         if rank != 0:
             continue
@@ -274,5 +271,14 @@ def rl_mpi():
             agent.save_model(f'../models/training/board_size_{BOARD_SIZE}/net_{epoch}.keras')
     
     if rank == 0:
+        # Loop through the outcomes and calculate the winrate
+        winrate = 0
+        for outcome in outcomes:
+            if outcome == 1:
+                winrate += 1
+        winrate /= len(outcomes)
+
+        print("Winrate as black: {}".format(winrate))
+
         # End the timer
         timer.end_timer()
