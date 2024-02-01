@@ -16,11 +16,7 @@ def perform_mcts_episodes(args):
 
     np.seterr(over="ignore", invalid="raise")
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # or any {'0', '1', '2'}
-    import tensorflow as tf
-
-    gpus = tf.config.experimental.list_physical_devices('GPU')
-    for gpu in gpus:
-        tf.config.experimental.set_memory_growth(gpu, True)
+    os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
     episodes, fast_predictor_path, simulations, sample_ratio, c, komi, board_size, det_moves, move_cap, thread = args
 
     state_buffer = []
@@ -147,6 +143,7 @@ def rl_mpi():
     amount_of_gpus = 1
     np.seterr(over="ignore")
     if rank == 0:
+        os.environ['CUDA_VISIBLE_DEVICES'] = "0"
         # Start a timer
         timer = Timer()
         timer.start_timer()
