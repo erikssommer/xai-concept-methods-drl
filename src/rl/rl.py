@@ -47,7 +47,7 @@ def rl():
     pre_trained_path = config.pre_trained_path
     det_moves = config.det_moves
 
-    move_cap = board_size ** 2 * 4
+    move_cap = config.move_cap
 
     if pre_trained:
         # Try to get the first file in the pre trained path directory
