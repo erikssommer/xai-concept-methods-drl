@@ -1,24 +1,24 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # or any {'0', '1', '2'}
+import tensorflow as tf
 from policy import ConvNet, ResNet, FastPredictor, LiteModel
 from utils import config
-from mcts import MCTSzero as MCTS
+from mcts import MCTS
 import env
 from tqdm import tqdm
 
 from utils import tensorboard_setup, write_to_tensorboard, folder_setup, Timer
 
 import numpy as np
-import os
 import gc
 from mpi4py import MPI
 import absl.logging
+
 absl.logging.set_verbosity(absl.logging.ERROR)
 
 def perform_mcts_episodes(args):
 
     np.seterr(over="ignore", invalid="raise")
-    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # or any {'0', '1', '2'}
-    
-    import tensorflow as tf
 
     gpus = tf.config.experimental.list_physical_devices('GPU')
     for gpu in gpus:
@@ -155,9 +155,9 @@ def rl_mpi():
         timer.start_timer()
 
         folder_setup()
-        import tensorflow as tf
+        
         gpus = tf.config.list_physical_devices("GPU")
-        print("Num GPUs Available: ", len(gpus))
+        print("\nNum GPUs Available: ", len(gpus))
         for gpu in gpus:
             tf.config.experimental.set_memory_growth(gpu, True)
 

@@ -6,7 +6,6 @@ import pandas as pd
 import seaborn as sns
 from .agent import Agent
 import random
-from utils import config
 import numpy as np
 
 

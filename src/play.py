@@ -2,7 +2,7 @@ import env
 import os
 from policy import ConvNet, ResNet, FastPredictor, LiteModel
 from utils import config
-from mcts import MCTSzero as MCTS
+from mcts import MCTS
 import numpy as np
 
 if __name__ == "__main__":

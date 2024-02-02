@@ -1,16 +1,11 @@
 # MCTS config
-episodes: 10000
+episodes: 10000 # Single process
+episodes_per_epoch: 10 # Multi process
 simulations: 100 # m
 c: 1.3 # Exploration constant
 det_moves: 5 # Number of plies to use for non-deterministic playouts
-
-# Epsilon-greedy config (not needed for AlphaZero)
-epsilon: 1 # rollout
-epsilon_decay: 0 # 0.002
-sigma: 0 # critic
-sigma_decay: 0.001
-alpha: 0.1 # Selecting move randomly, but weighted by the distribution (0 = argmax, 1 = probablistic)
-alpha_decay: 0.0007
+epochs: 1000
+epoch_skip: 0
 
 # Neural Network config
 resnet: false
@@ -19,7 +14,6 @@ resnet_filters: 64 # f
 convnet_filters: 32 # f
 nr_of_anets: 10 # m
 learning_rate: 0.001
-move_cap: 200
 pre_trained: false # Remember to set sigma and epsilon to 0 for faster training
 pre_trained_path: ../models/pre_trained/board_size_5/
 
@@ -34,25 +28,10 @@ clear_rbuf: false
 log_dir: tensorboard_logs
 log_name: go
 
-# AlphaZero config
-rl_canonical: true
-rl_zero: false
-rl_uct: false
-
 # GO config
 board_size: 5 # k
 komi: 0.5 # gives white a bonus of x points at the end of the game due to black going first
-canonical_board: false
-
-# Threads
-multi_process: false
-nr_of_threads: 4
-epochs: 1000
-epoch_skip: 0
-episodes_per_refresh: 10
-
-# System
-use_gpu: false
+move_cap: 200
 
 # Debug config
 render: false

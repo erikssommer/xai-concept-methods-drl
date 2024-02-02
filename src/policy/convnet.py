@@ -1,7 +1,6 @@
 import tensorflow as tf
 import numpy as np
 from utils import config
-from env import gogame
 import utils
 from tqdm import tqdm
 from .basenet import BaseNet

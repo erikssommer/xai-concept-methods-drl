@@ -1,6 +1,4 @@
 from .lite_model import LiteModel
-import numpy as np
-from env import gogame
 import utils
 
 class FastPredictor:

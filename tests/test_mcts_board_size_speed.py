@@ -8,7 +8,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.
 
 from mcts import MCTS
 import env
-from policy import ActorCriticNet
+from policy import ConvNet
 
 class TestMctsBoardSizeSpeed(unittest.TestCase):
     def test_without_model(self):
@@ -50,7 +50,7 @@ class TestMctsBoardSizeSpeed(unittest.TestCase):
 
         go_env = env.GoEnv(size=board_size)
         game_state = go_env.state()
-        tree = MCTS(game_state, 1, 0, ROLLOUTS, board_size, board_size**2*5, policy_nn=ActorCriticNet(board_size, summary=False))
+        tree = MCTS(game_state, 1, 0, ROLLOUTS, board_size, board_size**2*5, policy_nn=ConvNet(board_size, summary=False))
 
         # Take the time it takes to run rollouts
         start = time.time()
@@ -66,7 +66,7 @@ class TestMctsBoardSizeSpeed(unittest.TestCase):
 
         go_env = env.GoEnv(size=board_size)
         game_state = go_env.state()
-        tree = MCTS(game_state, 1, 0, ROLLOUTS, board_size, board_size**2*5, policy_nn=ActorCriticNet(board_size, summary=False))
+        tree = MCTS(game_state, 1, 0, ROLLOUTS, board_size, board_size**2*5, policy_nn=ConvNet(board_size, summary=False))
 
         # Take the time it takes to run rollouts
         start = time.time()

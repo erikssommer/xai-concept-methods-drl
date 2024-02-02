@@ -8,7 +8,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.
 
 from env import GoEnv
 from env import govars
-from mcts import MCTSzero as MCTS
+from mcts import MCTS
 from policy import ConvNet, ResNet, FastPredictor, LiteModel
 
 

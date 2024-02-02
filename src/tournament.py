@@ -1,4 +1,3 @@
-from utils import config
 from topp import Topp
 
 if __name__ == '__main__':

@@ -139,13 +139,13 @@ class ResNet(BaseNet):
         
         return policy
     
-    def best_action(self, state, greedy_move=False, alpha=config.alpha):
+    def best_action(self, state, greedy_move=False, alpha=None):
         policy, _ = self.predict(state)
 
         if greedy_move:
             return np.argmax(policy)
 
-        if alpha > np.random.random():
+        if alpha and alpha > np.random.random():
             # Selecting move randomly, but weighted by the distribution (0 = argmax, 1 = probablistic)
             return np.random.choice(len(policy), p=policy)
 

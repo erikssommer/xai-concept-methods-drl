@@ -1,4 +1,3 @@
-from policy import ActorCriticNet
 from policy import ConvNet
 from policy import ResNet
 
@@ -23,7 +22,7 @@ class Agent:
         if convnet:
             self.nn = ConvNet(board_size, (f'{path}/{name}'))
         else:
-            self.nn = ActorCriticNet(board_size, (f'{path}/{name}'))
+            self.nn = ResNet(board_size, (f'{path}/{name}'))
 
     # Play a round of the turnament
     def choose_action(self, state, valid_moves):

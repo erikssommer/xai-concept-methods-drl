@@ -5,7 +5,7 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir, 'src')))
 
 import env
-from policy import ActorCriticNet
+from policy import ConvNet
 import os
 from utils import config
 from mcts import MCTS
@@ -29,7 +29,7 @@ class TestMCTSvsNetwork(unittest.TestCase):
 
         print("Loading model from: {}".format(path))
 
-        actor_net = ActorCriticNet(5, path)
+        actor_net = ConvNet(5, path)
         actor_mcts = MCTS(go_env.state(), 1, 1, 100, 5, 5**2*5)
 
         games = 10
@@ -79,7 +79,7 @@ class TestMCTSvsNetwork(unittest.TestCase):
 
         print("Loading model from: {}".format(path))
 
-        actor_net = ActorCriticNet(5, path)
+        actor_net = ConvNet(5, path)
         actor_mcts = MCTS(go_env.state(), 1, 1, 100, 5, 5**2*5)
 
         games = 10

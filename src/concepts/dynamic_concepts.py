@@ -1,5 +1,5 @@
 import numpy as np
-from mcts import MCTSzero as MCTS
+from mcts import MCTS
 from policy import ConvNet, FastPredictor, LiteModel
 
 """

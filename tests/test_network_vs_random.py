@@ -3,7 +3,7 @@ import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir, 'src')))
 import env
-from policy import ActorCriticNet
+from policy import ConvNet
 from utils import config
 
 class TestMCTSvsRandom(unittest.TestCase):
@@ -25,7 +25,7 @@ class TestMCTSvsRandom(unittest.TestCase):
 
         print("Loading model from: {}".format(path))
 
-        actor_net = ActorCriticNet(5, path)
+        actor_net = ConvNet(5, path)
 
         games = 100
         winns = 0
@@ -73,7 +73,7 @@ class TestMCTSvsRandom(unittest.TestCase):
 
         print("Loading model from: {}".format(path))
 
-        actor_net = ActorCriticNet(5, path)
+        actor_net = ConvNet(5, path)
 
         games = 100
         winns = 0
