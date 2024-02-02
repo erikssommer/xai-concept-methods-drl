@@ -4,7 +4,7 @@ import numpy as np
 from env import gogame
 
 class Node:
-    def __init__(self, state: np.ndarray, player, parent=None, prior_probability=0):
+    def __init__(self, state: np.ndarray, player, parent=None, prior_probability=0, time_step=0):
 
         # Game state
         self.player = player
@@ -21,6 +21,8 @@ class Node:
         self.q_mean_action_value = 0
         self.p_prior_probability = prior_probability
 
+        # Node metadata
+        self.time_step = time_step
         self.expanded = False
     
     def is_expanded(self) -> bool:
@@ -65,13 +67,15 @@ class Node:
         actions = np.argwhere(valid_moves).flatten()
 
         child_player = 1 - self.player
+        child_timestep = self.time_step + 1
 
         # Using enumerate to get the index of the action
         for i, action in enumerate(actions):
             child_node = Node(state=child_states[action], 
                               player=child_player, 
                               parent=self, 
-                              prior_probability=prior_probabilities[i])
+                              prior_probability=prior_probabilities[i],
+                              time_step=child_timestep)
 
             # Set the action from the parent to the child node
             child_node.action = action

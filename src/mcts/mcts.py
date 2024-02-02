@@ -153,7 +153,7 @@ class MCTS:
         del self.root
         self.root = Node(state, player)
 
-    def search(self, num_moves) -> Tuple[Node, np.ndarray]:
+    def search(self, num_moves=0) -> Tuple[Node, np.ndarray]:
         """
         Run the Monte Carlo Tree Search
 
