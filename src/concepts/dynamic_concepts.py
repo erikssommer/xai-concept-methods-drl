@@ -66,17 +66,22 @@ def game_start_sequence():
         # Find the subpar next state with a minimum value difference of 0.20 and/or a visit count difference of 10% of the highest visit count
         sub_par_children = []
         for child in node.children:
-            if child.n_visit_count < highest_visit_count * min_visit_count_diff or child.q_value() < optimal_child.q_value() - min_value_diff:
+            if child.n_visit_count < highest_visit_count * (1-min_visit_count_diff) or child.q_value() < optimal_child.q_value() - min_value_diff:
                 sub_par_children.append(child)
         
         # Find the best subpar state to rollout
         best_subpar_state = None
-        highest_sub_par_visit_count = 0
+        best_subpar_node = None
+        highest_sub_par_visit_count = -1
 
         for child in sub_par_children:
             if child.n_visit_count > highest_sub_par_visit_count:
                 highest_sub_par_visit_count = child.n_visit_count
                 best_subpar_state = child.state
+                best_subpar_node = child
+
+        # Assert that the best subpar state is has a lower visit count than the optimal state
+        assert best_subpar_node.n_visit_count < optimal_child.n_visit_count
 
         subpar_rollout_states.append(best_subpar_state)
 
