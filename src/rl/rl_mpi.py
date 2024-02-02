@@ -155,7 +155,7 @@ def rl_mpi():
         timer.start_timer()
 
         folder_setup()
-        
+
         gpus = tf.config.list_physical_devices("GPU")
         print("\nNum GPUs Available: ", len(gpus))
         for gpu in gpus:
@@ -168,10 +168,9 @@ def rl_mpi():
     REPLAY_BUFFER_CAP = config.rbuf_cap
     SAMPLE_RATIO = config.sample_ratio
 
-    EPISODES = config.episodes
     NUM_THEADS_GENERATING_DATA = ranksize - 1
     # Take the number of epochs into account
-    EPISODES_PER_THREAD_INSTANCE = EPISODES // (NUM_THEADS_GENERATING_DATA) // EPOCHS
+    EPISODES_PER_THREAD_INSTANCE = config.episodes_per_epoch
 
     SAVE_INTERVAL = EPOCHS // config.nr_of_anets
     EPOCHS_SKIP = config.epoch_skip
