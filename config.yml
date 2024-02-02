@@ -1,10 +1,10 @@
 # MCTS config
 episodes: 10000 # Single process
 episodes_per_epoch: 10 # Multi process
-simulations: 100 # m
+simulations: 500 # m
 c: 1.3 # Exploration constant
 det_moves: 5 # Number of plies to use for non-deterministic playouts
-epochs: 1000
+epochs: 100
 epoch_skip: 0
 
 # Neural Network config
@@ -29,8 +29,8 @@ log_dir: tensorboard_logs
 log_name: go
 
 # GO config
-board_size: 5 # k
-komi: 0.5 # gives white a bonus of x points at the end of the game due to black going first
+board_size: 9 # k
+komi: 5.5 # gives white a bonus of x points at the end of the game due to black going first
 move_cap: 200
 
 # Debug config

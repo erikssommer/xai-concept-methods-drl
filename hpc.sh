@@ -1,9 +1,9 @@
 #!/bin/sh
 #SBATCH --partition=GPUQ
 #SBATCH --account=share-ie-idi
-#SBATCH --time=2-00:00:00
+#SBATCH --time=3-00:00:00
 #SBATCH --nodes=1              # 1 compute nodes
-#SBATCH --ntasks-per-node=11   # 11 mpi process each node
+#SBATCH --ntasks-per-node=21   # 21 mpi process each node
 #SBATCH --mem=12000            # 12GB - in megabytes
 #SBATCH --gres=gpu:p100:1      # 1 tesla gpu
 #SBATCH --job-name="hpc-job"

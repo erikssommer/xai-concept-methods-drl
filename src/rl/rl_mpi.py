@@ -176,7 +176,7 @@ def rl_mpi():
     EPOCHS_SKIP = config.epoch_skip
 
     KOMI = config.komi
-    MOVE_CAP = BOARD_SIZE ** 2 * 4
+    MOVE_CAP = config.move_cap
     CPUCT = config.c
     DET_MOVES = config.det_moves
     FAST_PREDICTOR_PATH = f"../models/fastpred/training/board_size_{BOARD_SIZE}"
