@@ -26,10 +26,6 @@ sample_ratio: 0.3 # 50% chance of adding case to replay buffer, helps with overf
 batch_size: 128 # 512
 clear_rbuf: false
 
-# Tensorboard config
-log_dir: tensorboard_logs
-log_name: go
-
 # GO config
 board_size: 5 # k
 komi: 1.5 # gives white a bonus of x points at the end of the game due to black going first

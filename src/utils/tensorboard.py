@@ -9,7 +9,7 @@ def tensorboard_setup():
         os.system('rm -rf ../tensorboard_logs')
 
     # Create a log directory with a timestamp
-    logdir = f'../{config.log_dir}/' + time.strftime("%Y%m%d-%H%M%S")
+    logdir = '../tensorboard_logs/' + time.strftime("%Y%m%d-%H%M%S")
 
     # Create a TensorBoard callback
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=logdir)
