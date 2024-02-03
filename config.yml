@@ -16,7 +16,6 @@ nr_of_anets: 10 # m
 learning_rate: 0.01
 end_learning_rate: 0.0001
 decay_steps: 10000
-batch_size: 128 # 128
 pre_trained: false # Remember to set sigma and epsilon to 0 for faster training
 pre_trained_path: ../models/pre_trained/board_size_5/
 
@@ -24,7 +23,7 @@ pre_trained_path: ../models/pre_trained/board_size_5/
 rbuf_size: 2048 # Single process (2048)
 rbuf_cap: 30000 # Multi process
 sample_ratio: 0.3 # 50% chance of adding case to replay buffer, helps with overfitting
-batch_size: 512 # 512
+batch_size: 128 # 512
 clear_rbuf: false
 
 # Tensorboard config
@@ -33,7 +32,7 @@ log_name: go
 
 # GO config
 board_size: 5 # k
-komi: 5.5 # gives white a bonus of x points at the end of the game due to black going first
+komi: 1.5 # gives white a bonus of x points at the end of the game due to black going first
 move_cap: 200
 
 # Debug config
