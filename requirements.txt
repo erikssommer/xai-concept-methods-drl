@@ -1,9 +1,10 @@
 pyyaml
 tqdm
 numpy
-tensorflow==2.13.*
+tensorflow==2.12.0
 scikit-learn
 scipy
 seaborn
 matplotlib
 mpi4py
+graphviz

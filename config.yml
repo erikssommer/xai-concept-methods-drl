@@ -1,7 +1,7 @@
 # MCTS config
 episodes: 10000 # Single process
 episodes_per_epoch: 2 # Multi process
-simulations: 500 # m
+simulations: 100 # m
 c: 1.3 # Exploration constant
 det_moves: 5 # Number of plies to use for non-deterministic playouts
 epochs: 1000
@@ -13,7 +13,10 @@ resnet_blocks: 3 # n
 resnet_filters: 64 # f
 convnet_filters: 32 # f
 nr_of_anets: 10 # m
-learning_rate: 0.001
+learning_rate: 0.01
+end_learning_rate: 0.0001
+decay_steps: 10000
+batch_size: 128 # 128
 pre_trained: false # Remember to set sigma and epsilon to 0 for faster training
 pre_trained_path: ../models/pre_trained/board_size_5/
 
@@ -29,7 +32,7 @@ log_dir: tensorboard_logs
 log_name: go
 
 # GO config
-board_size: 9 # k
+board_size: 5 # k
 komi: 5.5 # gives white a bonus of x points at the end of the game due to black going first
 move_cap: 200
 

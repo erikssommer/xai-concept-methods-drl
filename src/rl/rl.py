@@ -207,12 +207,11 @@ def rl():
                 epochs=1,
                 callbacks=[tensorboard_callback]
             )
+            # Add the metrics to TensorBoard
+            write_to_tensorboard(history, start_episode, logdir)
         else:
             if config.render:
                 print("No cases in the replay buffer")
-
-        # Add the metrics to TensorBoard
-        write_to_tensorboard(history, start_episode, logdir)
         
         if start_episode != 0 and start_episode % save_interval == 0:
             # Save the neural network model

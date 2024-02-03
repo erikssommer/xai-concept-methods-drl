@@ -4,6 +4,7 @@ from utils import config
 import utils
 from tqdm import tqdm
 from .basenet import BaseNet
+import math
 
 class ConvNet(BaseNet):
     def __init__(self, board_size, load_path=None, summary=True):
@@ -21,6 +22,7 @@ class ConvNet(BaseNet):
         self.board_size = board_size
         self.load_path = load_path
         self.output = board_size ** 2 + 1
+        self.batch_size = config.batch_size
 
         if load_path:
             self.model = tf.keras.models.load_model(load_path)
@@ -51,12 +53,18 @@ class ConvNet(BaseNet):
             if summary:
                 self.model.summary()
 
+        rl_schedule_fn = tf.keras.optimizers.schedules.PolynomialDecay(
+            initial_learning_rate=config.learning_rate,
+            decay_steps=config.decay_steps,
+            end_learning_rate=config.end_learning_rate,
+        )
+
         self.model.compile(
             loss={"policy_output": tf.keras.losses.CategoricalCrossentropy(), "value_output": tf.keras.losses.MeanSquaredError()},
             loss_weights={"policy_output": 1.0, "value_output": 1.0},
-            optimizer=tf.keras.optimizers.Adam(learning_rate=config.learning_rate),
+            optimizer=tf.keras.optimizers.Adam(learning_rate=rl_schedule_fn),
             metrics=["accuracy"]
-            )
+        )
     
     def get_all_activation_values(self, boards, keyword="conv"):
         """Returns a list of all the activation values for each layer in the model"""
@@ -79,7 +87,7 @@ class ConvNet(BaseNet):
 
     def fit(self, states, distributions, values, callbacks=None, epochs=10):
         with tf.device("/GPU:0"):
-            return self.model.fit(states, [distributions, values], verbose=0, epochs=epochs, batch_size=128, callbacks=callbacks)
+            return self.model.fit(states, [distributions, values], verbose=0, shuffle=True, epochs=epochs, batch_size=self.batch_size, callbacks=callbacks)
     
     # Define a prediction function
     def predict(self, state, valid_moves, value_only=False, mock_data=False):
