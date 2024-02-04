@@ -172,7 +172,11 @@ tensorboard_logs/
 log.txt
 
 models/fastpred/
-
 models/model_performance/
-
-#models/saved_sessions/
+models/best_models/
+models/play_against/
+models/pre_trained/
+models/saved_sessions/
+models/other_models/
+models/probing_models/
+models/training/
