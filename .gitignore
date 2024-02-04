@@ -180,3 +180,6 @@ models/saved_sessions/
 models/other_models/
 models/probing_models/
 models/training/
+
+# Mac files
+.DS_Store
