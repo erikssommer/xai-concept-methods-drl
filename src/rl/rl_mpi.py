@@ -255,6 +255,8 @@ def rl_mpi():
             distribution_buffer = distribution_buffer[-REPLAY_BUFFER_CAP:]
             value_buffer = value_buffer[-REPLAY_BUFFER_CAP:]
 
+            print(len(state_buffer))
+
             history = agent.fit(
                 np.array(state_buffer), 
                 np.array(distribution_buffer), 

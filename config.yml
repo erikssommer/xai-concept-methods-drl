@@ -1,7 +1,7 @@
 # MCTS config
 episodes: 10000 # Single process
 episodes_per_epoch: 2 # Multi process
-simulations: 200 # m
+simulations: 100 # m
 c: 1.3 # Exploration constant
 det_moves: 5 # Number of plies to use for non-deterministic playouts
 epochs: 10000
@@ -27,8 +27,8 @@ batch_size: 128 # 512
 clear_rbuf: false
 
 # GO config
-board_size: 6 # k
-komi: 2.5 # gives white a bonus of x points at the end of the game due to black going first
+board_size: 5 # k
+komi: 1.5 # gives white a bonus of x points at the end of the game due to black going first
 move_cap: 200
 
 # Debug config
