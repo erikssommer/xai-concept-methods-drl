@@ -181,6 +181,9 @@ def rl_mpi():
     DET_MOVES = config.det_moves
     FAST_PREDICTOR_PATH = f"../models/fastpred/training/board_size_{BOARD_SIZE}"
 
+    # Save interval list
+    save_intervals = config.save_intervals
+
     if rank == 0:
         state_buffer = []
         distribution_buffer = []
@@ -202,6 +205,8 @@ def rl_mpi():
         # Calculate the number of games in total
         total = NUM_THEADS_GENERATING_DATA * EPISODES_PER_THREAD_INSTANCE * EPOCHS
 
+        print("Saving interval: {}".format(save_intervals), flush=True)
+        print("Number of threads generating data: {}".format(NUM_THEADS_GENERATING_DATA), flush=True)
         print("Episodes per thread instance: {}".format(EPISODES_PER_THREAD_INSTANCE), flush=True)
         print("Total number of games: {}".format(total), flush=True)
 
@@ -255,8 +260,6 @@ def rl_mpi():
             distribution_buffer = distribution_buffer[-REPLAY_BUFFER_CAP:]
             value_buffer = value_buffer[-REPLAY_BUFFER_CAP:]
 
-            print(len(state_buffer))
-
             history = agent.fit(
                 np.array(state_buffer), 
                 np.array(distribution_buffer), 
@@ -268,7 +271,7 @@ def rl_mpi():
             # Add the metrics to TensorBoard
             write_to_tensorboard(history, epoch, logdir)
 
-        if epoch != 0 and epoch % SAVE_INTERVAL == 0:
+        if epoch != 0 and epoch in save_intervals:
             agent.save_model(f'../models/training/board_size_{BOARD_SIZE}/net_{epoch}.keras')
     
     if rank == 0:

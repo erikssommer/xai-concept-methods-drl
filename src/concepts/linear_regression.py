@@ -20,7 +20,8 @@ def perform_logistic_regression(points, targets, validation_points, validation_t
     model = tf.keras.Model(inputs, output)
     model.compile(loss=tf.keras.losses.BinaryCrossentropy(), optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001))
 
-    model.fit(points, targets, validation_data=(validation_points, validation_targets), epochs=50)
+    with tf.device('/GPU:0'):
+        model.fit(points, targets, validation_data=(validation_points, validation_targets), epochs=10)
 
     train_preds = model.predict(points) > 0.5
     val_preds = model.predict(validation_points) > 0.5

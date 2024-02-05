@@ -23,6 +23,7 @@ class ConvNet(BaseNet):
         self.load_path = load_path
         self.output = board_size ** 2 + 1
         self.batch_size = config.batch_size
+        self.learning_rate = config.learning_rate
 
         if load_path:
             self.model = tf.keras.models.load_model(load_path)
@@ -53,16 +54,18 @@ class ConvNet(BaseNet):
             if summary:
                 self.model.summary()
 
+        """
         rl_schedule_fn = tf.keras.optimizers.schedules.PolynomialDecay(
             initial_learning_rate=config.learning_rate,
             decay_steps=config.decay_steps,
             end_learning_rate=config.end_learning_rate,
         )
+        """
 
         self.model.compile(
             loss={"policy_output": tf.keras.losses.CategoricalCrossentropy(), "value_output": tf.keras.losses.MeanSquaredError()},
             loss_weights={"policy_output": 1.0, "value_output": 1.0},
-            optimizer=tf.keras.optimizers.Adam(learning_rate=rl_schedule_fn),
+            optimizer=tf.keras.optimizers.Adam(learning_rate=self.learning_rate),
             metrics=["accuracy"]
         )
     

@@ -13,7 +13,8 @@ resnet_blocks: 3 # n
 resnet_filters: 64 # f
 convnet_filters: 32 # f
 nr_of_anets: 10 # m
-learning_rate: 0.01
+save_intervals: [10, 20, 60, 100, 500, 1000, 3000, 5000, 10000]
+learning_rate: 0.001
 end_learning_rate: 0.0001
 decay_steps: 10000
 pre_trained: false # Remember to set sigma and epsilon to 0 for faster training
@@ -21,8 +22,8 @@ pre_trained_path: ../models/pre_trained/board_size_5/
 
 # Replay buffer config
 rbuf_size: 2048 # Single process (2048)
-rbuf_cap: 30000 # Multi process
-sample_ratio: 0.3 # 50% chance of adding case to replay buffer, helps with overfitting
+rbuf_cap: 10000 # Multi process
+sample_ratio: 0.3 # 30% chance of adding case to replay buffer, helps with overfitting
 batch_size: 128 # 512
 clear_rbuf: false
 
