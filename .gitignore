@@ -181,6 +181,9 @@ models/other_models/
 models/probing_models/
 models/training/
 
+concept_presences/
+notebooks/plots/
+
 # Mac files
 .DS_Store
 ._.DS_Store

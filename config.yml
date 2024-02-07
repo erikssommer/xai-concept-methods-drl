@@ -8,10 +8,9 @@ epochs: 10000
 epoch_skip: 0
 
 # Neural Network config
-resnet: false
-resnet_blocks: 3 # n
+resnet: true
 resnet_filters: 64 # f
-convnet_filters: 32 # f
+convnet_filters: 64 # f
 nr_of_anets: 10 # m
 save_intervals: [10, 20, 60, 100, 500, 1000, 3000, 5000, 10000]
 learning_rate: 0.001
@@ -30,7 +29,7 @@ clear_rbuf: false
 # GO config
 board_size: 5 # k
 komi: 1.5 # gives white a bonus of x points at the end of the game due to black going first
-move_cap: 200
+move_cap: 100
 
 # Debug config
 render: false
