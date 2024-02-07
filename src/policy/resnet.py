@@ -23,35 +23,56 @@ class ResNet(BaseNet):
         self.board_size = board_size
         self.load_path = load_path
         self.output = board_size ** 2 + 1
+        self.learning_rate = config.learning_rate
+        self.batch_size = config.batch_size
 
         if load_path:
             self.model = tf.keras.models.load_model(load_path)
         else:
-            position_input = tf.keras.Input((4, board_size, board_size))
-            base = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (3, 3), activation="elu", padding="same", name="res_block_output_base")(position_input)
-            block_amount = config.resnet_blocks
-            for block in range(block_amount):
-                # Convolve "input" twice
-                conv = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (3, 3), activation="elu", padding="same")(base)
-                conv = tf.keras.layers.BatchNormalization()(conv)
-                conv = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (3, 3), activation="elu", padding="same")(conv)
-                conv = tf.keras.layers.BatchNormalization()(conv)
-                # Add and relu residues to the doubly convolved layer
-                conv_with_residues = tf.keras.layers.Add()([base, conv])
-                base = tf.keras.layers.ELU(name="res_block_output_{}".format(block))(conv_with_residues)
+            self.position_input = tf.keras.Input(shape=(5, board_size, board_size))
+
+            # Residual block
+            base = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (3, 3), activation="relu", padding="same", name="res_block_output_base")(self.position_input)
+
+            # First
+            conv = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (3, 3), activation="relu", padding="same")(base)
+            conv = tf.keras.layers.BatchNormalization()(conv)
+            conv = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (3, 3), activation="relu", padding="same")(conv)
+            conv = tf.keras.layers.BatchNormalization()(conv)
+
+            # Add skip connection
+            conv_res = tf.keras.layers.Add()([base, conv])
+            base = tf.keras.layers.ReLU(name="res_block_1_relu")(conv_res)
+            
+            conv = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (3, 3), activation="relu", padding="same")(base)
+            conv = tf.keras.layers.BatchNormalization()(conv)
+            conv = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (3, 3), activation="relu", padding="same")(conv)
+            conv = tf.keras.layers.BatchNormalization()(conv)
+
+            # Add skip connection
+            conv_res = tf.keras.layers.Add()([base, conv])
+            base = tf.keras.layers.ReLU(name="res_block_2_relu")(conv_res)
+
+            conv = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (3, 3), activation="relu", padding="same")(base)
+            conv = tf.keras.layers.BatchNormalization()(conv)
+            conv = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (3, 3), activation="relu", padding="same")(conv)
+            conv = tf.keras.layers.BatchNormalization()(conv)
+
+            # Add skip connection
+            conv_res = tf.keras.layers.Add()([base, conv])
+            base = tf.keras.layers.ReLU(name="res_block_3_relu")(conv_res)
 
             # Policy head
-            policy = tf.keras.layers.Conv2D(self.output, (1, 1), activation="elu", padding="same")(base)
+            policy = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (1, 1), activation="relu", padding="same")(base)
             policy = tf.keras.layers.Flatten()(policy)
             policy_output = tf.keras.layers.Dense(self.output, activation="softmax", name="policy_output")(policy)
 
             # Value head
-            val = tf.keras.layers.Conv2D(16, (1, 1), name="value_conv", activation="elu", padding="same")(base)
-            val = tf.keras.layers.Flatten()(val)
-            # val = keras.layers.Dense(256, activation="elu")(val)
-            value_output = tf.keras.layers.Dense(1, name="value_output", activation="tanh")(val)
+            value = tf.keras.layers.Conv2D(1, (1, 1), activation="relu", padding="same")(base)
+            value = tf.keras.layers.Flatten()(value)
+            value_output = tf.keras.layers.Dense(1, activation="tanh", name="value_output")(value)
 
-            self.model = tf.keras.Model(position_input, [policy_output, value_output])
+            self.model = tf.keras.Model(self.position_input, [policy_output, value_output])
             
             if summary:
                 self.model.summary()
@@ -63,54 +84,38 @@ class ResNet(BaseNet):
             metrics=["accuracy"]
             )
 
-    def get_all_activation_values(self, boards, keyword="conv2d"):
-        """Returns a model that gives the activations from resnet-blocks"""
+    def get_all_activation_values(self, boards, keyword="conv"):
+        """Returns a list of all the activation values for each layer in the model"""
         if len(boards.shape) == 3:
             boards = np.reshape(boards, (1, *boards.shape))
 
         # All inputs
         inp = self.model.input
-        # All outputs of the residual blocks
+        # All outputs of the conv blocks
         outputs = [layer.output for layer in self.model.layers if keyword in layer.name]
         functor = tf.keras.backend.function([inp], outputs)
 
         BATCH_SIZE = 32
         all_layer_outs = []
-        for i in tqdm(range(0, boards.shape[0], BATCH_SIZE)):
+        for i in tqdm(range(0, boards.shape[0], BATCH_SIZE), desc="Getting activation outputs"):
             layer_outs = functor([boards[i:i + BATCH_SIZE]])
             all_layer_outs.append(layer_outs)
 
         return all_layer_outs
 
     def fit(self, states, distributions, values, callbacks=None, epochs=10):
-        if config.use_gpu:
-            with tf.device('/gpu:0'):
-                return self.model.fit(states, [distributions, values], verbose=0, epochs=epochs, batch_size=128, callbacks=callbacks)
-        else:
-            return self.model.fit(states, [distributions, values], verbose=0, epochs=epochs, batch_size=128, callbacks=callbacks)
+        with tf.device("/GPU:0"):
+            return self.model.fit(states, [distributions, values], verbose=0, shuffle=True, epochs=epochs, batch_size=self.batch_size, callbacks=callbacks)
     
     # Define a prediction function
-    def predict(self, state, value_only=False):
-        state_copy = state.copy()
-
-        # Current players stones is allways first layer
-        if gogame.turn(state) == govars.WHITE:
-            channels = np.arange(govars.NUM_CHNLS)
-            channels[govars.BLACK] = govars.WHITE
-            channels[govars.WHITE] = govars.BLACK
-            state = state[channels]
-
-        # Remove array index 3 and 5 from the current state making it an shape of (4, 5, 5)
-        state = np.delete(state, [3, 5], axis=0)
+    def predict(self, state, valid_moves, value_only=False):
 
         if len(state.shape) == 3:
             state = np.reshape(state, (1, *state.shape))
-        if config.use_gpu:
-            with tf.device('/gpu:0'):
-                res = self.model(state, training=False)
-        else:
+
+        with tf.device("/CPU:0"):
             res = self.model(state, training=False)
-        
+
         policy, value = res
 
         # Get the policy array and value number from the result
@@ -120,18 +125,18 @@ class ResNet(BaseNet):
         if value_only:
             return value
 
-        policy = self.mask_invalid_moves(policy, state_copy)
+        policy = self.mask_invalid_moves(policy, valid_moves)
+
+        del state
         
         return policy, value
     
-    def mask_invalid_moves(self, policy, state):
-        # Get invalid moves
-        valid_moves = gogame.valid_moves(state)
+    def mask_invalid_moves(self, policy, valid_moves):
 
         # Mask the invalid moves
         policy = policy * valid_moves
 
-        # Reduce to 8 decimal places
+        # Convert to 8 decimals
         policy = np.round(policy, 8)
     
         # Normalize the policy
@@ -139,22 +144,23 @@ class ResNet(BaseNet):
         
         return policy
     
-    def best_action(self, state, greedy_move=False, alpha=None):
-        policy, _ = self.predict(state)
+    def best_action(self, state, valid_moves, greedy_move=False, alpha=None):
+        policy, value = self.predict(state, valid_moves)
+
+        #print("Value: ", value)
 
         if greedy_move:
             return np.argmax(policy)
-
-        if alpha and alpha > np.random.random():
+        
+        if alpha and np.random.random() < alpha:
             # Selecting move randomly, but weighted by the distribution (0 = argmax, 1 = probablistic)
-            return np.random.choice(len(policy), p=policy)
+            return np.argmax(policy)
 
-        # Selecting move greedily
-        return np.argmax(policy)
+        # Selecting move randomly, but weighted by the distribution (0 = argmax, 1 = probablistic)
+        return np.random.choice(len(policy), p=policy)
     
-    def value_estimation(self, state):
-        value = self.predict(state, value_only=True)
-        return value
+    def value_estimation(self, state, valid_moves):
+        return self.predict(state, valid_moves, value_only=True)
     
     def save_model(self, path):
         self.model.save(path)
