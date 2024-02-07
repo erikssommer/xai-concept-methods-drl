@@ -13,7 +13,7 @@ class Node:
 
         # Node references
         self.parent = parent
-        self.children = []
+        self.children: list[Node] = []
 
         # MCTS values
         self.n_visit_count = 0
@@ -23,6 +23,7 @@ class Node:
 
         # Node metadata
         self.time_step = time_step
+        self.predict_state_rep = None
         self.expanded = False
     
     def is_expanded(self) -> bool:

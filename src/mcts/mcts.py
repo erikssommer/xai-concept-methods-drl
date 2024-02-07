@@ -73,6 +73,8 @@ class MCTS:
             state = np.array([node.state[0], prev_turn_state, node.state[1], prev_opposing_state, np.ones((self.board_size, self.board_size))])
         else:
             state = np.array([node.state[0], prev_turn_state, node.state[1], prev_opposing_state, np.zeros((self.board_size, self.board_size))])
+
+        node.predict_state_rep = state
         
         # Use the neural network to get the prior probabilities
         policy, value = self.neural_network.predict(state, valid_moves)
