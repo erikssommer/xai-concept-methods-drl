@@ -4,7 +4,6 @@ from utils import config
 import utils
 from tqdm import tqdm
 from .basenet import BaseNet
-import math
 
 class ConvNet(BaseNet):
     def __init__(self, board_size, load_path=None, summary=True):
@@ -32,22 +31,20 @@ class ConvNet(BaseNet):
             self.position_input = tf.keras.Input(shape=(5, self.board_size, self.board_size))
             
             # Residual block
-            base = tf.keras.layers.Conv2D(32, (3, 3), activation="relu", padding="same", name="res_block_output_base")(self.position_input)
-            base = tf.keras.layers.Conv2D(48, (3, 3), activation="relu", padding="same")(base)
-            base = tf.keras.layers.Conv2D(64, (2, 2), activation="relu", padding="same")(base)
-            base = tf.keras.layers.Conv2D(64, (2, 2), activation="relu", padding="same")(base)
-
-            # Flatten the base
-            base = tf.keras.layers.Flatten()(base)
-
-            base = tf.keras.layers.Dense(128, activation="relu")(base)
-            base = tf.keras.layers.Dense(64, activation="relu")(base)
+            base = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (3, 3), activation="relu", padding="same", name="res_block_output_base")(self.position_input)
+            base = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (3, 3), activation="relu", padding="same")(base)
+            base = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (3, 3), activation="relu", padding="same")(base)
+            base = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (3, 3), activation="relu", padding="same")(base)
 
             # Policy head
-            policy_output = tf.keras.layers.Dense(self.output, activation="softmax", name="policy_output")(base)
+            policy = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (1, 1), activation="relu", padding="same")(base)
+            policy = tf.keras.layers.Flatten()(policy)
+            policy_output = tf.keras.layers.Dense(self.output, activation="softmax", name="policy_output")(policy)
 
             # Value head
-            value_output = tf.keras.layers.Dense(1, activation="tanh", name="value_output")(base)
+            value = tf.keras.layers.Conv2D(1, (1, 1), activation="relu", padding="same")(base)
+            value = tf.keras.layers.Flatten()(value)
+            value_output = tf.keras.layers.Dense(1, activation="tanh", name="value_output")(value)
 
             self.model = tf.keras.Model(self.position_input, [policy_output, value_output])
             
@@ -93,16 +90,8 @@ class ConvNet(BaseNet):
             return self.model.fit(states, [distributions, values], verbose=0, shuffle=True, epochs=epochs, batch_size=self.batch_size, callbacks=callbacks)
     
     # Define a prediction function
-    def predict(self, state, valid_moves, value_only=False, mock_data=False):
-        """
-        if mock_data:
-            policy = np.random.random(self.board_size ** 2 + 1)
-            policy = self.mask_invalid_moves(policy, state)
-
-            value = np.random.random()
-            return policy, value
-        """
-
+    def predict(self, state, valid_moves, value_only=False):
+        """Predict the policy and value of a state"""
         if len(state.shape) == 3:
             state = np.reshape(state, (1, *state.shape))
 
