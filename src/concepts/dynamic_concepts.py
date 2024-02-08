@@ -2,6 +2,7 @@ from mcts import MCTS
 from mcts import Node
 from policy import ConvNet, FastPredictor, LiteModel
 import env
+from typing import List, Tuple
 
 """
 Dynamic concepts are concepts that are not fixed, but rather change over time in response to the environment.
@@ -42,31 +43,22 @@ class DynamicConcepts:
         node = self.mcts.root
 
         optimal_rollout_states.append(node.predict_state_rep)
+        self.mcts.root.optiaml_rollout = True
 
         if self.concept_type_single:
-            # Skip the oposing players turn by choosing the best action
-            highest_visit_count = -1
-            # Find the best action for the current player (opponent playing optimally)
-            for child in node.children:
-                if child.n_visit_count > highest_visit_count:
-                    highest_visit_count = child.n_visit_count
-                    node = child
+            # Skip the opposing players turn by choosing the best action
+            node, _ = self.find_best_next_node(node.children)
 
         while node and node.time_step < t_maximum_rollout_depth:
             # Find the optimal next state given visit count
-            highest_visit_count = -1
-            next_optimal_node = None
-
-            for child in node.children:
-                if child.n_visit_count > highest_visit_count:
-                    highest_visit_count = child.n_visit_count
-                    next_optimal_node = child
+            next_optimal_node, highest_visit_count = self.find_best_next_node(node.children)
             
             if next_optimal_node is None:
                 break
 
             if next_optimal_node.predict_state_rep is not None:
                 optimal_rollout_states.append(next_optimal_node.predict_state_rep)
+                next_optimal_node.optiaml_rollout = True
 
             # From the subpar node, perform a optimal rollout to the maximum depth
             if node.time_step < maximum_depth_find_sub_rollout:
@@ -77,29 +69,22 @@ class DynamicConcepts:
                         sub_par_children.append(child)
                 
                 # Find the best subpar state to rollout
-                best_subpar_node = None
-                highest_sub_par_visit_count = -1
+                if len(sub_par_children) == 0:
+                    break
 
-                for child in sub_par_children:
-                    if child.n_visit_count > highest_sub_par_visit_count:
-                        highest_sub_par_visit_count = child.n_visit_count
-                        best_subpar_node = child
+                best_subpar_node, _ = self.find_best_next_node(sub_par_children)
 
                 # Assert that the best subpar state is has a lower visit count than the optimal state
-                assert best_subpar_node.n_visit_count < next_optimal_node.n_visit_count
+                assert best_subpar_node.n_visit_count < next_optimal_node.n_visit_count or best_subpar_node.q_value() < next_optimal_node.q_value()
 
                 if best_subpar_node.predict_state_rep is not None:
                     subpar_rollout_states.append(best_subpar_node.predict_state_rep)
+                    best_subpar_node.optiaml_rollout = False
                 
                 curr_node = best_subpar_node
                 moves = 0
                 for _ in range(t_maximum_rollout_depth - node.time_step):
-                    highest_visit_count = -1
-                    optimal_child = None
-                    for child in curr_node.children:
-                        if child.n_visit_count > highest_visit_count:
-                            highest_visit_count = child.n_visit_count
-                            optimal_child = child
+                    optimal_child, _ = self.find_best_next_node(curr_node.children)
                     
                     if optimal_child:
                         if optimal_child.predict_state_rep is not None:
@@ -107,8 +92,10 @@ class DynamicConcepts:
                                 # Only add the state if the current player is playing (opponent is skipped)
                                 if moves % 2 != 0:
                                     subpar_rollout_states.append(optimal_child.predict_state_rep)
+                                    optimal_child.optiaml_rollout = False
                             else:
                                 subpar_rollout_states.append(optimal_child.predict_state_rep)
+                                optimal_child.optiaml_rollout = False
                             curr_node = optimal_child
                         else:
                             break
@@ -119,14 +106,7 @@ class DynamicConcepts:
             # If the concept is both, choose the best state from current player and state
             if self.concept_type_single:
                 # Skip the oposing players turn by choosing the best action
-                curr_node = next_optimal_node
-                node = None
-                highest_visit_count = -1
-                # Find the best action for the current player (opponent playing optimally)
-                for child in curr_node.children:
-                    if child.n_visit_count > highest_visit_count:
-                        highest_visit_count = child.n_visit_count
-                        node = child
+                node, _ = self.find_best_next_node(next_optimal_node.children)
             else:
                 # Choose the best state for the current player
                 node = next_optimal_node
@@ -136,12 +116,26 @@ class DynamicConcepts:
     """
     Concept function for different initialization states
     """
+
+    def find_best_next_node(self, children: List[Node]) -> Tuple[Node, int]:
+        highest_visit_count = -1
+        next_node = None
+        for child in children:
+            if child.n_visit_count > highest_visit_count:
+                highest_visit_count = child.n_visit_count
+                next_node = child
+        
+        return next_node, highest_visit_count
+    
+    def view_tree(self):
+        return self.mcts.view_tree()
     
     @staticmethod
     def opening_play(board_size, komi=0.5):
         """
         Concept of starting from an empty board
         """
+        concept_type_single = False
         go_env = env.GoEnv(board_size, komi)
         go_env.reset()
-        return go_env.canonical_state()
+        return go_env.canonical_state(), concept_type_single
