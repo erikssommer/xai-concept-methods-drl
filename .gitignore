@@ -183,6 +183,7 @@ models/training/
 
 concept_presences/
 notebooks/plots/
+notebooks/visualization/
 
 # Mac files
 .DS_Store
