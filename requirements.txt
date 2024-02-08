@@ -5,6 +5,7 @@ tensorflow==2.12.0
 scikit-learn
 scipy
 seaborn
+pandas
 matplotlib
 mpi4py
 graphviz
