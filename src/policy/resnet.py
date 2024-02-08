@@ -147,7 +147,7 @@ class ResNet(BaseNet):
     def best_action(self, state, valid_moves, greedy_move=False, alpha=None):
         policy, value = self.predict(state, valid_moves)
 
-        #print("Value: ", value)
+        print("Value: ", value.numpy())
 
         if greedy_move:
             return np.argmax(policy)

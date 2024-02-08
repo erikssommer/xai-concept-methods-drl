@@ -1,5 +1,6 @@
 from .lite_model import LiteModel
 import utils
+import numpy as np
 
 class FastPredictor:
     def __init__(self, model: LiteModel):
@@ -19,6 +20,9 @@ class FastPredictor:
 
         # Mask the invalid moves
         policy = policy * valid_moves
+
+        # Convert to 8 decimals
+        policy = np.round(policy, 8)
 
         # Normalize the policy
         policy = utils.normalize(policy)
