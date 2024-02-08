@@ -22,9 +22,10 @@ class Node:
         self.p_prior_probability = prior_probability
 
         # Node metadata
+        self.expanded = False
         self.time_step = time_step
         self.predict_state_rep = None
-        self.expanded = False
+        self.optiaml_rollout = None
     
     def is_expanded(self) -> bool:
         return self.expanded
@@ -90,7 +91,19 @@ class Node:
             graph = graphviz.Digraph()
 
         graph.node(str(
-            id(self)), label=f'Player: {self.player}\nVisits: {self.n_visit_count}\nRewards: {self.q_mean_action_value}\nState ([black][white]):\n{self.state[0]}\n{self.state[1]}')
+            id(self)), label=
+            f'Player: {self.player}\n' + 
+            f'Timestep: {self.time_step}\n' +
+            f'Visits: {self.n_visit_count}\n' + 
+            f'Rewards: {self.q_mean_action_value}\n' +
+            f'State ([black][white]):\n{self.state[0]}\n{self.state[1]}')
+        
+        # Color the node red if not optimal and green if optimal
+        if self.optiaml_rollout is not None:
+            if self.optiaml_rollout:
+                graph.node(str(id(self)), style='filled', fillcolor='green')
+            else:
+                graph.node(str(id(self)), style='filled', fillcolor='red')
 
         for child in self.children:
             graph.edge(str(id(self)), str(id(child)))
