@@ -37,7 +37,7 @@ class TestMCTSvsRandom(unittest.TestCase):
 
             while not game_over:
                 if go_env.turn() == 0:
-                    action = actor_net.best_action(go_env.state())
+                    action, value = actor_net.best_action(go_env.state())
                     _, _, game_over, _ = go_env.step(action)
                 else:
                     action = go_env.uniform_random_action()
@@ -85,7 +85,7 @@ class TestMCTSvsRandom(unittest.TestCase):
 
             while not game_over:
                 if go_env.turn() == 1:
-                    action = actor_net.best_action(go_env.state())
+                    action, value = actor_net.best_action(go_env.state())
                     _, _, game_over, _ = go_env.step(action)
                 else:
                     action = go_env.uniform_random_action()
