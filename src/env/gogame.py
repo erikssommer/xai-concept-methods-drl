@@ -410,8 +410,15 @@ def random_action(state):
     return random_weighted_action(move_weights)
 
 
-def str(state):
+def str(state, nn_format=False):
     board_str = ''
+
+    if nn_format:
+        # Find the current player
+        if state[4][0][0] == 0:
+            state = np.array([state[0], state[2]])
+        else:
+            state = np.array([state[2], state[0]])
 
     size = state.shape[1]
     board_str += '\t'
@@ -458,6 +465,9 @@ def str(state):
                     else:
                         board_str += '┼─'
         board_str += '\n'
+
+    if nn_format:
+        return board_str
 
     black_area, white_area = areas(state)
     done = game_ended(state)
