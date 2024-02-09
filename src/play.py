@@ -94,10 +94,10 @@ if __name__ == "__main__":
                 node, _ = tree.search(move_nr)
                 _, _, game_over, _ = go_env.step(node.action)
             elif curr_player == 0 and start_player == "n":
-                action = actor_net.best_action(state, valid_moves, greedy_move)
+                action, _ = actor_net.best_action(state, valid_moves, greedy_move)
                 _, _, game_over, _ = go_env.step(action)
             elif curr_player == 1 and start_player == "y":
-                action = actor_net.best_action(state, valid_moves, greedy_move)
+                action, _ = actor_net.best_action(state, valid_moves, greedy_move)
                 _, _, game_over, _ = go_env.step(action)
             else:
                 go_env.render()

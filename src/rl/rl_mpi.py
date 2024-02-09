@@ -24,7 +24,7 @@ def perform_mcts_episodes(args):
     for gpu in gpus:
         tf.config.experimental.set_memory_growth(gpu, True)
     
-    episodes, fast_predictor_path, simulations, sample_ratio, c, komi, board_size, det_moves, move_cap, thread = args
+    episodes, fast_predictor_path, simulations, sample_ratio, c, komi, board_size, non_det_moves, move_cap, thread = args
 
     state_buffer = []
     distribution_buffer = []
@@ -33,8 +33,7 @@ def perform_mcts_episodes(args):
 
     agent = FastPredictor(LiteModel.from_file(f"{fast_predictor_path}/temp.tflite"))
 
-    for episode in range(episodes):
-        #print("Thread {} starting, episode {}.".format(thread, episode + 1), flush=True)
+    for _ in range(episodes):
 
         turns = []
         states = []
@@ -53,7 +52,7 @@ def perform_mcts_episodes(args):
         init_state = go_env.canonical_state()
 
         # Create the initial tree
-        tree = MCTS(init_state, simulations, board_size, move_cap, agent, c, komi, det_moves)
+        tree = MCTS(init_state, simulations, board_size, move_cap, agent, c, komi, non_det_moves)
 
         # Play a game until termination
         game_over = False
@@ -167,18 +166,13 @@ def rl_mpi():
     SIM_STEPS = config.simulations
     REPLAY_BUFFER_CAP = config.rbuf_cap
     SAMPLE_RATIO = config.sample_ratio
-
     NUM_THEADS_GENERATING_DATA = ranksize - 1
-    # Take the number of epochs into account
     EPISODES_PER_THREAD_INSTANCE = config.episodes_per_epoch
-
-    SAVE_INTERVAL = EPOCHS // config.nr_of_anets
     EPOCHS_SKIP = config.epoch_skip
-
     KOMI = config.komi
     MOVE_CAP = config.move_cap
     CPUCT = config.c
-    DET_MOVES = config.det_moves
+    NON_DETERMINISTIC_MOVES = config.non_det_moves
     FAST_PREDICTOR_PATH = f"../models/fastpred/training/board_size_{BOARD_SIZE}"
 
     # Save interval list
@@ -227,7 +221,7 @@ def rl_mpi():
                 CPUCT,
                 KOMI,
                 BOARD_SIZE,
-                DET_MOVES,
+                NON_DETERMINISTIC_MOVES,
                 MOVE_CAP,
                 rank
             ))

@@ -109,7 +109,11 @@ class Topp:
 
                         agent: Agent = self.agents[current_agent]
                         
-                        action = agent.choose_action(state, valid_moves)
+                        action, value_estimate = agent.choose_action(state, valid_moves)
+
+                        if self.render:
+                            print(f"Agent {agent.name} chose action {action}")
+                            print(f"Value estimate of the current state: {value_estimate}")
 
                         _, _, terminated, _ = go_env.step(action)
                         moves += 1

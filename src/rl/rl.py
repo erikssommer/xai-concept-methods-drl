@@ -45,7 +45,7 @@ def rl():
     rbuf_size = config.rbuf_size
     episodes = config.episodes
     pre_trained_path = config.pre_trained_path
-    det_moves = config.det_moves
+    non_det_moves = config.non_det_moves
 
     move_cap = config.move_cap
 
@@ -109,7 +109,7 @@ def rl():
         init_state = go_env.canonical_state()
 
         # Create the initial tree
-        tree = MCTS(init_state, simulations, board_size, move_cap, model, c, komi, det_moves)
+        tree = MCTS(init_state, simulations, board_size, move_cap, model, c, komi, non_det_moves)
 
         #root = tree.root
 
