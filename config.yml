@@ -3,7 +3,7 @@ episodes: 10000 # Single process
 episodes_per_epoch: 2 # Multi process
 simulations: 100 # m
 c: 1.3 # Exploration constant
-det_moves: 5 # Number of plies to use for non-deterministic playouts
+non_det_moves: 5 # Number of plies to use for non-deterministic playouts
 epochs: 10000
 epoch_skip: 0
 
