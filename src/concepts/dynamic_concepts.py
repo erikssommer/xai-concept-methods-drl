@@ -3,6 +3,7 @@ from mcts import Node
 from policy import ConvNet, FastPredictor, LiteModel
 import env
 from typing import List, Tuple
+import numpy as np
 
 """
 Dynamic concepts are concepts that are not fixed, but rather change over time in response to the environment.
@@ -10,10 +11,11 @@ Dynamic concepts are concepts that are not fixed, but rather change over time in
 
 
 class DynamicConcepts:
-    def __init__(self, init_state, simulations, board_size, concept_type_single, path, move_cap=100):
+    def __init__(self, init_state, simulations, board_size, concept_type_single, path, move_cap=100, random_subpar=True):
         # 'both' or 'single'. Single means concepts where only one player is considered, both means concepts where both players are considered.
         self.concept_type_single = concept_type_single
         self.board_size = board_size
+        self.random_subpar = random_subpar
 
         neural_network = ConvNet(board_size, load_path=path)
 
@@ -92,8 +94,11 @@ class DynamicConcepts:
                 curr_node = best_subpar_node
                 moves = 0
                 for _ in range(t_maximum_rollout_depth - node.time_step):
-                    optimal_child, _ = self.find_best_next_node(
-                        curr_node.children)
+                    if self.random_subpar:
+                        optimal_child = np.random.choice(curr_node.children)
+                    else:
+                        optimal_child, _ = self.find_best_next_node(curr_node.children)
+
 
                     if optimal_child:
                         if optimal_child.predict_state_rep is not None:
