@@ -6,7 +6,7 @@ import utils
 from policy import FastPredictor
 
 class MCTS:
-    def __init__(self, game_state, simulations, board_size, move_cap, neural_network: FastPredictor, c=1, komi=0.5, deterministic_moves=8):
+    def __init__(self, game_state, simulations, board_size, move_cap, neural_network: FastPredictor, c=1, komi=0.5, non_det_moves=8):
         """
         Initialize the Monte Carlo Tree Search
 
@@ -24,7 +24,7 @@ class MCTS:
         self.board_size = board_size
         self.move_cap = move_cap
         self.komi = komi
-        self.deterministic_moves = deterministic_moves
+        self.non_det_moves = non_det_moves
 
     def __select(self, node: Node) -> Node:
         """
@@ -85,6 +85,14 @@ class MCTS:
         # Make a list of only valid moves
         prior_probabilities = policy[valid_moves_mask == 1]
 
+        # Additional exploration is achieved by adding Dirichlet noise to the prior probabilities in the root node s0
+        # Specifically P(s, a) = (1 − ε)pa + εηa, where η ∼ Dir(0.03) and ε = 0.25; as in the AlphaGo Zero paper
+        # Explination from paper: "this noise ensures that all moves may be tried, but the search may still overrule bad moves."
+        cnoise = 0.25
+        noise = np.random.dirichlet([0.03] * len(prior_probabilities))
+        prior_probabilities = (1 - cnoise) * prior_probabilities + cnoise * noise
+        prior_probabilities /= prior_probabilities.sum()
+
         node.make_children(prior_probabilities, valid_moves)
 
         node.expanded = True
@@ -114,7 +122,7 @@ class MCTS:
         
         valid_moves_distribution = utils.normalize(valid_moves_distribution)
 
-        if num_moves > self.deterministic_moves:
+        if num_moves > self.non_det_moves:
             # Choose the best action
             action = np.argmax(valid_moves_distribution)
         else:
