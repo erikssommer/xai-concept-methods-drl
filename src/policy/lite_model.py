@@ -3,25 +3,10 @@ import numpy as np
 
 """
 Based on https://micwurm.medium.com/using-tensorflow-lite-to-speed-up-predictions-a3954886eb98.
+Made to work with multiheaded models: https://github.com/patrik-ha/explainable-minichess/blob/main/minichess/agents/lite_model.py
 """
 
 class LiteModel:
-
-    @classmethod
-    def from_file(cls, model_path):
-        return LiteModel(tf.lite.Interpreter(model_path=model_path))
-
-    @classmethod
-    def from_keras_model(cls, kmodel):
-        converter = tf.lite.TFLiteConverter.from_keras_model(kmodel)
-        tflite_model = converter.convert()
-        return LiteModel(tf.lite.Interpreter(model_content=tflite_model, ))
-
-    @classmethod
-    def from_keras_model_as_bytes(cls, kmodel):
-        converter = tf.lite.TFLiteConverter.from_keras_model(kmodel)
-        tflite_model = converter.convert()
-        return tflite_model
 
     def __init__(self, interpreter):
         self.interpreter = interpreter
@@ -42,10 +27,25 @@ class LiteModel:
         self.val_output_dtype = val_output_det["dtype"]
 
     def predict_single(self, inp):
-        """ Like predict(), but only for a single record. The input data can be a Python list. """
         inp = np.array([inp], dtype=self.input_dtype)
         self.interpreter.set_tensor(self.input_index, inp)
         self.interpreter.invoke()
         dist_out = self.interpreter.get_tensor(self.dist_output_index)
         val_out = self.interpreter.get_tensor(self.val_output_index)
         return dist_out[0], val_out[0]
+    
+    @classmethod
+    def from_file(cls, model_path):
+        return LiteModel(tf.lite.Interpreter(model_path=model_path))
+
+    @classmethod
+    def from_keras_model(cls, kmodel):
+        converter = tf.lite.TFLiteConverter.from_keras_model(kmodel)
+        tflite_model = converter.convert()
+        return LiteModel(tf.lite.Interpreter(model_content=tflite_model, ))
+
+    @classmethod
+    def from_keras_model_as_bytes(cls, kmodel):
+        converter = tf.lite.TFLiteConverter.from_keras_model(kmodel)
+        tflite_model = converter.convert()
+        return tflite_model
