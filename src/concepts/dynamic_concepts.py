@@ -286,13 +286,14 @@ class DynamicConcepts:
         game_state = np.zeros((6, board_size, board_size))
 
         # Set up a scenario where Player 1 has a ko to fight for
-        game_state[0, board_size // 2, board_size // 2] = 1
-        game_state[0, board_size // 2-1, board_size // 2-1] = 1
-        game_state[0, board_size // 2+1, board_size // 2-1] = 1
-        game_state[0, board_size // 2, board_size // 2-2] = 1
-        game_state[1, board_size // 2-1, board_size // 2] = 1
-        game_state[1, board_size // 2+1, board_size // 2] = 1
-        game_state[1, board_size // 2, board_size // 2+1] = 1
+        game_state[0, board_size // 2-1, board_size // 2] = 1
+        game_state[0, board_size // 2+1, board_size // 2] = 1
+        game_state[0, board_size // 2, board_size // 2+1] = 1
+        game_state[0, board_size // 2, board_size // 2+2] = 1
+        game_state[1, board_size // 2, board_size // 2] = 1
+        game_state[1, board_size // 2-1, board_size // 2-1] = 1
+        game_state[1, board_size // 2+1, board_size // 2-1] = 1
+        game_state[1, board_size // 2, board_size // 2-2] = 1
 
         # Set the third plane to represent the current player's turn
         game_state[2, :, :] = 0
