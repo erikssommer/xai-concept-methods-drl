@@ -9,7 +9,7 @@ from policy import FastPredictor
 from policy import LiteModel
 import numpy as np
 import gc
-from utils import tensorboard_setup, write_to_tensorboard
+from utils import tensorboard_setup, write_to_tensorboard, folder_setup
 from env import govars
 
 import absl.logging
@@ -46,8 +46,11 @@ def rl():
     episodes = config.episodes
     pre_trained_path = config.pre_trained_path
     non_det_moves = config.non_det_moves
-
     move_cap = config.move_cap
+    resnet = config.resnet
+    model_type = "resnet" if resnet else "convnet"
+
+    folder_setup(model_type)
 
     if pre_trained:
         # Try to get the first file in the pre trained path directory
@@ -63,20 +66,20 @@ def rl():
             exit()
         
         # Load the neural network
-        if config.resnet:
+        if resnet:
             neural_network = ResNet(board_size, model_path)
         else:
             neural_network = ConvNet(board_size, model_path)
         
     else:
         # Create the neural network
-        if config.resnet:
+        if resnet:
             neural_network = ResNet(board_size)
         else:
             neural_network = ConvNet(board_size)
 
         # Save initial (random) weights
-        neural_network.save_model(f"../models/training/board_size_{board_size}/net_0.keras")
+        neural_network.save_model(f"../models/training/{model_type}/board_size_{board_size}/net_0.keras")
         start_episode = 0
 
     # Create the tensorboard callback
@@ -216,7 +219,7 @@ def rl():
         if start_episode != 0 and start_episode % save_interval == 0:
             # Save the neural network model
             neural_network.save_model(
-                f'../models/training/board_size_{board_size}/net_{start_episode}.keras')
+                f'../models/training/{model_type}/board_size_{board_size}/net_{start_episode}.keras')
 
         # Delete references and garbadge collection      
         del tree.root
@@ -250,7 +253,7 @@ def rl():
 
     # Save the final neural network model
     neural_network.save_model(
-        f'../models/training/board_size_{board_size}/net_{episodes}.keras')
+        f'../models/training/{model_type}/board_size_{board_size}/net_{episodes}.keras')
     
     print(f"Low counter: {low_counter}")
     print(f"Black winner: {black_winner}")

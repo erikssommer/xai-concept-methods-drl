@@ -1,37 +1,44 @@
+import absl.logging
+from mpi4py import MPI
+import gc
+import numpy as np
+from utils import tensorboard_setup, write_to_tensorboard, folder_setup, Timer
+from tqdm import tqdm
+import env
+from mcts import MCTS
+from utils import config
+from policy import ConvNet, ResNet, FastPredictor, LiteModel
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # or any {'0', '1', '2'}
 import tensorflow as tf
-from policy import ConvNet, ResNet, FastPredictor, LiteModel
-from utils import config
-from mcts import MCTS
-import env
-from tqdm import tqdm
 
-from utils import tensorboard_setup, write_to_tensorboard, folder_setup, Timer
-
-import numpy as np
-import gc
-from mpi4py import MPI
-import absl.logging
 
 absl.logging.set_verbosity(absl.logging.ERROR)
 
-def perform_mcts_episodes(args):
+
+def perform_mcts_episodes(episodes,
+                          fast_predictor_path,
+                          simulations,
+                          sample_ratio,
+                          c,
+                          komi,
+                          board_size,
+                          non_det_moves,
+                          move_cap):
 
     np.seterr(over="ignore", invalid="raise")
 
     gpus = tf.config.experimental.list_physical_devices('GPU')
     for gpu in gpus:
         tf.config.experimental.set_memory_growth(gpu, True)
-    
-    episodes, fast_predictor_path, simulations, sample_ratio, c, komi, board_size, non_det_moves, move_cap, thread = args
 
     state_buffer = []
     distribution_buffer = []
     value_buffer = []
     game_winners = []
 
-    agent = FastPredictor(LiteModel.from_file(f"{fast_predictor_path}/temp.tflite"))
+    agent = FastPredictor(LiteModel.from_file(
+        f"{fast_predictor_path}/temp.tflite"))
 
     for _ in range(episodes):
 
@@ -52,7 +59,8 @@ def perform_mcts_episodes(args):
         init_state = go_env.canonical_state()
 
         # Create the initial tree
-        tree = MCTS(init_state, simulations, board_size, move_cap, agent, c, komi, non_det_moves)
+        tree = MCTS(init_state, simulations, board_size,
+                    move_cap, agent, c, komi, non_det_moves)
 
         # Play a game until termination
         game_over = False
@@ -75,9 +83,11 @@ def perform_mcts_episodes(args):
             # Add the case to the replay buffer
             if np.random.random() < sample_ratio:
                 if curr_player == 0:
-                    state = np.array([curr_state[0], prev_turn_state, curr_state[1], prev_opposing_state, np.zeros((board_size, board_size))])
+                    state = np.array([curr_state[0], prev_turn_state, curr_state[1],
+                                     prev_opposing_state, np.zeros((board_size, board_size))])
                 else:
-                    state = np.array([curr_state[0], prev_turn_state, curr_state[1], prev_opposing_state, np.ones((board_size, board_size))])
+                    state = np.array([curr_state[0], prev_turn_state, curr_state[1],
+                                     prev_opposing_state, np.ones((board_size, board_size))])
 
                 # Add the case to the replay buffer
                 turns.append(curr_player)
@@ -106,7 +116,7 @@ def perform_mcts_episodes(args):
 
         # Get the winner of the game in black's perspective (1 for win and -1 for loss)
         winner = go_env.winning()
-        
+
         # Do not allow draws
         assert winner != 0
 
@@ -126,10 +136,10 @@ def perform_mcts_episodes(args):
             state_buffer.append(state)
             distribution_buffer.append(dist)
             value_buffer.append(outcome)
-        
+
         game_winners.append(winner)
 
-        # Delete references and garbadge collection      
+        # Delete references and garbadge collection
         del tree.root
         del tree
         del go_env
@@ -137,7 +147,7 @@ def perform_mcts_episodes(args):
         gc.collect()
 
     # print("Thread {} finished.".format(thread))
-    
+
     return state_buffer, distribution_buffer, value_buffer, game_winners
 
 
@@ -145,86 +155,83 @@ def rl_mpi():
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
     ranksize = comm.Get_size()
-    #print("Rank {} of {} started.".format(rank, ranksize), flush=True)
-    amount_of_gpus = 1
+
     np.seterr(over="ignore")
+
+    board_size = config.board_size
+    resnet = config.resnet
+    epochs = config.epochs
+    simulations = config.simulations
+    replay_buffer_cap = config.rbuf_cap
+    sample_ratio = config.sample_ratio
+    number_of_threads_generating_data = ranksize - 1
+    episodes_per_thread_instance = config.episodes_per_epoch
+    epochs_skip = config.epoch_skip
+    komi = config.komi
+    move_cap = config.move_cap
+    cpuct = config.c
+    non_deterministic_moves = config.non_det_moves
+    save_intervals = config.save_intervals
+    model_type = "resnet" if resnet else "convnet"
+    fast_predictor_path = f"../models/fastpred/training/{model_type}/board_size_{board_size}"
+
     if rank == 0:
         # Start a timer
         timer = Timer()
         timer.start_timer()
 
-        folder_setup()
+        folder_setup(model_type)
 
         gpus = tf.config.list_physical_devices("GPU")
         print("\nNum GPUs Available: ", len(gpus))
         for gpu in gpus:
             tf.config.experimental.set_memory_growth(gpu, True)
-
-    BOARD_SIZE = config.board_size
-    USE_RESNET = config.resnet
-    EPOCHS = config.epochs
-    SIM_STEPS = config.simulations
-    REPLAY_BUFFER_CAP = config.rbuf_cap
-    SAMPLE_RATIO = config.sample_ratio
-    NUM_THEADS_GENERATING_DATA = ranksize - 1
-    EPISODES_PER_THREAD_INSTANCE = config.episodes_per_epoch
-    EPOCHS_SKIP = config.epoch_skip
-    KOMI = config.komi
-    MOVE_CAP = config.move_cap
-    CPUCT = config.c
-    NON_DETERMINISTIC_MOVES = config.non_det_moves
-    FAST_PREDICTOR_PATH = f"../models/fastpred/training/board_size_{BOARD_SIZE}"
-
-    # Save interval list
-    save_intervals = config.save_intervals
-
-    if rank == 0:
         state_buffer = []
         distribution_buffer = []
         value_buffer = []
         outcomes = []
 
-    os.makedirs(FAST_PREDICTOR_PATH, exist_ok=True)
+    os.makedirs(fast_predictor_path, exist_ok=True)
 
     if rank == 0:
         # Create the tensorboard callback
         tensorboard_callback, logdir = tensorboard_setup()
 
-        if USE_RESNET:
-            agent = ResNet(BOARD_SIZE)
+        if resnet:
+            agent = ResNet(board_size)
         else:
-            agent = ConvNet(BOARD_SIZE)
-        agent.save_model(f"../models/training/board_size_{BOARD_SIZE}/net_0.keras")
+            agent = ConvNet(board_size)
+        agent.save_model(
+            f"../models/training/{model_type}/board_size_{board_size}/net_0.keras")
 
         # Calculate the number of games in total
-        total = NUM_THEADS_GENERATING_DATA * EPISODES_PER_THREAD_INSTANCE * EPOCHS
+        total = number_of_threads_generating_data * \
+            episodes_per_thread_instance * epochs
 
-        print("Saving interval: {}".format(save_intervals), flush=True)
-        print("Number of threads generating data: {}".format(NUM_THEADS_GENERATING_DATA), flush=True)
-        print("Episodes per thread instance: {}".format(EPISODES_PER_THREAD_INSTANCE), flush=True)
-        print("Total number of games: {}".format(total), flush=True)
+        print(f"Saving interval: {save_intervals}", flush=True)
+        print(f"Number of threads generating data: {number_of_threads_generating_data}", flush=True)
+        print(f"Episodes per thread instance: {episodes_per_thread_instance}", flush=True)
+        print(f"Total number of games: {total}", flush=True)
 
-
-    for epoch in tqdm(range(1, EPOCHS + 1)):
+    for epoch in tqdm(range(1, epochs + 1)):
         if rank == 0:
-            with open(f"{FAST_PREDICTOR_PATH}/temp.tflite", "wb") as f:
+            with open(f"{fast_predictor_path}/temp.tflite", "wb") as f:
                 lite_model = LiteModel.from_keras_model_as_bytes(agent.model)
                 f.write(lite_model)
 
         comm.Barrier()
         if rank != 0:
-            results = perform_mcts_episodes((
-                EPISODES_PER_THREAD_INSTANCE,
-                FAST_PREDICTOR_PATH,
-                SIM_STEPS,
-                SAMPLE_RATIO,
-                CPUCT,
-                KOMI,
-                BOARD_SIZE,
-                NON_DETERMINISTIC_MOVES,
-                MOVE_CAP,
-                rank
-            ))
+            results = perform_mcts_episodes(
+                episodes_per_thread_instance,
+                fast_predictor_path,
+                simulations,
+                sample_ratio,
+                cpuct,
+                komi,
+                board_size,
+                non_deterministic_moves,
+                move_cap
+            )
 
             data = {
                 "states": results[0],
@@ -232,14 +239,14 @@ def rl_mpi():
                 "values": results[2],
                 "winners": results[3]
             }
-            #print("Results from {} sent.".format(rank), flush=True)
+            # print("Results from {} sent.".format(rank), flush=True)
             comm.send(data, 0)
             del data
             del results
         else:
             for _ in range(1, ranksize):
                 results = comm.recv()
-                #print("A result is recieved!", flush=True)
+                # print("A result is recieved!", flush=True)
                 state_buffer.extend(results["states"])
                 distribution_buffer.extend(results["distributions"])
                 value_buffer.extend(results["values"])
@@ -249,15 +256,15 @@ def rl_mpi():
             continue
         # Now this is only used for the GPU-thread
         history = None
-        if epoch > EPOCHS_SKIP:
-            state_buffer = state_buffer[-REPLAY_BUFFER_CAP:]
-            distribution_buffer = distribution_buffer[-REPLAY_BUFFER_CAP:]
-            value_buffer = value_buffer[-REPLAY_BUFFER_CAP:]
+        if epoch > epochs_skip:
+            state_buffer = state_buffer[-replay_buffer_cap:]
+            distribution_buffer = distribution_buffer[-replay_buffer_cap:]
+            value_buffer = value_buffer[-replay_buffer_cap:]
 
             history = agent.fit(
-                np.array(state_buffer), 
-                np.array(distribution_buffer), 
-                np.array(value_buffer), 
+                np.array(state_buffer),
+                np.array(distribution_buffer),
+                np.array(value_buffer),
                 epochs=1,
                 callbacks=[tensorboard_callback]
             )
@@ -266,8 +273,9 @@ def rl_mpi():
             write_to_tensorboard(history, epoch, logdir)
 
         if epoch != 0 and epoch in save_intervals:
-            agent.save_model(f'../models/training/board_size_{BOARD_SIZE}/net_{epoch}.keras')
-    
+            agent.save_model(
+                f'../models/training/{model_type}/board_size_{board_size}/net_{epoch}.keras')
+
     if rank == 0:
         # Loop through the outcomes and calculate the winrate
         winrate = 0
@@ -276,7 +284,7 @@ def rl_mpi():
                 winrate += 1
         winrate /= len(outcomes)
 
-        print("Winrate as black: {}".format(winrate), flush=True)
+        print(f"Winrate as black: {winrate}", flush=True)
 
         # End the timer
         timer.end_timer()

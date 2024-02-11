@@ -10,7 +10,7 @@ import numpy as np
 
 
 class Topp:
-    def __init__(self, board_size, num_games, render: bool = False, komi=0.5, dir: str = 'training', version: str = None, canonical: bool = False):
+    def __init__(self, board_size, num_games, render: bool = False, komi=0.5, dir: str = 'training', version: str = None, model_type: str = 'convnet'):
         self.board_size = board_size
         self.num_nn = 0
         self.num_games = num_games
@@ -20,13 +20,13 @@ class Topp:
         self.dir = dir
         self.version = version
         self.komi = komi
-        self.canonical = canonical
+        self.model_type = model_type
 
-    def add_agents(self, greedy_move: bool = False, convnet: bool = False):
+    def add_agents(self, greedy_move: bool = False, resnet: bool = False):
         if self.dir in 'saved_sessions' or 'model_performance' in self.dir:
-            path = f'../models/{self.dir}/board_size_{self.board_size}/{self.version}'
+            path = f'../models/{self.dir}/{self.model_type}/board_size_{self.board_size}/{self.version}'
         else:
-            path = f'../models/{self.dir}/board_size_{self.board_size}'
+            path = f'../models/{self.dir}/{self.model_type}/board_size_{self.board_size}'
 
         print(f"Loading agents from {path}")
 
@@ -39,7 +39,7 @@ class Topp:
         # Add the agents
         for folder in sorted_folders:
             self.agents.append(
-                Agent(self.board_size, path, folder, greedy_move, convnet=convnet))
+                Agent(self.board_size, path, folder, greedy_move, resnet=resnet))
             self.num_nn += 1
 
         if len(self.agents) == 0:
@@ -89,17 +89,12 @@ class Topp:
 
                     # Play a game until termination
                     while not terminated:
-                        
-                        if self.canonical:
-                            curr_state = go_env.canonical_state()
-                            valid_moves = go_env.valid_moves()
-                            if current_player == 0:
-                                state = np.array([curr_state[0], prev_turn_state, curr_state[1], prev_opposing_state, np.zeros((self.board_size, self.board_size))])
-                            else:
-                                state = np.array([curr_state[0], prev_turn_state, curr_state[1], prev_opposing_state, np.ones((self.board_size, self.board_size))])
+                        curr_state = go_env.canonical_state()
+                        valid_moves = go_env.valid_moves()
+                        if current_player == 0:
+                            state = np.array([curr_state[0], prev_turn_state, curr_state[1], prev_opposing_state, np.zeros((self.board_size, self.board_size))])
                         else:
-                            state = go_env.state()
-                            valid_moves = go_env.valid_moves()
+                            state = np.array([curr_state[0], prev_turn_state, curr_state[1], prev_opposing_state, np.ones((self.board_size, self.board_size))])
 
                         if moves > self.move_cap:
                             print("Move cap reached in game between {} and {}, termination game!".format(
@@ -129,10 +124,9 @@ class Topp:
 
                         current_player = 1 - current_player
                         # Update the previous state
-                        if self.canonical:
-                            prev_turn_state = temp_prev_turn_state
-                            prev_opposing_state = curr_state[0]
-                            temp_prev_turn_state = prev_opposing_state
+                        prev_turn_state = temp_prev_turn_state
+                        prev_opposing_state = curr_state[0]
+                        temp_prev_turn_state = prev_opposing_state
 
                     # Winner in perspective of the starting agent, 1 if won, -1 if lost, 0 if draw
                     winner = go_env.winner()

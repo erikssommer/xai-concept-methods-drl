@@ -1,6 +1,6 @@
 from mcts import MCTS
 from mcts import Node
-from policy import ConvNet, FastPredictor, LiteModel
+from policy import ConvNet, ResNet, FastPredictor, LiteModel
 from typing import List, Tuple
 import numpy as np
 
@@ -17,7 +17,8 @@ class DynamicConcepts:
                  concept_type_single,
                  path,
                  move_cap=100,
-                 random_subpar=True):
+                 random_subpar=True,
+                 resnet=False):
         # 'both' or 'single'.
         # Single means concepts where only one player is considered
         # Both means concepts where both players are considered.
@@ -25,7 +26,10 @@ class DynamicConcepts:
         self.board_size = board_size
         self.random_subpar = random_subpar
 
-        neural_network = ConvNet(board_size, load_path=path)
+        if resnet:
+            neural_network = ResNet(board_size, load_path=path)
+        else:
+            neural_network = ConvNet(board_size, load_path=path)
 
         predictor = FastPredictor(
             LiteModel.from_keras_model(neural_network.model))

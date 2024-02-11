@@ -1,10 +1,8 @@
 from rl import rl
-from utils import Timer, folder_setup
+from utils import Timer
     
 # Main method
-if __name__ == "__main__":
-    folder_setup()
-    
+if __name__ == "__main__":    
     # Start a timer
     timer = Timer()
     timer.start_timer()
