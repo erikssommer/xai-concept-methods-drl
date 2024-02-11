@@ -281,7 +281,37 @@ class DynamicConcepts:
         """
         A Ko fight involves a sequence of moves elsewhere on the board (Ko threats) that aim to make the opponent respond so that the player can retake the Ko.
         """
-        return
+        concept_type_single = False
+        # Initialize all planes to zeros
+        game_state = np.zeros((6, board_size, board_size))
+
+        # Set up a scenario where Player 1 has a ko to fight for
+        game_state[0, board_size // 2, board_size // 2] = 1
+        game_state[0, board_size // 2-1, board_size // 2-1] = 1
+        game_state[0, board_size // 2+1, board_size // 2-1] = 1
+        game_state[0, board_size // 2, board_size // 2-2] = 1
+        game_state[1, board_size // 2-1, board_size // 2] = 1
+        game_state[1, board_size // 2+1, board_size // 2] = 1
+        game_state[1, board_size // 2, board_size // 2+1] = 1
+
+        # Set the third plane to represent the current player's turn
+        game_state[2, :, :] = 0
+
+        # Set the fourth plane to represent invalid moves (all territories are claimed)
+        for i in range(board_size):
+            for j in range(board_size):
+                if game_state[0, i, j] == 1 or game_state[1, i, j] == 1:
+                    game_state[3, i, j] = 1
+
+        # Set the fifth plane to represent that the previous move was not a pass
+        game_state[4, :, :] = 0
+
+        # Set the last plane to represent that the game is not over
+        game_state[5, :, :] = 0
+        
+        return game_state, concept_type_single
+        
+
 
     @staticmethod
     def invasion_and_reduction(board_size):
@@ -291,4 +321,36 @@ class DynamicConcepts:
         while a reduction is a move or sequence of moves that attempts to reduce the potential size
         of an opponent's territory without necessarily trying to live inside.
         """
-        return
+        concept_type_single = False
+        # Initialize all planes to zeros
+        game_state = np.zeros((6, board_size, board_size))
+
+        # Set up a scenario where Player 1 has the initiative
+        game_state[0, board_size // 2, board_size // 2] = 1  # Current player's stone
+        game_state[0, board_size // 2, board_size // 2+1] = 1  # Current player's stone
+        game_state[0, board_size // 2, board_size // 2-1] = 1  # Current player's stone
+        game_state[0, board_size // 2, board_size // 2+2] = 1  # Current player's stone
+        game_state[0, board_size // 2-1, board_size // 2-2] = 1  # Current player's stone
+        game_state[1, board_size // 2+1, board_size // 2] = 1  # Opponent player's stone
+        game_state[1, board_size // 2+1, board_size // 2-1] = 1  # Opponent player's stone
+        game_state[1, board_size // 2+1, board_size // 2+1] = 1  # Opponent player's stone
+
+        # White invades black
+        game_state[1, board_size // 2-1, board_size // 2+1] = 1
+
+        # Set the third plane to represent the current player's turn
+        game_state[2, :, :] = 1
+
+        # Set the fourth plane to represent invalid moves (all territories are claimed)
+        for i in range(board_size):
+            for j in range(board_size):
+                if game_state[0, i, j] == 1 or game_state[1, i, j] == 1:
+                    game_state[3, i, j] = 1
+
+        # Set the fifth plane to represent that the previous move was not a pass
+        game_state[4, :, :] = 0
+
+        # Set the last plane to represent that the game is not over
+        game_state[5, :, :] = 0
+        
+        return game_state, concept_type_single
