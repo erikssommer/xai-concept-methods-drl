@@ -1,7 +1,6 @@
 from mcts import MCTS
 from mcts import Node
 from policy import ConvNet, FastPredictor, LiteModel
-import env
 from typing import List, Tuple
 import numpy as np
 
@@ -165,9 +164,9 @@ class DynamicConcepts:
         The goal is to control as much territory as possible and set up for the middle game.
         """
         concept_type_single = False
-        go_env = env.GoEnv(board_size)
-        go_env.reset()
-        return go_env.canonical_state(), concept_type_single
+        game_state = np.zeros((6, board_size, board_size))
+
+        return game_state, concept_type_single
 
     @staticmethod
     def end_game(board_size):
@@ -205,7 +204,7 @@ class DynamicConcepts:
         return game_state, concept_type_single
 
     @staticmethod
-    def life_and_death(board_size, komi=1.5):
+    def life_and_death(board_size):
         """
         Concept of starting from a board with a few stones
         """
@@ -244,51 +243,52 @@ class DynamicConcepts:
 
 
     @staticmethod
-    def keep_initiative(board_size, komi=1.5):
+    def keep_initiative(board_size):
         """
         Concept of starting from a board with a few stones
         """
         concept_type_single = False
-        go_env = env.GoEnv(board_size, komi)
-        go_env.reset()
+        # Initialize all planes to zeros
+        game_state = np.zeros((6, board_size, board_size))
 
         # Set up a scenario where Player 1 has the initiative
-        go_env.state[board_size // 2, board_size // 2] = 1  # Player 1's stone
-        go_env.state[board_size // 2, board_size // 2 + 1] = -1  # Player 2's stone
+        game_state[0, board_size // 2, board_size // 2] = 1  # Current player's stone
+        game_state[0, board_size // 2, board_size // 2+1] = 1  # Current player's stone
+        game_state[0, board_size // 2, board_size // 2-1] = 1  # Current player's stone
+        game_state[1, board_size // 2+1, board_size // 2] = 1  # Opponent player's stone
+        game_state[1, board_size // 2+1, board_size // 2-1] = 1  # Opponent player's stone
+        game_state[1, board_size // 2+1, board_size // 2+1] = 1  # Opponent player's stone
 
-        return go_env.canonical_state(), concept_type_single
+        # Set the third plane to represent the current player's turn
+        game_state[2, :, :] = 1
+
+        # Set the fourth plane to represent invalid moves (all territories are claimed)
+        for i in range(board_size):
+            for j in range(board_size):
+                if game_state[0, i, j] == 1 or game_state[1, i, j] == 1:
+                    game_state[3, i, j] = 1
+
+        # Set the fifth plane to represent that the previous move was not a pass
+        game_state[4, :, :] = 0
+
+        # Set the last plane to represent that the game is not over
+        game_state[5, :, :] = 0
+
+        return game_state, concept_type_single
 
     @staticmethod
-    def ko_fight(board_size, komi=1.5):
+    def ko_fight(board_size):
         """
         A Ko fight involves a sequence of moves elsewhere on the board (Ko threats) that aim to make the opponent respond so that the player can retake the Ko.
         """
-        concept_type_single = False
-        go_env = env.GoEnv(board_size, komi)
-        go_env.reset()
-
-        # Set up a Ko fight scenario
-        go_env.state[board_size // 2, board_size // 2] = 1  # Player 1's stone
-        go_env.state[board_size // 2, board_size // 2 + 1] = -1  # Player 2's stone
-        go_env.state[board_size // 2 + 1, board_size // 2] = -1  # Player 2's stone
-        go_env.state[board_size // 2 + 1, board_size // 2 + 1] = 1  # Player 1's stone
-
-        return go_env.canonical_state(), concept_type_single
+        return
 
     @staticmethod
-    def invasion_and_reduction(board_size, komi=1.5):
+    def invasion_and_reduction(board_size):
         """
         These are strategies used to disrupt your opponent's territories. 
         An invasion is a sequence of moves that attempts to establish a live group inside an opponent's territory, 
         while a reduction is a move or sequence of moves that attempts to reduce the potential size
         of an opponent's territory without necessarily trying to live inside.
         """
-        concept_type_single = False
-        go_env = env.GoEnv(board_size, komi)
-        go_env.reset()
-        # Set up a scenario where Player 1 has a large territory
-        for i in range(board_size // 2):
-            for j in range(board_size):
-                go_env.state[i, j] = 1  # Player 1's stones
-
-        return go_env.canonical_state(), concept_type_single
+        return
