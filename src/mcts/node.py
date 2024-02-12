@@ -94,6 +94,16 @@ class Node:
             # Add the child node to the list of children
             self.children.append(child_node)
 
+    def reset(self) -> None:
+        self.n_visit_count = 0
+        self.w_total_action_value = 0
+        self.q_mean_action_value = 0
+        self.p_prior_probability = 0
+        self.expanded = False
+        self.action = None
+        self.parent = None
+        self.children = []
+
     def visualize_tree(self, graph: graphviz.Digraph = None) -> graphviz.Digraph:
         if graph is None:
             graph = graphviz.Digraph()

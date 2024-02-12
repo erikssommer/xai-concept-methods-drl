@@ -175,6 +175,9 @@ class MCTS:
         del self.root
         self.root = Node(state, player)
 
+    def reset_root(self):
+        self.root.reset()
+
     def view_tree(self):
         return self.root.visualize_tree()
 

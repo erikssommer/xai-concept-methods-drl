@@ -16,9 +16,9 @@ class DynamicConcepts:
                  board_size,
                  concept_type_single,
                  path,
-                 move_cap=100,
-                 random_subpar=True,
-                 resnet=False):
+                 random_subpar=False,
+                 resnet=False,
+                 move_cap=100):
         # 'both' or 'single'.
         # Single means concepts where only one player is considered
         # Both means concepts where both players are considered.
@@ -40,6 +40,7 @@ class DynamicConcepts:
 
     def generate_cases(self) -> Tuple[List[np.ndarray], List[np.ndarray]]:
         # Create the tree
+        self.mcts.reset_root()
         self.mcts.search()
 
         # Subpar variations
@@ -67,17 +68,15 @@ class DynamicConcepts:
             # Skip the opposing players turn by choosing the best action
             node, _ = self.find_best_next_node(node.children)
 
-        while node and node.time_step < t_maximum_rollout_depth:
+        while node.time_step < t_maximum_rollout_depth:
             # Find the optimal next state given visit count
-            next_optimal_node, highest_visit_count = self.find_best_next_node(
-                node.children)
+            next_optimal_node, highest_visit_count = self.find_best_next_node(node.children)
 
             if next_optimal_node is None:
                 break
 
             if next_optimal_node.predict_state_rep is not None:
-                optimal_rollout_states.append(
-                    next_optimal_node.predict_state_rep)
+                optimal_rollout_states.append(next_optimal_node.predict_state_rep)
                 next_optimal_node.optiaml_rollout = True
 
             # From the subpar node, perform a optimal rollout to the maximum depth
@@ -90,42 +89,47 @@ class DynamicConcepts:
                             or child.q_value() < next_optimal_node.q_value() - min_value_diff:
                         sub_par_children.append(child)
 
-                # If the subpar children list is empty, break the loop
-                if len(sub_par_children) == 0:
-                    break
+                best_subpar_node, _ = self.find_best_next_node(sub_par_children)
 
-                best_subpar_node, _ = self.find_best_next_node(
-                    sub_par_children)
+                if best_subpar_node is None:
+                    break
 
                 # Assert that the best subpar state is has a lower visit count than the optimal state
                 assert best_subpar_node.n_visit_count < next_optimal_node.n_visit_count \
                     or best_subpar_node.q_value() < next_optimal_node.q_value()
 
                 if best_subpar_node.predict_state_rep is not None:
-                    subpar_rollout_states.append(
-                        best_subpar_node.predict_state_rep)
+                    subpar_rollout_states.append(best_subpar_node.predict_state_rep)
                     best_subpar_node.optiaml_rollout = False
 
                 curr_node = best_subpar_node
+
                 moves = 0
                 for _ in range(t_maximum_rollout_depth - node.time_step):
+                    if len(curr_node.children) == 0:
+                        break
                     if self.random_subpar:
-                        optimal_child = np.random.choice(curr_node.children)
+                        # Loop through all children and collect the state representations
+                        subpar_nodes = []
+                        for child in curr_node.children:
+                            if child.predict_state_rep is not None:
+                                subpar_nodes.append(child)
+                        # Choose a random state from the subpar states
+                        if len(subpar_nodes) > 0:
+                            optimal_child = np.random.choice(subpar_nodes)
+                        else:
+                            break
                     else:
-                        optimal_child, _ = self.find_best_next_node(
-                            curr_node.children)
+                        optimal_child, _ = self.find_best_next_node(curr_node.children)
 
                     if optimal_child:
                         if optimal_child.predict_state_rep is not None:
-                            if self.concept_type_single:
+                            if self.concept_type_single and moves % 2 != 0:
                                 # Only add the state if the current player is playing (opponent is skipped)
-                                if moves % 2 != 0:
-                                    subpar_rollout_states.append(
-                                        optimal_child.predict_state_rep)
-                                    optimal_child.optiaml_rollout = False
+                                subpar_rollout_states.append(optimal_child.predict_state_rep)
+                                optimal_child.optiaml_rollout = False
                             else:
-                                subpar_rollout_states.append(
-                                    optimal_child.predict_state_rep)
+                                subpar_rollout_states.append(optimal_child.predict_state_rep)
                                 optimal_child.optiaml_rollout = False
                             curr_node = optimal_child
                         else:
