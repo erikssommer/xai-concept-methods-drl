@@ -38,7 +38,7 @@ class DynamicConcepts:
         self.mcts = MCTS(init_state, simulations,
                          board_size, move_cap, predictor)
 
-    def generate_cases(self):
+    def generate_cases(self) -> Tuple[List[np.ndarray], List[np.ndarray]]:
         # Create the tree
         self.mcts.search()
 
@@ -162,7 +162,7 @@ class DynamicConcepts:
     """
 
     @staticmethod
-    def opening_play(board_size):
+    def opening_play(board_size: int) -> Tuple[np.ndarray, bool]:
         """
         This is the initial phase of the game where players try to establish their initial structures and influence on the board. 
         The goal is to control as much territory as possible and set up for the middle game.
@@ -173,7 +173,7 @@ class DynamicConcepts:
         return game_state, concept_type_single
 
     @staticmethod
-    def end_game(board_size):
+    def end_game(board_size: int) -> Tuple[np.ndarray, bool]:
         """
         The end game is the final phase of the game where players try to secure their territories and capture their opponent's stones.
         """
@@ -208,7 +208,7 @@ class DynamicConcepts:
         return game_state, concept_type_single
 
     @staticmethod
-    def life_and_death(board_size):
+    def life_and_death(board_size: int) -> Tuple[np.ndarray, bool]:
         """
         Concept of starting from a board with a few stones
         """
@@ -247,7 +247,7 @@ class DynamicConcepts:
 
 
     @staticmethod
-    def keep_initiative(board_size):
+    def keep_initiative(board_size: int) -> Tuple[np.ndarray, bool]:
         """
         Concept of starting from a board with a few stones
         """
@@ -281,7 +281,7 @@ class DynamicConcepts:
         return game_state, concept_type_single
 
     @staticmethod
-    def ko_fight(board_size):
+    def ko_fight(board_size: int) -> Tuple[np.ndarray, bool]:
         """
         A Ko fight involves a sequence of moves elsewhere on the board (Ko threats) that aim to make the opponent respond so that the player can retake the Ko.
         """
@@ -319,7 +319,7 @@ class DynamicConcepts:
 
 
     @staticmethod
-    def invasion_and_reduction(board_size):
+    def invasion_and_reduction(board_size: int) -> Tuple[np.ndarray, bool]:
         """
         These are strategies used to disrupt your opponent's territories. 
         An invasion is a sequence of moves that attempts to establish a live group inside an opponent's territory, 

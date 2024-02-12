@@ -1,3 +1,5 @@
+from typing import Tuple
+import tensorflow as tf
 import absl.logging
 from mpi4py import MPI
 import gc
@@ -10,21 +12,20 @@ from utils import config
 from policy import ConvNet, ResNet, FastPredictor, LiteModel
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # or any {'0', '1', '2'}
-import tensorflow as tf
 
 
 absl.logging.set_verbosity(absl.logging.ERROR)
 
 
-def perform_mcts_episodes(episodes,
-                          fast_predictor_path,
-                          simulations,
-                          sample_ratio,
-                          c,
-                          komi,
-                          board_size,
-                          non_det_moves,
-                          move_cap):
+def perform_mcts_episodes(episodes: int,
+                          fast_predictor_path: str,
+                          simulations: int,
+                          sample_ratio: float,
+                          c: float,
+                          komi: float,
+                          board_size: int,
+                          non_det_moves: int,
+                          move_cap: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
 
     np.seterr(over="ignore", invalid="raise")
 
@@ -146,8 +147,6 @@ def perform_mcts_episodes(episodes,
 
         gc.collect()
 
-    # print("Thread {} finished.".format(thread))
-
     return state_buffer, distribution_buffer, value_buffer, game_winners
 
 
@@ -209,8 +208,10 @@ def rl_mpi():
             episodes_per_thread_instance * epochs
 
         print(f"Saving interval: {save_intervals}", flush=True)
-        print(f"Number of threads generating data: {number_of_threads_generating_data}", flush=True)
-        print(f"Episodes per thread instance: {episodes_per_thread_instance}", flush=True)
+        print(
+            f"Number of threads generating data: {number_of_threads_generating_data}", flush=True)
+        print(
+            f"Episodes per thread instance: {episodes_per_thread_instance}", flush=True)
         print(f"Total number of games: {total}", flush=True)
 
     for epoch in tqdm(range(1, epochs + 1)):

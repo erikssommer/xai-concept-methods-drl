@@ -83,7 +83,7 @@ def one_eye(game_state) -> bool:
     return False
 
 
-def two_eyes(game_state):
+def two_eyes(game_state) -> bool:
     """
     In the game of Go, an eye is a group of empty points surrounded by stones of a single color,
     such that no opposing stone can be placed in the group without being captured. Eyes are important
@@ -173,7 +173,7 @@ def two_eyes(game_state):
 
     return False
 
-def tsumego(game_state):
+def tsumego(game_state) -> bool:
     """
     In the game of Go, tsumego is a situation where one player has no legal moves remaining and has lost the game.
     This is an equivalent concept to checkmate in chess.
@@ -186,7 +186,7 @@ def tsumego(game_state):
         return True
     return False
 
-def has_winning_move(game_state):
+def has_winning_move(game_state) -> bool:
     """
     The current player can play a move that will result in the next player having no legal moves remaining.
     This is an equivalent concept of having the ability to checkmate in chess.
@@ -211,7 +211,7 @@ def has_winning_move(game_state):
 
     return False
 
-def capture_stones_threat(game_state):
+def capture_stones_threat(game_state) -> bool:
     """
     In the game of Go, capture is a situation in which a group of stones is surrounded by the opponent's stones,
     and cannot escape. Capturing stones is an important concept because it can be used to gain an advantage over the opponent.
@@ -245,7 +245,7 @@ def capture_stones_threat(game_state):
                 
     return False
 
-def play_center_in_opening(game_state):
+def play_center_in_opening(game_state) -> bool:
     """
     In Go, it is bad to play on the edge of the board during the opening phase of the game.
     """

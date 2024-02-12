@@ -10,7 +10,15 @@ import numpy as np
 
 
 class Topp:
-    def __init__(self, board_size, num_games, render: bool = False, komi=0.5, dir: str = 'training', version: str = None, model_type: str = 'convnet'):
+    def __init__(self,
+                 board_size: int,
+                 num_games: int,
+                 render: bool = False,
+                 komi: float = 0.5,
+                 dir: str = 'training',
+                 version: str = None,
+                 model_type: str = 'convnet'):
+
         self.board_size = board_size
         self.num_nn = 0
         self.num_games = num_games
@@ -22,7 +30,7 @@ class Topp:
         self.komi = komi
         self.model_type = model_type
 
-    def add_agents(self, greedy_move: bool = False, resnet: bool = False):
+    def add_agents(self, greedy_move: bool = False, resnet: bool = False) -> None:
         if self.dir in 'saved_sessions' or 'model_performance' in self.dir:
             path = f'../models/{self.dir}/{self.model_type}/board_size_{self.board_size}/{self.version}'
         else:
@@ -45,7 +53,7 @@ class Topp:
         if len(self.agents) == 0:
             raise Exception("No agents found")
 
-    def run_tournament(self):
+    def run_tournament(self) -> None:
         for i in range(self.num_nn):
             for j in range(i+1, self.num_nn):
                 # Starting agent plays as black
@@ -92,9 +100,11 @@ class Topp:
                         curr_state = go_env.canonical_state()
                         valid_moves = go_env.valid_moves()
                         if current_player == 0:
-                            state = np.array([curr_state[0], prev_turn_state, curr_state[1], prev_opposing_state, np.zeros((self.board_size, self.board_size))])
+                            state = np.array([curr_state[0], prev_turn_state, curr_state[1], prev_opposing_state, np.zeros(
+                                (self.board_size, self.board_size))])
                         else:
-                            state = np.array([curr_state[0], prev_turn_state, curr_state[1], prev_opposing_state, np.ones((self.board_size, self.board_size))])
+                            state = np.array([curr_state[0], prev_turn_state, curr_state[1], prev_opposing_state, np.ones(
+                                (self.board_size, self.board_size))])
 
                         if moves > self.move_cap:
                             print("Move cap reached in game between {} and {}, termination game!".format(
@@ -103,12 +113,14 @@ class Topp:
                             break
 
                         agent: Agent = self.agents[current_agent]
-                        
-                        action, value_estimate = agent.choose_action(state, valid_moves)
+
+                        action, value_estimate = agent.choose_action(
+                            state, valid_moves)
 
                         if self.render:
                             print(f"Agent {agent.name} chose action {action}")
-                            print(f"Value estimate of the current state: {value_estimate}")
+                            print(
+                                f"Value estimate of the current state: {value_estimate}")
 
                         _, _, terminated, _ = go_env.step(action)
                         moves += 1
@@ -158,7 +170,7 @@ class Topp:
                     else:
                         starting_agent = i
 
-    def plot_results(self, block=True):
+    def plot_results(self, block: bool = True) -> None:
         plt.clf()
         plt.ion()
         # x is agent name
@@ -176,7 +188,7 @@ class Topp:
         sns.barplot(x='Agent', y='Wins', hue='Player', data=df)
         plt.show(block=block)
 
-    def get_results(self):
+    def get_results(self) -> None:
         agents_result = sorted(self.agents, key=lambda x: x.win, reverse=True)
 
         for agent in agents_result:

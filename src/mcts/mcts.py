@@ -5,8 +5,17 @@ from env import gogame
 import utils
 from policy import FastPredictor
 
+
 class MCTS:
-    def __init__(self, game_state, simulations, board_size, move_cap, neural_network: FastPredictor, c=1, komi=0.5, non_det_moves=8):
+    def __init__(self,
+                 game_state: np.ndarray,
+                 simulations: int,
+                 board_size: int,
+                 move_cap: int,
+                 neural_network: FastPredictor,
+                 c: float = 1,
+                 komi: float = 0.5,
+                 non_det_moves: int = 8):
         """
         Initialize the Monte Carlo Tree Search
 
@@ -36,11 +45,10 @@ class MCTS:
         while node.is_expanded():
             # Otherwise, select the best child
             node = node.best_child(self.c)
-        
+
         return node
 
-    
-    def __expand_and_evaluate(self, node: Node):
+    def __expand_and_evaluate(self, node: Node) -> float:
         """
         Expand a node and evaluate it using the neural network
 
@@ -54,7 +62,7 @@ class MCTS:
                 return gogame.winning(node.state, self.komi) * -1
             else:
                 return gogame.winning(node.state, self.komi)
-        
+
         # Get valid moves
         valid_moves = gogame.valid_moves(node.state)
 
@@ -63,19 +71,21 @@ class MCTS:
             prev_turn_state = node.parent.parent.state[0]
         else:
             prev_turn_state = np.zeros((self.board_size, self.board_size))
-        
+
         if node.parent:
             prev_opposing_state = node.parent.state[0]
         else:
             prev_opposing_state = np.zeros((self.board_size, self.board_size))
-        
+
         if node.player == 1:
-            state = np.array([node.state[0], prev_turn_state, node.state[1], prev_opposing_state, np.ones((self.board_size, self.board_size))])
+            state = np.array([node.state[0], prev_turn_state, node.state[1],
+                             prev_opposing_state, np.ones((self.board_size, self.board_size))])
         else:
-            state = np.array([node.state[0], prev_turn_state, node.state[1], prev_opposing_state, np.zeros((self.board_size, self.board_size))])
+            state = np.array([node.state[0], prev_turn_state, node.state[1],
+                             prev_opposing_state, np.zeros((self.board_size, self.board_size))])
 
         node.predict_state_rep = state
-        
+
         # Use the neural network to get the prior probabilities
         policy, value = self.neural_network.predict(state, valid_moves)
 
@@ -90,7 +100,8 @@ class MCTS:
         # Explination from paper: "this noise ensures that all moves may be tried, but the search may still overrule bad moves."
         cnoise = 0.25
         noise = np.random.dirichlet([0.03] * len(prior_probabilities))
-        prior_probabilities = (1 - cnoise) * prior_probabilities + cnoise * noise
+        prior_probabilities = (1 - cnoise) * \
+            prior_probabilities + cnoise * noise
         prior_probabilities /= prior_probabilities.sum()
 
         node.make_children(prior_probabilities, valid_moves)
@@ -101,8 +112,8 @@ class MCTS:
             return value * -1
         else:
             return value
-    
-    def __backpropagate(self, node: Node, reward: int):
+
+    def __backpropagate(self, node: Node, reward: int) -> None:
         """
         Backpropagate the reward of a node
 
@@ -113,13 +124,13 @@ class MCTS:
             node.update(reward)
             node = node.parent
 
-    def __best_action(self, num_moves) -> Tuple[Node, np.ndarray]:
-        
+    def __best_action(self, num_moves: int) -> Tuple[Node, np.ndarray]:
+
         valid_moves_distribution = []
 
         for child in self.root.children:
             valid_moves_distribution.append(child.n_visit_count)
-        
+
         valid_moves_distribution = utils.normalize(valid_moves_distribution)
 
         if num_moves > self.non_det_moves:
@@ -127,14 +138,15 @@ class MCTS:
             action = np.argmax(valid_moves_distribution)
         else:
             # Choose an action based on the distribution
-            action = np.random.choice(len(valid_moves_distribution), p=valid_moves_distribution)
+            action = np.random.choice(
+                len(valid_moves_distribution), p=valid_moves_distribution)
 
         # Get the node of the best action
         node = self.root.children[action]
 
         # Get the distribution from the root node including the invalid moves
         distribution = np.zeros(self.board_size ** 2 + 1)
-        
+
         for child in self.root.children:
             distribution[child.action] = child.n_visit_count
 
@@ -148,16 +160,16 @@ class MCTS:
         # Remove the reference to the parent node and delete the parent
         self.root.parent = None
 
-    def set_root_node_with_action(self, action) -> None:
+    def set_root_node_with_action(self, action: int) -> None:
         for child in self.root.children:
             if child.action == action:
                 self.root = child
                 self.root.parent = None
                 return
-        
+
         raise Exception("Action not found in children")
-    
-    def set_root(self, state, player) -> None:
+
+    def set_root(self, state: np.ndarray, player: int) -> None:
         """Needed in junittests"""
         self.root = None
         del self.root
@@ -166,7 +178,7 @@ class MCTS:
     def view_tree(self):
         return self.root.visualize_tree()
 
-    def search(self, num_moves=0) -> Tuple[Node, np.ndarray]:
+    def search(self, num_moves: int=0) -> Tuple[Node, np.ndarray]:
         """
         Run the Monte Carlo Tree Search
 

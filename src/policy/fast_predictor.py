@@ -1,12 +1,13 @@
 from .lite_model import LiteModel
 import utils
 import numpy as np
+from typing import Tuple
 
 class FastPredictor:
-    def __init__(self, model: LiteModel):
+    def __init__(self, model: LiteModel) -> None:
         self.model = model
 
-    def predict(self, state, valid_moves):
+    def predict(self, state: np.ndarray, valid_moves: np.ndarray) -> Tuple[np.ndarray, float]:
 
         res = self.model.predict_single(state)
 
@@ -16,7 +17,7 @@ class FastPredictor:
 
         return policy, value[0]
     
-    def mask_invalid_moves(self, policy, valid_moves):
+    def mask_invalid_moves(self, policy: np.ndarray, valid_moves: np.ndarray) -> np.ndarray:
 
         # Mask the invalid moves
         policy = policy * valid_moves

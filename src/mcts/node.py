@@ -1,10 +1,17 @@
+from __future__ import annotations
 import graphviz
 import numpy as np
 
 from env import gogame
 
+
 class Node:
-    def __init__(self, state: np.ndarray, player, parent=None, prior_probability=0, time_step=0):
+    def __init__(self,
+                 state: np.ndarray,
+                 player: int,
+                 parent: Node = None, 
+                 prior_probability: int = 0, 
+                 time_step: int = 0):
 
         # Game state
         self.player = player
@@ -26,41 +33,43 @@ class Node:
         self.time_step = time_step
         self.predict_state_rep = None
         self.optiaml_rollout = None
-    
+
     def is_expanded(self) -> bool:
         return self.expanded
-    
-    def best_child(self, c: float):
+
+    def best_child(self, c: float) -> Node:
         """
         Select the best child node using PUCT algorithm
         """
         if self.player == 0:
-            index = np.argmax([child.q_value() + child.u_value(c) for child in self.children])
+            index = np.argmax([child.q_value() + child.u_value(c)
+                              for child in self.children])
         else:
-            index = np.argmin([child.q_value() - child.u_value(c) for child in self.children])
+            index = np.argmin([child.q_value() - child.u_value(c)
+                              for child in self.children])
 
         # Return the best child
         return self.children[index]
 
-    def update(self, reward):
+    def update(self, reward: float) -> None:
         self.n_visit_count += 1
         self.w_total_action_value += reward
         self.q_mean_action_value = self.w_total_action_value / self.n_visit_count
-    
+
     def q_value(self) -> float:
         """
         Calculate the Q(s,a) value for a given node
         """
         return self.q_mean_action_value
-    
-    def u_value(self, c) -> float:
+
+    def u_value(self, c: float) -> float:
         """
         Exploration bonus: calculate the U(s,a) value for a given node
         Using upper confidence bound for trees (UCT)
         """
         return c * self.p_prior_probability * np.sqrt(self.parent.n_visit_count) / (1 + self.n_visit_count)
 
-    def make_children(self, prior_probabilities: list, valid_moves: np.ndarray):
+    def make_children(self, prior_probabilities: list, valid_moves: np.ndarray) -> None:
         """
         :return: Padded children numpy states
         """
@@ -73,9 +82,9 @@ class Node:
 
         # Using enumerate to get the index of the action
         for i, action in enumerate(actions):
-            child_node = Node(state=child_states[action], 
-                              player=child_player, 
-                              parent=self, 
+            child_node = Node(state=child_states[action],
+                              player=child_player,
+                              parent=self,
                               prior_probability=prior_probabilities[i],
                               time_step=child_timestep)
 
@@ -85,19 +94,17 @@ class Node:
             # Add the child node to the list of children
             self.children.append(child_node)
 
-
-    def visualize_tree(self, graph=None):
+    def visualize_tree(self, graph: graphviz.Digraph = None) -> graphviz.Digraph:
         if graph is None:
             graph = graphviz.Digraph()
 
         graph.node(str(
-            id(self)), label=
-            f'Player: {self.player}\n' + 
+            id(self)), label=f'Player: {self.player}\n' +
             f'Timestep: {self.time_step}\n' +
-            f'Visits: {self.n_visit_count}\n' + 
+            f'Visits: {self.n_visit_count}\n' +
             f'Rewards: {self.q_mean_action_value}\n' +
             f'State ([black][white]):\n{self.state[0]}\n{self.state[1]}')
-        
+
         # Color the node red if not optimal and green if optimal
         if self.optiaml_rollout is not None:
             if self.optiaml_rollout:

@@ -4,9 +4,11 @@ from utils import config
 import utils
 from tqdm import tqdm
 from .basenet import BaseNet
+from typing import Tuple
+
 
 class ConvNet(BaseNet):
-    def __init__(self, board_size, load_path=None, summary=True):
+    def __init__(self, board_size: int, load_path: str = None, summary: bool = True):
         """
         Convolutional neural network for the actor-critic policy.
 
@@ -28,8 +30,9 @@ class ConvNet(BaseNet):
             self.model = tf.keras.models.load_model(load_path)
         else:
             # Input
-            self.position_input = tf.keras.Input(shape=(5, self.board_size, self.board_size))
-            
+            self.position_input = tf.keras.Input(
+                shape=(5, self.board_size, self.board_size))
+
             # Residual block
             base = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (3, 3), activation="relu", padding="same", name="res_block_output_base")(self.position_input)
             base = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (3, 3), activation="relu", padding="same")(base)
@@ -47,7 +50,7 @@ class ConvNet(BaseNet):
             value_output = tf.keras.layers.Dense(1, activation="tanh", name="value_output")(value)
 
             self.model = tf.keras.Model(self.position_input, [policy_output, value_output])
-            
+
             if summary:
                 self.model.summary()
 
@@ -60,13 +63,14 @@ class ConvNet(BaseNet):
         """
 
         self.model.compile(
-            loss={"policy_output": tf.keras.losses.CategoricalCrossentropy(), "value_output": tf.keras.losses.MeanSquaredError()},
+            loss={"policy_output": tf.keras.losses.CategoricalCrossentropy(), 
+                  "value_output": tf.keras.losses.MeanSquaredError()},
             loss_weights={"policy_output": 1.0, "value_output": 1.0},
             optimizer=tf.keras.optimizers.Adam(learning_rate=self.learning_rate),
             metrics=["accuracy"]
         )
-    
-    def get_all_activation_values(self, boards, keyword="conv"):
+
+    def get_all_activation_values(self, boards, keyword: str = "conv") -> list:
         """Returns a list of all the activation values for each layer in the model"""
         if len(boards.shape) == 3:
             boards = np.reshape(boards, (1, *boards.shape))
@@ -74,7 +78,8 @@ class ConvNet(BaseNet):
         # All inputs
         inp = self.model.input
         # All outputs of the conv blocks
-        outputs = [layer.output for layer in self.model.layers if keyword in layer.name]
+        outputs = [
+            layer.output for layer in self.model.layers if keyword in layer.name]
         functor = tf.keras.backend.function([inp], outputs)
 
         BATCH_SIZE = 32
@@ -85,12 +90,12 @@ class ConvNet(BaseNet):
 
         return all_layer_outs
 
-    def fit(self, states, distributions, values, callbacks=None, epochs=10):
+    def fit(self, states, distributions, values, callbacks=None, epochs=10) -> tf.keras.callbacks.History:
         with tf.device("/GPU:0"):
             return self.model.fit(states, [distributions, values], verbose=0, shuffle=True, epochs=epochs, batch_size=self.batch_size, callbacks=callbacks)
-    
+
     # Define a prediction function
-    def predict(self, state, valid_moves, value_only=False):
+    def predict(self, state: np.ndarray, valid_moves: np.ndarray, value_only: bool = False) -> Tuple[np.ndarray, float]:
         """Predict the policy and value of a state"""
         if len(state.shape) == 3:
             state = np.reshape(state, (1, *state.shape))
@@ -110,39 +115,39 @@ class ConvNet(BaseNet):
         policy = self.mask_invalid_moves(policy, valid_moves)
 
         del state
-        
+
         return policy, value
-    
-    def mask_invalid_moves(self, policy, valid_moves):
+
+    def mask_invalid_moves(self, policy: np.ndarray, valid_moves: np.ndarray) -> np.ndarray:
 
         # Mask the invalid moves
         policy = policy * valid_moves
 
         # Convert to 8 decimals
         policy = np.round(policy, 8)
-    
+
         # Normalize the policy
         policy = utils.normalize(policy)
-        
+
         return policy
-    
-    def best_action(self, state, valid_moves, greedy_move=False, alpha=None):
+
+    def best_action(self, state: np.ndarray, valid_moves: np.ndarray, greedy_move: bool = False, alpha: float = None) -> Tuple[int, float]:
         policy, value = self.predict(state, valid_moves)
 
         value = value.numpy()
 
         if greedy_move:
             return np.argmax(policy), value
-        
+
         if alpha and np.random.random() < alpha:
             # Selecting move randomly, but weighted by the distribution (0 = argmax, 1 = probablistic)
             return np.argmax(policy), value
 
         # Selecting move randomly, but weighted by the distribution (0 = argmax, 1 = probablistic)
         return np.random.choice(len(policy), p=policy), value
-    
+
     def value_estimation(self, state, valid_moves):
         return self.predict(state, valid_moves, value_only=True)
-    
+
     def save_model(self, path):
         self.model.save(path)
