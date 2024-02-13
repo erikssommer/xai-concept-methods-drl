@@ -1,7 +1,7 @@
 #!/bin/sh
 #SBATCH --partition=GPUQ
 #SBATCH --account=share-ie-idi
-#SBATCH --time=4-00:00:00
+#SBATCH --time=6-00:00:00
 #SBATCH --nodes=1              # 1 compute nodes
 #SBATCH --ntasks-per-node=21   # 21 mpi process each node
 #SBATCH --mem=50000            # 50GB - in megabytes
