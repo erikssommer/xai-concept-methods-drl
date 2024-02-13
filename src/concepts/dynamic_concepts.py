@@ -25,6 +25,18 @@ class DynamicConcepts:
         self.concept_type_single = concept_type_single
         self.board_size = board_size
         self.random_subpar = random_subpar
+        
+        # Subpar variations
+        self.min_visit_count_diff = 0.1
+        self.min_value_diff = 0.2
+
+        if self.concept_type_single:
+            # This is the double of 'both' concept type due to the fact that the opponent's turn is skipped.
+            self.t_maximum_rollout_depth = 20
+            self.maximum_depth_find_sub_rollout = self.t_maximum_rollout_depth - 10
+        else:
+            self.t_maximum_rollout_depth = 10  # Paper suggests 10 or 5
+            self.maximum_depth_find_sub_rollout = self.t_maximum_rollout_depth - 5
 
         if resnet:
             neural_network = ResNet(board_size, load_path=path)
@@ -37,23 +49,13 @@ class DynamicConcepts:
         # Initialize the MCTS
         self.mcts = MCTS(init_state, simulations,
                          board_size, move_cap, predictor)
+        
 
     def generate_cases(self) -> Tuple[List[np.ndarray], List[np.ndarray]]:
         # Create the tree
         self.mcts.reset_root()
         self.mcts.search()
-
-        # Subpar variations
-        min_visit_count_diff = 0.1
-        min_value_diff = 0.2
-
-        if self.concept_type_single:
-            # This is the double of 'both' concept type due to the fact that the opponent's turn is skipped.
-            t_maximum_rollout_depth = 20
-            maximum_depth_find_sub_rollout = t_maximum_rollout_depth - 10
-        else:
-            t_maximum_rollout_depth = 10  # Paper suggests 10 or 5
-            maximum_depth_find_sub_rollout = t_maximum_rollout_depth - 5
+        self.add_all_stete_reps()
 
         optimal_rollout_states = []
         subpar_rollout_states = []
@@ -68,25 +70,24 @@ class DynamicConcepts:
             # Skip the opposing players turn by choosing the best action
             node, _ = self.find_best_next_node(node.children)
 
-        while node.time_step < t_maximum_rollout_depth:
+        while node.time_step < self.t_maximum_rollout_depth:
             # Find the optimal next state given visit count
             next_optimal_node, highest_visit_count = self.find_best_next_node(node.children)
 
             if next_optimal_node is None:
                 break
 
-            if next_optimal_node.predict_state_rep is not None:
-                optimal_rollout_states.append(next_optimal_node.predict_state_rep)
-                next_optimal_node.optiaml_rollout = True
+            optimal_rollout_states.append(next_optimal_node.predict_state_rep)
+            next_optimal_node.optiaml_rollout = True
 
             # From the subpar node, perform a optimal rollout to the maximum depth
-            if node.time_step < maximum_depth_find_sub_rollout:
+            if node.time_step < self.maximum_depth_find_sub_rollout:
                 # Find the subpar next state with a minimum value difference of 0.20 and/or
                 # a visit count difference of 10% of the highest visit count
                 sub_par_children: list[Node] = []
                 for child in node.children:
-                    if child.n_visit_count < highest_visit_count * (1 - min_visit_count_diff) \
-                            or child.q_value() < next_optimal_node.q_value() - min_value_diff:
+                    if child.n_visit_count < highest_visit_count * (1 - self.min_visit_count_diff) \
+                            or child.q_value() < next_optimal_node.q_value() - self.min_value_diff:
                         sub_par_children.append(child)
 
                 best_subpar_node, _ = self.find_best_next_node(sub_par_children)
@@ -98,42 +99,31 @@ class DynamicConcepts:
                 assert best_subpar_node.n_visit_count < next_optimal_node.n_visit_count \
                     or best_subpar_node.q_value() < next_optimal_node.q_value()
 
-                if best_subpar_node.predict_state_rep is not None:
-                    subpar_rollout_states.append(best_subpar_node.predict_state_rep)
-                    best_subpar_node.optiaml_rollout = False
+                subpar_rollout_states.append(best_subpar_node.predict_state_rep)
+                best_subpar_node.optiaml_rollout = False
 
                 curr_node = best_subpar_node
 
                 moves = 0
-                for _ in range(t_maximum_rollout_depth - node.time_step):
+                for _ in range(self.t_maximum_rollout_depth - node.time_step):
                     if len(curr_node.children) == 0:
                         break
                     if self.random_subpar:
                         # Loop through all children and collect the state representations
-                        subpar_nodes = []
-                        for child in curr_node.children:
-                            if child.predict_state_rep is not None:
-                                subpar_nodes.append(child)
-                        # Choose a random state from the subpar states
-                        if len(subpar_nodes) > 0:
-                            optimal_child = np.random.choice(subpar_nodes)
-                        else:
-                            break
+                        optimal_child = self.find_best_subpar_node(curr_node.children)
+                        #optimal_child = np.random.choice(curr_node.children) # Testing
                     else:
                         optimal_child, _ = self.find_best_next_node(curr_node.children)
 
                     if optimal_child:
-                        if optimal_child.predict_state_rep is not None:
-                            if self.concept_type_single and moves % 2 != 0:
-                                # Only add the state if the current player is playing (opponent is skipped)
-                                subpar_rollout_states.append(optimal_child.predict_state_rep)
-                                optimal_child.optiaml_rollout = False
-                            else:
-                                subpar_rollout_states.append(optimal_child.predict_state_rep)
-                                optimal_child.optiaml_rollout = False
-                            curr_node = optimal_child
+                        if self.concept_type_single and moves % 2 != 0:
+                            # Only add the state if the current player is playing (opponent is skipped)
+                            subpar_rollout_states.append(optimal_child.predict_state_rep)
+                            optimal_child.optiaml_rollout = False
                         else:
-                            break
+                            subpar_rollout_states.append(optimal_child.predict_state_rep)
+                            optimal_child.optiaml_rollout = False
+                        curr_node = optimal_child  
 
                     moves += 1
 
@@ -157,6 +147,50 @@ class DynamicConcepts:
                 next_node = child
 
         return next_node, highest_visit_count
+    
+    def find_best_subpar_node(self, children: List[Node]) -> Node:
+        # Find the best subpar node
+        next_optimal_node, highest_visit_count = self.find_best_next_node(children)
+
+        sub_par_children: list[Node] = []
+        for child in children:
+            if child.n_visit_count < highest_visit_count * (1 - self.min_visit_count_diff) \
+                        or child.q_value() < next_optimal_node.q_value() - self.min_value_diff:
+                sub_par_children.append(child)
+
+        best_subpar_node, _ = self.find_best_next_node(sub_par_children)
+
+        return best_subpar_node
+    
+    def add_all_stete_reps(self):
+        # Create a stack to perform post-order traversal
+        stack = [self.mcts.root]
+        while stack:
+            node = stack.pop()
+            # Creating the state for the neural network
+            if node.parent and node.parent.parent:
+                prev_turn_state = node.parent.parent.state[0]
+            else:
+                prev_turn_state = np.zeros((self.board_size, self.board_size))
+
+            if node.parent:
+                prev_opposing_state = node.parent.state[0]
+            else:
+                prev_opposing_state = np.zeros((self.board_size, self.board_size))
+
+            if node.player == 1:
+                state = np.array([node.state[0], prev_turn_state, node.state[1],
+                                prev_opposing_state, np.ones((self.board_size, self.board_size))])
+            else:
+                state = np.array([node.state[0], prev_turn_state, node.state[1],
+                                prev_opposing_state, np.zeros((self.board_size, self.board_size))])
+
+            # Add the state representation to the node
+            node.predict_state_rep = state
+            
+            # Add the children of the current node to the stack
+            stack.extend(node.children)
+
 
     def view_tree(self):
         return self.mcts.view_tree()
