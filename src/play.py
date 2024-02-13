@@ -5,8 +5,7 @@ from utils import config
 from mcts import MCTS
 import numpy as np
 
-if __name__ == "__main__":
-
+def play_game():
     """
     Play against the best model
     """
@@ -17,13 +16,17 @@ if __name__ == "__main__":
     c = config.c
     komi = config.komi
     det_moves = 0
+    resnet = config.resnet
+    greedy_move = True
 
-    go_env = env.GoEnv(size=board_size)
+    model_type = "resnet" if resnet else "convnet"
+
+    go_env = env.GoEnv(size=board_size, komi=komi)
 
     go_env.reset()
 
     # Find the model with the highest number in the name from the models/board_size_5 folder
-    path = f'../models/play_against/board_size_{board_size}/'
+    path = f'../models/play_against/{model_type}/board_size_{board_size}/'
 
     folders = os.listdir(path)
 
@@ -33,14 +36,12 @@ if __name__ == "__main__":
     # Get the last folder
     path = path + sorted_folders[-1]
 
-    if config.resnet:
-        actor_net = ResNet(config.board_size, path)
+    if resnet:
+        actor_net = ResNet(board_size, path)
     else:
-        actor_net = ConvNet(config.board_size, path)
+        actor_net = ConvNet(board_size, path)
 
     model = FastPredictor(LiteModel.from_keras_model(actor_net.model))
-        
-    greedy_move = True
 
     games = 1
     winns = 0
@@ -111,7 +112,7 @@ if __name__ == "__main__":
                 user_input_action = tuple(int(n) for n in user_input.split(","))
                 
                 # Convert it info a number
-                user_input_action = user_input_action[0] * config.board_size + user_input_action[1]
+                user_input_action = user_input_action[0] * board_size + user_input_action[1]
 
                 valid_moves = go_env.valid_moves()
 
@@ -132,11 +133,15 @@ if __name__ == "__main__":
         
         winner = go_env.winning()
 
+        go_env.render()
+
+        print("Game over!")
+
         if winner == 1:
             print("Black won")
-        elif winner == -1:
-            print("White won")
         else:
-            print("Draw")
+            print("White won")
 
-        go_env.render()
+
+if __name__ == "__main__":
+    play_game()
