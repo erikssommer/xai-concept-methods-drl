@@ -94,6 +94,29 @@ class Node:
             # Add the child node to the list of children
             self.children.append(child_node)
 
+    def model_state_format(self, board_size: int) -> np.ndarray:
+        # Creating the state for the neural network
+        if self.parent and self.parent.parent:
+            prev_turn_state = self.parent.parent.state[0]
+        else:
+            prev_turn_state = np.zeros((board_size, board_size))
+
+        if self.parent:
+            prev_opposing_state = self.parent.state[0]
+        else:
+            prev_opposing_state = np.zeros((board_size, board_size))
+
+        if self.player == 1:
+            state = np.array([self.state[0], prev_turn_state, self.state[1],
+                             prev_opposing_state, np.ones((board_size, board_size))])
+        else:
+            state = np.array([self.state[0], prev_turn_state, self.state[1],
+                             prev_opposing_state, np.zeros((board_size, board_size))])
+
+        self.predict_state_rep = state
+
+        return state
+
     def reset(self) -> None:
         self.n_visit_count = 0
         self.w_total_action_value = 0

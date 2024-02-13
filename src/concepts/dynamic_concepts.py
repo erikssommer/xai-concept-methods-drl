@@ -167,26 +167,10 @@ class DynamicConcepts:
         stack = [self.mcts.root]
         while stack:
             node = stack.pop()
-            # Creating the state for the neural network
-            if node.parent and node.parent.parent:
-                prev_turn_state = node.parent.parent.state[0]
-            else:
-                prev_turn_state = np.zeros((self.board_size, self.board_size))
-
-            if node.parent:
-                prev_opposing_state = node.parent.state[0]
-            else:
-                prev_opposing_state = np.zeros((self.board_size, self.board_size))
-
-            if node.player == 1:
-                state = np.array([node.state[0], prev_turn_state, node.state[1],
-                                prev_opposing_state, np.ones((self.board_size, self.board_size))])
-            else:
-                state = np.array([node.state[0], prev_turn_state, node.state[1],
-                                prev_opposing_state, np.zeros((self.board_size, self.board_size))])
-
+            
             # Add the state representation to the node
-            node.predict_state_rep = state
+            if node.predict_state_rep is None:
+                node.model_state_format(self.board_size)
             
             # Add the children of the current node to the stack
             stack.extend(node.children)
