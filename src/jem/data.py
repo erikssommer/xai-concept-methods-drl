@@ -1,7 +1,7 @@
-from .model import JointEmbeddingModel
 import numpy as np
+from concepts.static_concepts import *
 
-def get_data(batch_size):
+def get_data():
     """
     Load the data
     """
@@ -16,6 +16,7 @@ def get_data(batch_size):
 
     # Apply one hot encoding to the explinations
     vocab = {}
+    vocab[''] = 0
     for explination in explinations:
         for word in explination.split():
             if word not in vocab:
@@ -27,20 +28,45 @@ def get_data(batch_size):
     max_len = max([len(explination) for explination in explinations])
     explinations = [explination + [0] * (max_len - len(explination)) for explination in explinations]
 
+    print(vocab)
+    print(explinations)
+
     states = []
 
     # Create the states
     for state in range(len(explinations)):
-        states.append(np.random.rand(4, 7, 7))
+        states.append(np.random.rand(5, 7, 7))
 
     # Create the labels
-    labels = [1, 0, 0, 0, 0, 0]
+    labels = [0, 0, 1, 0, 1, 0]
 
     states = np.array(states)
     explinations = np.array(explinations)
     labels = np.array(labels, dtype=np.float32)
 
-    return states, explinations, labels, len(vocab)
+    return states, explinations, labels, vocab
+
+def convert_integers_to_explinations(integers: np.ndarray, vocab: dict):
+    """
+    Convert the integers to explinations
+    """
+    explinations = []
+
+    for integer in integers:
+        explination = " ".join([word for word, index in vocab.items() if index == integer and index != 0])
+        explinations.append(explination)
+
+    # Make it a string
+    explinations = " ".join(explinations)
+
+    # Strip the last space
+    explinations = explinations.strip()
+    
+    short_hand = translate_explination(explinations)
+
+    return short_hand
+
+    
 
 def init_confusion_matrix():
     # Initialize the confusion matrix
@@ -115,4 +141,4 @@ def translate_explination(explination: str):
     elif explination == 'leads to a win':
         return "win"
     else:
-        raise ValueError("Invalid explination")
+        raise ValueError("Invalid explination: " + explination)

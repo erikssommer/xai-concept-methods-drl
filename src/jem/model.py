@@ -22,7 +22,7 @@ class JointEmbeddingModel:
                  summary: bool = True):
 
         board_size = config.board_size
-        num_channels = 4
+        num_channels = 5
 
         if load_path:
             self.model = tf.keras.models.load_model(load_path)
