@@ -3,6 +3,7 @@ Class for the joint embedding model
 """
 
 import tensorflow as tf
+import numpy as np
 
 from utils import config
 
@@ -51,12 +52,10 @@ class JointEmbeddingModel:
 
         self.model.compile(
             optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate),
-            loss={'combined_output': self.loss_fn},
-            metrics=['accuracy'])
+            loss={'combined_output': self.loss_fn}
+        )
 
-    #@tf.function
     def loss_fn(self, y, pred):
-        # Print the len of the tensors pred and y
         # Split the concatinated pred tensor into state_embed and concept_embed
         state_embed, concept_embed = tf.split(pred, 2, axis=1)
 
@@ -72,9 +71,15 @@ class JointEmbeddingModel:
         with tf.device('/device:GPU:0'):
             self.model.fit(x=[state, explination], y=y, batch_size=batch_size, epochs=epochs)
 
-    def predict(self, state, explination):
-        with tf.device('/device:GPU:0'):
-            return self.model([state, explination])
+    def predict(self, state: np.ndarray, explination: np.ndarray):
+        if len(state.shape) == 3:
+            state = state.reshape((1, *state.shape))
+
+        if len(explination.shape) == 1:
+            explination = explination.reshape((1, *explination.shape))
+
+        with tf.device('/device:CPU:0'):
+            return self.model([state, explination], training=False)
 
     def save_model(self, path):
         self.model.save(path)

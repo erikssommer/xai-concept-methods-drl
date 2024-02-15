@@ -9,3 +9,4 @@ pandas
 matplotlib
 mpi4py
 graphviz
+colorcet

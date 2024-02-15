@@ -41,3 +41,78 @@ def get_data(batch_size):
     labels = np.array(labels, dtype=np.float32)
 
     return states, explinations, labels, len(vocab)
+
+def init_confusion_matrix():
+    # Initialize the confusion matrix
+    confusion_matrix = {
+        "null": {
+            "null": 0,
+            "eye": 0,
+            "double_eye": 0,
+            "center_dominance": 0,
+            "area_advantage": 0,
+            "win": 0
+        },
+        "eye": {
+            "null": 0,
+            "eye": 0,
+            "double_eye": 0,
+            "center_dominance": 0,
+            "area_advantage": 0,
+            "win": 0
+        },
+        "double_eye": {
+            "null": 0,
+            "eye": 0,
+            "double_eye": 0,
+            "center_dominance": 0,
+            "area_advantage": 0,
+            "win": 0
+        },
+        "center_dominance": {
+            "null": 0,
+            "eye": 0,
+            "double_eye": 0,
+            "center_dominance": 0,
+            "area_advantage": 0,
+            "win": 0
+        },
+        "area_advantage": {
+            "null": 0,
+            "eye": 0,
+            "double_eye": 0,
+            "center_dominance": 0,
+            "area_advantage": 0,
+            "win": 0
+        },
+        "win": {
+            "null": 0,
+            "eye": 0,
+            "double_eye": 0,
+            "center_dominance": 0,
+            "area_advantage": 0,
+            "win": 0
+        }
+    }
+
+    return confusion_matrix
+
+
+def translate_explination(explination: str):
+    """
+    Translate the explination
+    """
+    if explination == 'a generic move not tied to a strategy':
+        return "null"
+    elif explination == 'creates an eye':
+        return "eye"
+    elif explination == 'creates an double eye':
+        return "double_eye"
+    elif explination == 'provides center dominance':
+        return "center_dominance"
+    elif explination == 'gives area advantage':
+        return "area_advantage"
+    elif explination == 'leads to a win':
+        return "win"
+    else:
+        raise ValueError("Invalid explination")
