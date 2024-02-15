@@ -180,6 +180,7 @@ models/saved_sessions/
 models/other_models/
 models/probing_models/
 models/training/
+models/jem/
 
 concept_presences/
 notebooks/plots/
