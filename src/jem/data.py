@@ -1,17 +1,26 @@
 import numpy as np
-from concepts.static_concepts import *
+from concepts import generate_static_concept_datasets
+from .concepts import *
+from typing import Tuple, List
 
-def get_data():
+def get_data(agents, cases_to_sample, board_size) -> Tuple[np.ndarray, np.ndarray, np.ndarray, int, dict]:
     """
     Load the data
     """
     explinations = [
         'a generic move not tied to a strategy',
         'creates an eye',
-        'creates an double eye',
+        'creates an two eyes',
         'provides center dominance',
-        'gives area advantage',
-        'leads to a win'
+        'provides area advantage',
+        #'leads to a win'
+    ]
+
+    concepts_functions = [
+        one_eye,
+        two_eyes,
+        center_dominance,
+        area_advantage,
     ]
 
     # Apply one hot encoding to the explinations
@@ -28,25 +37,31 @@ def get_data():
     max_len = max([len(explination) for explination in explinations])
     explinations = [explination + [0] * (max_len - len(explination)) for explination in explinations]
 
-    print(vocab)
-    print(explinations)
+    all_positive_cases = []
+    all_negative_cases = []
+    all_explinations = []
+    all_labels = []
 
-    states = []
+    for concept_function in concepts_functions:
+        # Get the concept explination
+        concept_explination = concept_function()
+        positive_cases, negative_cases = generate_static_concept_datasets(cases_to_sample, agents, board_size, concept_function, nn_format=True)
 
-    # Create the states
-    for state in range(len(explinations)):
-        states.append(np.random.rand(5, 7, 7))
+        all_positive_cases.extend(positive_cases)
+        all_labels.extend([1] * len(positive_cases))
+        all_explinations.extend([convert_explination_to_integers(concept_explination, vocab, max_len)] * len(positive_cases))
 
-    # Create the labels
-    labels = [0, 0, 1, 0, 1, 0]
+        all_negative_cases.extend(negative_cases)
+        all_labels.extend([0] * len(negative_cases))
+        all_explinations.extend([explinations[0]] * len(negative_cases))
 
-    states = np.array(states)
-    explinations = np.array(explinations)
-    labels = np.array(labels, dtype=np.float32)
+    all_states = np.array(all_positive_cases + all_negative_cases)
+    all_explinations = np.array(all_explinations, dtype=np.int32)
+    all_labels = np.array(all_labels, dtype=np.float32)
 
-    return states, explinations, labels, vocab
+    return all_states, all_explinations, all_labels, max_len, vocab
 
-def convert_integers_to_explinations(integers: np.ndarray, vocab: dict):
+def convert_integers_to_explinations(integers: np.ndarray, vocab: dict) -> List[str]:
     """
     Convert the integers to explinations
     """
@@ -123,6 +138,19 @@ def init_confusion_matrix():
 
     return confusion_matrix
 
+def convert_explination_to_integers(explination: str, vocab: dict, max_len: int) -> np.ndarray:
+    """
+    Convert the explination to integers
+    """
+    explination = explination.split()
+    explination = [vocab[word] for word in explination]
+    explination = np.array(explination, dtype=np.float32)
+
+    # Pad the explination
+    explination = np.pad(explination, (0, max_len - len(explination)), 'constant', constant_values=0)
+
+    return explination
+
 
 def translate_explination(explination: str):
     """
@@ -132,11 +160,11 @@ def translate_explination(explination: str):
         return "null"
     elif explination == 'creates an eye':
         return "eye"
-    elif explination == 'creates an double eye':
+    elif explination == 'creates an two eyes':
         return "double_eye"
     elif explination == 'provides center dominance':
         return "center_dominance"
-    elif explination == 'gives area advantage':
+    elif explination == 'provides area advantage':
         return "area_advantage"
     elif explination == 'leads to a win':
         return "win"
