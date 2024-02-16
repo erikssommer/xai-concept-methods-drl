@@ -97,15 +97,14 @@ class DynamicConcepts:
 
                 # Assert that the best subpar state is has a lower visit count than the optimal state
                 assert best_subpar_node.n_visit_count < next_optimal_node.n_visit_count \
-                    or best_subpar_node.q_value() < next_optimal_node.q_value()
+                    or best_subpar_node.q_value() < next_optimal_node.q_value(), "Subpar state is not subpar enough!"
 
                 subpar_rollout_states.append(best_subpar_node.predict_state_rep)
                 best_subpar_node.optiaml_rollout = False
 
                 curr_node = best_subpar_node
 
-                moves = 0
-                for _ in range(self.t_maximum_rollout_depth - node.time_step):
+                for moves in range(self.t_maximum_rollout_depth - node.time_step):
                     if len(curr_node.children) == 0:
                         break
                     if self.random_subpar:
@@ -115,17 +114,17 @@ class DynamicConcepts:
                     else:
                         optimal_child, _ = self.find_best_next_node(curr_node.children)
 
-                    if optimal_child:
-                        if self.concept_type_single and moves % 2 != 0:
-                            # Only add the state if the current player is playing (opponent is skipped)
-                            subpar_rollout_states.append(optimal_child.predict_state_rep)
-                            optimal_child.optiaml_rollout = False
-                        else:
-                            subpar_rollout_states.append(optimal_child.predict_state_rep)
-                            optimal_child.optiaml_rollout = False
-                        curr_node = optimal_child  
+                    if optimal_child is None:
+                        break
 
-                    moves += 1
+                    if self.concept_type_single and moves % 2 != 0:
+                        # Only add the state if the current player is playing (opponent is skipped)
+                        subpar_rollout_states.append(optimal_child.predict_state_rep)
+                        optimal_child.optiaml_rollout = False
+                    else:
+                        subpar_rollout_states.append(optimal_child.predict_state_rep)
+                        optimal_child.optiaml_rollout = False
+                    curr_node = optimal_child 
 
             # If the concept is single, skip the oposing players turn by choosing the best action
             # If the concept is both, choose the best state from current player and state
