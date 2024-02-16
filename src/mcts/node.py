@@ -9,8 +9,8 @@ class Node:
     def __init__(self,
                  state: np.ndarray,
                  player: int,
-                 parent: Node = None, 
-                 prior_probability: int = 0, 
+                 parent: Node = None,
+                 prior_probability: int = 0,
                  time_step: int = 0):
 
         # Game state
@@ -31,7 +31,7 @@ class Node:
         # Node metadata
         self.expanded = False
         self.time_step = time_step
-        self.predict_state_rep = None
+        self.predict_state_rep: np.ndarray = None
         self.optiaml_rollout = None
 
     def is_expanded(self) -> bool:
