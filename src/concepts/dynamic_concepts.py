@@ -57,8 +57,8 @@ class DynamicConcepts:
         self.mcts.search()
         self.add_all_stete_reps()
 
-        optimal_rollout_states = []
-        subpar_rollout_states = []
+        optimal_rollout_states: List[np.ndarray] = []
+        subpar_rollout_states: List[np.ndarray] = []
 
         # Starting from the root node
         node = self.mcts.root
