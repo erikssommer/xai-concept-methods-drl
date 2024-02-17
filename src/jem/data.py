@@ -35,7 +35,7 @@ def get_data(agents, cases_to_sample, board_size) -> Tuple[np.ndarray, np.ndarra
 
     # Pad the explinations
     max_len = max([len(explination) for explination in explinations])
-    explinations = [explination + [0] * (max_len - len(explination)) for explination in explinations]
+    explinations = np.array([explination + [0] * (max_len - len(explination)) for explination in explinations])
 
     all_positive_cases = []
     all_negative_cases = []
@@ -45,15 +45,21 @@ def get_data(agents, cases_to_sample, board_size) -> Tuple[np.ndarray, np.ndarra
     for concept_function in concepts_functions:
         # Get the concept explination
         concept_explination = concept_function()
-        positive_cases, negative_cases = generate_static_concept_datasets(cases_to_sample, agents, board_size, concept_function, nn_format=True)
+        integer_format = convert_explination_to_integers(concept_explination, vocab, max_len)
+        positive_cases, _ = generate_static_concept_datasets(cases_to_sample, agents, board_size, concept_function, nn_format=True)
 
         all_positive_cases.extend(positive_cases)
         all_labels.extend([1] * len(positive_cases))
-        all_explinations.extend([convert_explination_to_integers(concept_explination, vocab, max_len)] * len(positive_cases))
+        all_explinations.extend([integer_format] * len(positive_cases))
 
-        all_negative_cases.extend(negative_cases)
-        all_labels.extend([0] * len(negative_cases))
-        all_explinations.extend([explinations[0]] * len(negative_cases))
+        # For each positive state, create a negative case with all the other explinations
+        for positive_case in positive_cases:
+            for _, explination in enumerate(explinations):
+                if explination.all() != integer_format.all():
+                    all_negative_cases.append(positive_case)
+                    all_labels.append(0)
+                    all_explinations.append(explination)
+
 
     all_states = np.array(all_positive_cases + all_negative_cases)
     all_explinations = np.array(all_explinations, dtype=np.int32)

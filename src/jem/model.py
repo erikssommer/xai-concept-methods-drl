@@ -5,13 +5,12 @@ Class for the joint embedding model
 import tensorflow as tf
 import numpy as np
 
-from utils import config
-
 
 class JointEmbeddingModel:
     def __init__(self,
                  vocab_size,
                  max_sent_len,
+                 board_size,
                  learning_rate=0.001,
                  input_state_embed=64,
                  hidden_state_embed=32,
@@ -20,8 +19,7 @@ class JointEmbeddingModel:
                  output_exp_embed=16,
                  load_path: str = None,
                  summary: bool = True):
-
-        board_size = config.board_size
+        
         num_channels = 5
 
         if load_path:
@@ -29,8 +27,10 @@ class JointEmbeddingModel:
         else:
             # Convolutional layers for the board
             board_inputs = tf.keras.Input(shape=(num_channels, board_size, board_size))
-            x = tf.keras.layers.Conv2D(filters=4, kernel_size=(3, 3), activation='relu', padding='same')(board_inputs)
-            x = tf.keras.layers.Conv2D(filters=6, kernel_size=(3, 3), activation='relu', padding='same')(x)
+            x = tf.keras.layers.Conv2D(filters=32, kernel_size=(3, 3), activation='relu', padding='same')(board_inputs)
+            x = tf.keras.layers.Conv2D(filters=32, kernel_size=(3, 3), activation='relu', padding='same')(x)
+            x = tf.keras.layers.Conv2D(filters=32, kernel_size=(3, 3), activation='relu', padding='same')(x)
+            x = tf.keras.layers.Conv2D(filters=32, kernel_size=(3, 3), activation='relu', padding='same')(x)
             x = tf.keras.layers.Flatten()(x)
             x = tf.keras.layers.Dense(units=input_state_embed, activation='relu')(x)
             x = tf.keras.layers.Dense(units=hidden_state_embed, activation='relu')(x)
