@@ -49,7 +49,7 @@ def get_data(agents, cases_to_sample, board_size) -> Tuple[np.ndarray, np.ndarra
         positive_cases, _ = generate_static_concept_datasets(cases_to_sample, agents, board_size, concept_function, nn_format=True)
 
         all_positive_cases.extend(positive_cases)
-        all_labels.extend([1] * len(positive_cases))
+        all_labels.extend([0] * len(positive_cases))
         all_explinations.extend([integer_format] * len(positive_cases))
 
         # For each positive state, create a negative case with all the other explinations
@@ -57,7 +57,7 @@ def get_data(agents, cases_to_sample, board_size) -> Tuple[np.ndarray, np.ndarra
             for _, explination in enumerate(explinations):
                 if explination.all() != integer_format.all():
                     all_negative_cases.append(positive_case)
-                    all_labels.append(0)
+                    all_labels.append(1)
                     all_explinations.append(explination)
 
 
