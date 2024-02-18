@@ -67,9 +67,11 @@ class JointEmbeddingModel:
 
         return loss
 
-    def fit(self, state, explination, y, batch_size, epochs):
+    def fit(self, train_states, train_explinations, train_labels, val_states, val_explinations, val_labels, batch_size=32, epochs=10):
         with tf.device('/device:GPU:0'):
-            self.model.fit(x=[state, explination], y=y, batch_size=batch_size, epochs=epochs)
+            self.model.fit(x=[train_states, train_explinations], y=train_labels, 
+                           validation_data=([val_states, val_explinations], val_labels),
+                           batch_size=batch_size, epochs=epochs)
 
     def predict(self, state: np.ndarray, explination: np.ndarray):
         if len(state.shape) == 3:

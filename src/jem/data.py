@@ -55,11 +55,10 @@ def get_data(agents, cases_to_sample, board_size) -> Tuple[np.ndarray, np.ndarra
         # For each positive state, create a negative case with all the other explinations
         for positive_case in positive_cases:
             for _, explination in enumerate(explinations):
-                if explination.all() != integer_format.all():
+                if not np.array_equal(explination, integer_format):
                     all_negative_cases.append(positive_case)
                     all_labels.append(1)
                     all_explinations.append(explination)
-
 
     all_states = np.array(all_positive_cases + all_negative_cases)
     all_explinations = np.array(all_explinations, dtype=np.int32)
@@ -150,7 +149,7 @@ def convert_explination_to_integers(explination: str, vocab: dict, max_len: int)
     """
     explination = explination.split()
     explination = [vocab[word] for word in explination]
-    explination = np.array(explination, dtype=np.float32)
+    explination = np.array(explination, dtype=np.int32)
 
     # Pad the explination
     explination = np.pad(explination, (0, max_len - len(explination)), 'constant', constant_values=0)
