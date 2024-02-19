@@ -28,7 +28,7 @@ clear_rbuf: false
 
 # GO config
 board_size: 7 # k
-komi: 8.5 # gives white a bonus of x points at the end of the game due to black going first
+komi: 9.5 # gives white a bonus of x points at the end of the game due to black going first
 move_cap: 120
 
 # Debug config
