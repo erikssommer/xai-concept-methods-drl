@@ -183,7 +183,7 @@ class DynamicConcepts:
     """
 
     @staticmethod
-    def opening_play(board_size: int) -> Tuple[np.ndarray, bool]:
+    def opening_play(board_size: int) -> Tuple[np.ndarray, bool, str]:
         """
         This is the initial phase of the game where players try to establish their initial structures and influence on the board. 
         The goal is to control as much territory as possible and set up for the middle game.
@@ -191,10 +191,10 @@ class DynamicConcepts:
         concept_type_single = False
         game_state = np.zeros((6, board_size, board_size))
 
-        return game_state, concept_type_single
+        return game_state, concept_type_single, "opening_play"
 
     @staticmethod
-    def end_game(board_size: int) -> Tuple[np.ndarray, bool]:
+    def end_game(board_size: int) -> Tuple[np.ndarray, bool, str]:
         """
         The end game is the final phase of the game where players try to secure their territories and capture their opponent's stones.
         """
@@ -226,10 +226,10 @@ class DynamicConcepts:
         # Set the last plane to represent that the game is not over
         game_state[5, :, :] = 0
 
-        return game_state, concept_type_single
+        return game_state, concept_type_single, "end_game"
 
     @staticmethod
-    def life_and_death(board_size: int) -> Tuple[np.ndarray, bool]:
+    def life_and_death(board_size: int) -> Tuple[np.ndarray, bool, str]:
         """
         Concept of starting from a board with a few stones
         """
@@ -262,13 +262,11 @@ class DynamicConcepts:
         # Set the last plane to represent that the game is not over
         game_state[5, :, :] = 0
 
-        print(game_state)
-
-        return game_state, concept_type_single
+        return game_state, concept_type_single, "life_and_death"
 
 
     @staticmethod
-    def keep_initiative(board_size: int) -> Tuple[np.ndarray, bool]:
+    def keep_initiative(board_size: int) -> Tuple[np.ndarray, bool, str]:
         """
         Concept of starting from a board with a few stones
         """
@@ -299,10 +297,10 @@ class DynamicConcepts:
         # Set the last plane to represent that the game is not over
         game_state[5, :, :] = 0
 
-        return game_state, concept_type_single
+        return game_state, concept_type_single, "keep_initiative"
 
     @staticmethod
-    def ko_fight(board_size: int) -> Tuple[np.ndarray, bool]:
+    def ko_fight(board_size: int) -> Tuple[np.ndarray, bool, str]:
         """
         A Ko fight involves a sequence of moves elsewhere on the board (Ko threats) that aim to make the opponent respond so that the player can retake the Ko.
         """
@@ -335,12 +333,12 @@ class DynamicConcepts:
         # Set the last plane to represent that the game is not over
         game_state[5, :, :] = 0
         
-        return game_state, concept_type_single
+        return game_state, concept_type_single, "ko_fight"
         
 
 
     @staticmethod
-    def invasion_and_reduction(board_size: int) -> Tuple[np.ndarray, bool]:
+    def invasion_and_reduction(board_size: int) -> Tuple[np.ndarray, bool, str]:
         """
         These are strategies used to disrupt your opponent's territories. 
         An invasion is a sequence of moves that attempts to establish a live group inside an opponent's territory, 
@@ -379,4 +377,4 @@ class DynamicConcepts:
         # Set the last plane to represent that the game is not over
         game_state[5, :, :] = 0
         
-        return game_state, concept_type_single
+        return game_state, concept_type_single, "invasion_and_reduction"
