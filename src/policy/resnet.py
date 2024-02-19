@@ -33,56 +33,56 @@ class ResNet(BaseNet):
                 shape=(5, board_size, board_size))
 
             # Residual block
-            base = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (3, 3), activation="relu",
-                                          padding="same", name="res_block_output_base")(self.position_input)
+            base = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (3, 3), activation="relu", padding="same", name="res_block_output_base")(self.position_input)
 
             # First
-            conv = tf.keras.layers.Conv2D(
-                BLOCK_FILTER_SIZE, (3, 3), activation="relu", padding="same")(base)
+            conv = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (3, 3), padding="same")(base)
             conv = tf.keras.layers.BatchNormalization()(conv)
-            conv = tf.keras.layers.Conv2D(
-                BLOCK_FILTER_SIZE, (3, 3), activation="relu", padding="same")(conv)
+            conv = tf.keras.layers.ReLU()(conv)
+            conv = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (3, 3), padding="same")(conv)
             conv = tf.keras.layers.BatchNormalization()(conv)
+            conv = tf.keras.layers.ReLU()(conv)
 
             # Add skip connection
             conv_res = tf.keras.layers.Add()([base, conv])
             base = tf.keras.layers.ReLU(name="res_block_1_relu")(conv_res)
 
-            conv = tf.keras.layers.Conv2D(
-                BLOCK_FILTER_SIZE, (3, 3), activation="relu", padding="same")(base)
+            conv = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (3, 3), padding="same")(base)
             conv = tf.keras.layers.BatchNormalization()(conv)
-            conv = tf.keras.layers.Conv2D(
-                BLOCK_FILTER_SIZE, (3, 3), activation="relu", padding="same")(conv)
+            conv = tf.keras.layers.ReLU()(conv)
+            conv = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (3, 3), padding="same")(conv)
             conv = tf.keras.layers.BatchNormalization()(conv)
+            conv = tf.keras.layers.ReLU()(conv)
 
             # Add skip connection
             conv_res = tf.keras.layers.Add()([base, conv])
             base = tf.keras.layers.ReLU(name="res_block_2_relu")(conv_res)
 
-            conv = tf.keras.layers.Conv2D(
-                BLOCK_FILTER_SIZE, (3, 3), activation="relu", padding="same")(base)
+            conv = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (3, 3), padding="same")(base)
             conv = tf.keras.layers.BatchNormalization()(conv)
-            conv = tf.keras.layers.Conv2D(
-                BLOCK_FILTER_SIZE, (3, 3), activation="relu", padding="same")(conv)
+            conv = tf.keras.layers.ReLU()(conv)
+            conv = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (3, 3), padding="same")(conv)
             conv = tf.keras.layers.BatchNormalization()(conv)
+            conv = tf.keras.layers.ReLU()(conv)
 
             # Add skip connection
             conv_res = tf.keras.layers.Add()([base, conv])
             base = tf.keras.layers.ReLU(name="res_block_3_relu")(conv_res)
 
             # Policy head
-            policy = tf.keras.layers.Conv2D(
-                BLOCK_FILTER_SIZE, (1, 1), activation="relu", padding="same")(base)
+            policy = tf.keras.layers.Conv2D(2, (1, 1), padding="same")(base)
+            policy = tf.keras.layers.BatchNormalization()(policy)
+            policy = tf.keras.layers.ReLU()(policy)
             policy = tf.keras.layers.Flatten()(policy)
-            policy_output = tf.keras.layers.Dense(
-                self.output, activation="softmax", name="policy_output")(policy)
+            policy_output = tf.keras.layers.Dense(self.output, activation="softmax", name="policy_output")(policy)
 
             # Value head
-            value = tf.keras.layers.Conv2D(
-                1, (1, 1), activation="relu", padding="same")(base)
+            value = tf.keras.layers.Conv2D(1, (1, 1), padding="same")(base)
+            value = tf.keras.layers.BatchNormalization()(value)
+            value = tf.keras.layers.ReLU()(value)
             value = tf.keras.layers.Flatten()(value)
-            value_output = tf.keras.layers.Dense(
-                1, activation="tanh", name="value_output")(value)
+            value = tf.keras.layers.Dense(128, activation="relu")(value)
+            value_output = tf.keras.layers.Dense(1, activation="tanh", name="value_output")(value)
 
             self.model = tf.keras.Model(
                 self.position_input, [policy_output, value_output])

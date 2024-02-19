@@ -9,10 +9,10 @@ epoch_skip: 0
 
 # Neural Network config
 resnet: true
-resnet_filters: 64 # f
+resnet_filters: 128 # f
 convnet_filters: 64 # f
 nr_of_anets: 10 # m
-save_intervals: [10, 20, 60, 100, 500, 1000]
+save_intervals: [5, 10, 15, 20, 40, 60, 80, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
 learning_rate: 0.001
 end_learning_rate: 0.0001
 decay_steps: 10000
@@ -22,7 +22,7 @@ pre_trained_path: ../models/pre_trained/board_size_5/
 # Replay buffer config
 rbuf_size: 2048 # Single process (2048)
 rbuf_cap: 20000 # Multi process
-sample_ratio: 0.3 # 30% chance of adding case to replay buffer, helps with overfitting
+sample_ratio: 0.4 # 40% chance of adding case to replay buffer, helps with overfitting
 batch_size: 128 # 512
 clear_rbuf: false
 
