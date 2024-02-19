@@ -203,22 +203,48 @@ class DynamicConcepts:
         game_state = np.zeros((6, board_size, board_size))
 
         # Set up an endgame scenario
-        for i in range(board_size):
-            for j in range(board_size):
-                if i < board_size / 2 and j < board_size / 2:
-                    game_state[0, i, j] = 1  # Current player's territory
-                elif i >= board_size / 2 and j >= board_size / 2:
-                    game_state[1, i, j] = 1  # Opponent player's territory
+        if board_size == 7:
+            game_state[0] = np.array([[0, 0, 0, 0, 0, 1, 0],
+                                      [0, 0, 0, 1, 0, 1, 0],
+                                      [0, 0, 0, 1, 1, 0, 0],
+                                      [0, 1, 0, 1, 0, 0, 0],
+                                      [0, 1, 0, 1, 0, 0, 0],
+                                      [0, 1, 0, 0, 0, 0, 0],
+                                      [0, 0, 0, 0, 0, 0, 0]])
+            
+            game_state[1] = np.array([[0, 0, 0, 0, 0, 0, 0],
+                                      [0, 0, 0, 0, 1, 0, 1],
+                                      [0, 0, 0, 0, 0, 1, 0],
+                                      [0, 0, 0, 0, 1, 0, 1],
+                                      [0, 0, 1, 0, 1, 0, 0],
+                                      [0, 0, 1, 1, 0, 0, 0],
+                                      [0, 1, 0, 0, 0, 0, 0]])
+        else:
+            for i in range(board_size):
+                for j in range(board_size):
+                    if i < board_size / 2 and j < board_size / 2:
+                        game_state[0, i, j] = 1  # Current player's territory
+                    elif i >= board_size / 2 and j >= board_size / 2:
+                        game_state[1, i, j] = 1  # Opponent player's territory
 
         # Set the third plane to represent the current player's turn
         game_state[2, :, :] = 0
 
         # Set the fourth plane to represent invalid moves (places where there are stones)
         # Loop through the board and set the fourth plane to 1 where there are stones
-        for i in range(board_size):
-            for j in range(board_size):
-                if game_state[0, i, j] == 1 or game_state[1, i, j] == 1:
-                    game_state[3, i, j] = 1
+        if board_size == 7:
+            game_state[3] = np.array([[0, 0, 0, 0, 0, 1, 0],
+                                      [0, 0, 0, 1, 1, 1, 1],
+                                      [0, 0, 0, 1, 1, 1, 1],
+                                      [0, 1, 0, 1, 1, 0, 1],
+                                      [0, 1, 1, 1, 1, 0, 0],
+                                      [0, 1, 1, 1, 0, 0, 0],
+                                      [0, 1, 0, 0, 0, 0, 0]])
+        else:
+            for i in range(board_size):
+                for j in range(board_size):
+                    if game_state[0, i, j] == 1 or game_state[1, i, j] == 1:
+                        game_state[3, i, j] = 1
         
         # Set the fifth plane to represent that the previous move was not a pass
         game_state[4, :, :] = 0
