@@ -88,15 +88,15 @@ def generate_static_concept_datasets(cases_to_sample, agents, board_size, concep
 
     return positive_cases, negative_cases
 
-def convolve_filter(board_state: np.ndarray, concept_filter: np.ndarray):
+def convolve_filter(board_state: np.ndarray, concept_filter: np.ndarray, x=1, y=0):
 
     # Count the number of 1's and 0's in the concept filter
     total_sim = 0
     for i in range(0, concept_filter.shape[0]):
         for j in range(0, concept_filter.shape[1]):
-            if concept_filter[i, j] == 1:
+            if concept_filter[i, j] == x:
                 total_sim += 1
-            elif concept_filter[i, j] == 0:
+            elif concept_filter[i, j] == y:
                 total_sim += 1
 
     # Fist see of concept is present in current state
@@ -115,9 +115,9 @@ def convolve_filter(board_state: np.ndarray, concept_filter: np.ndarray):
             total = total_sim
             for k in range(0, filter_size_wide):
                 for l in range(0, filter_size_height):
-                    if concept_filter[k, l] == 1 and current_area[k, l] == 1:
+                    if concept_filter[k, l] == x and current_area[k, l] == x:
                         total -= 1
-                    elif concept_filter[k, l] == 0 and current_area[k, l] == 0:
+                    elif concept_filter[k, l] == y and current_area[k, l] == y:
                         total -= 1
             if total == 0:
                 presence = True
