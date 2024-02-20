@@ -6,13 +6,15 @@ This is done so that the agent can get a reward WHEN it does a move that creates
 
 import numpy as np
 
-def one_eye(board_state: np.ndarray = None, name="creates an eye"):
+from concepts import convolve_filter
+
+def one_eye(board_state: np.ndarray = None, name="creates one eye"):
     if board_state is None:
         return name
     
     concept_filter = np.array([
         [-1, 1, -1],
-        [1, 0, 1],
+        [ 1, 0,  1],
         [-1, 1, -1]
     ])
 
@@ -25,20 +27,34 @@ def one_eye(board_state: np.ndarray = None, name="creates an eye"):
 
     # Check if the current state maches the 1's in the concept filter
     # -1's in the concept filter are ignored
-    presence_curr = __convolve(curr_state, concept_filter, 5)
-    presence_prev = __convolve(prev_state, concept_filter, 5)
+    presence_curr = convolve_filter(curr_state, concept_filter)
+    presence_prev = convolve_filter(prev_state, concept_filter)
 
     return presence_curr and not presence_prev
 
-def two_eyes(board_state: np.ndarray = None, name="creates an two eyes"):
+def two_eyes(board_state: np.ndarray = None, name="creates two eyes"):
     if board_state is None:
         return name
     
-    concept_filter = np.array([
-        [-1, 1, -1, 1, -1],
-        [1, 0, 1, 0, 1],
-        [-1, 1, -1, 1, -1],
+    concept_filter_0 = np.array([
+        [ 1, 1, 1, 1, 1],
+        [ 1, 0, 1, 0, 1],
+        [ 1, 1, 1, 1, 1],
     ])
+
+    concept_filter_45 = np.array([
+        [ 1,  1,  1, -1, -1],
+        [ 1,  0,  1, -1, -1],
+        [ 1,  1,  1,  1,  1],
+        [-1, -1,  1,  0,  1],
+        [-1, -1,  1,  1,  1],
+    ])
+
+    # Rotate the filters to get all possible orientations
+    concept_filter_90 = np.rot90(concept_filter_0)
+    concept_filter_135 = np.rot90(concept_filter_45)
+    concept_filter_225 = np.rot90(concept_filter_135)
+    concept_filter_270 = np.rot90(concept_filter_225)
 
     curr_state = board_state[0]
     prev_state = board_state[1]
@@ -47,10 +63,15 @@ def two_eyes(board_state: np.ndarray = None, name="creates an two eyes"):
     curr_state = np.pad(curr_state, 1, 'constant', constant_values=1)
     prev_state = np.pad(prev_state, 1, 'constant', constant_values=1)
 
-    presence_curr = __convolve(curr_state, concept_filter, 9)
-    presence_prev = __convolve(prev_state, concept_filter, 9)
+    # Loop through all the filters and check if the concept is present in the current state and not in the previous state
+    for concept_filter in [concept_filter_45, concept_filter_135, concept_filter_225, concept_filter_270, concept_filter_0, concept_filter_90]:
+        presence_curr = convolve_filter(curr_state, concept_filter)
+        presence_prev = convolve_filter(prev_state, concept_filter)
+        if presence_curr and not presence_prev:
+            return True
+        
+    return False
 
-    return presence_curr and not presence_prev
 
 def center_dominance(board_state: np.ndarray = None, name="provides center dominance"):
     if board_state is None:
@@ -78,34 +99,4 @@ def area_advantage(board_state: np.ndarray = None, name="provides area advantage
     presence_curr = np.sum(curr_state) > np.sum(prev_state)
 
     return presence_curr
-
-
-def __convolve(board_state: np.ndarray, concept_filter, total_sim=0):
-    # Fist see of concept is present in current state
-    stride = 1
-    filter_size_wide = concept_filter.shape[0]
-    filter_size_height = concept_filter.shape[1]
-    presence = False
-
-    # Check if the current state maches the 1's in the concept filter
-    # -1's in the concept filter are ignored
-    for i in range(0, board_state.shape[0]-2, stride):
-        for j in range(0, board_state.shape[0]-2, stride):
-            current_area = board_state[i:i+filter_size_wide, j:j+filter_size_height]
-            if current_area.shape != concept_filter.shape:
-                continue
-            total = total_sim
-            for k in range(0, filter_size_wide):
-                for l in range(0, filter_size_height):
-                    if concept_filter[k, l] == 1 and current_area[k, l] == 1:
-                        total -= 1
-                    elif concept_filter[k, l] == 0:
-                        total -= 1
-            if total == 0:
-                presence = True
-                break
-        if presence:
-            break
-    
-    return presence
     

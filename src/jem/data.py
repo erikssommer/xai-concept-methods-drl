@@ -2,6 +2,7 @@ import numpy as np
 from concepts import generate_static_concept_datasets
 from .concepts import *
 from typing import Tuple, List
+from env import gogame
 
 def get_data(agents, cases_to_sample, board_size) -> Tuple[np.ndarray, np.ndarray, np.ndarray, int, dict]:
     """
@@ -9,8 +10,8 @@ def get_data(agents, cases_to_sample, board_size) -> Tuple[np.ndarray, np.ndarra
     """
     explinations = [
         'a generic move not tied to a strategy',
-        'creates an eye',
-        'creates an two eyes',
+        'creates one eye',
+        'creates two eyes',
         'provides center dominance',
         'provides area advantage',
         #'leads to a win'
@@ -163,9 +164,9 @@ def translate_explination(explination: str):
     """
     if explination == 'a generic move not tied to a strategy':
         return "null"
-    elif explination == 'creates an eye':
+    elif explination == 'creates one eye':
         return "eye"
-    elif explination == 'creates an two eyes':
+    elif explination == 'creates two eyes':
         return "double_eye"
     elif explination == 'provides center dominance':
         return "center_dominance"
