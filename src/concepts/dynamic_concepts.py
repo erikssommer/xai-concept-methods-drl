@@ -404,3 +404,57 @@ class DynamicConcepts:
         game_state[5, :, :] = 0
         
         return game_state, concept_type_single, "invasion_and_reduction"
+    
+    @staticmethod
+    def ladder(board_size: int) -> Tuple[np.ndarray, bool, str]:
+        """
+        A ladder is a sequence of moves where a group of stones is chased across the board.
+        """
+        concept_type_single = False
+        # Initialize all planes to zeros
+        game_state = np.zeros((6, board_size, board_size))
+
+        game_state[0] = np.array([
+            [0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0],
+            [0, 0, 1, 0, 0, 1, 0],
+            [0, 1, 0, 0, 1, 0, 0],
+            [1, 0, 0, 1, 0, 0, 0],
+            [0, 1, 1, 0, 0, 0, 0]
+        ])
+
+        game_state[1] = np.array([
+            [0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 1, 0, 0],
+            [0, 0, 0, 1, 1, 0, 0],
+            [0, 0, 1, 1, 0, 0, 0],
+            [0, 1, 1, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0]
+        ])
+
+        # Set the third plane to represent the current player's turn
+        game_state[2, :, :] = 0
+
+        # Set the fourth plane to represent invalid moves (all territories are claimed)
+        for i in range(board_size):
+            for j in range(board_size):
+                if game_state[0, i, j] == 1 or game_state[1, i, j] == 1:
+                    game_state[3, i, j] = 1
+
+        # Set the fifth plane to represent that the previous move was not a pass
+        game_state[4, :, :] = 0
+
+        # Set the last plane to represent that the game is not over
+        game_state[5, :, :] = 0
+
+        return game_state, concept_type_single, "ladder"
+    
+    @staticmethod
+    def joseki(board_size: int) -> Tuple[np.ndarray, bool, str]:
+        """
+        A sequence of moves in opening play where stones are placed in a corner of the board.
+        Often, joseki are used to establish a balance between the two players.
+        One plays in one corner, the other in the opposite corner.
+        """

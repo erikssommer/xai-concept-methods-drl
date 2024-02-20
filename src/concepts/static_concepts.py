@@ -216,6 +216,56 @@ def play_center_in_opening(game_state) -> bool:
     # Not in the opening phase of the game
     return None
 
+def ladder(game_state) -> bool:
+    """
+    Possible: Detect sequence of moves concepts
+    In the game of Go, a ladder is a sequence of moves in which a group of stones is chased across
+    the board. Ladders are important because they can be used to capture stones, or to defend stones
+    from capture.
+    """
+    concept_filter = np.array([
+        [ -1, -1,  0,  0],
+        [ -1,  1, -1,  0],
+        [ -1,  1,  1, -1],
+        [  0, -1,  1,  0]
+    ])
+
+    # Rotate the filters to get all possible orientations
+    concept_filter_90 = np.rot90(concept_filter)
+    concept_filter_180 = np.rot90(concept_filter_90)
+    concept_filter_270 = np.rot90(concept_filter_180)
+
+    # Pad the current and previous state
+    curr_state = game_state[0]
+    opponent_state = game_state[1]
+
+    # Merge the current and opponent state
+    combined_state_1 = curr_state
+    for i in range(len(opponent_state)):
+        for j in range(len(opponent_state[i])):
+            if opponent_state[i][j] == 1:
+                combined_state_1[i][j] = -1
+
+    combined_state_2 = opponent_state
+    for i in range(len(curr_state)):
+        for j in range(len(curr_state[i])):
+            if curr_state[i][j] == 1:
+                combined_state_2[i][j] = -1
+
+    combined_state_1 = np.array(combined_state_1)
+    combined_state_2 = np.array(combined_state_2)
+
+    # Loop through all the filters and check if the concept is present in the current state and not in the previous state
+    for concept_filter in [concept_filter, concept_filter_90, concept_filter_180, concept_filter_270]:
+        presence_curr = convolve_filter(combined_state_1, concept_filter, x=1, y=-1)
+        if presence_curr:
+            return True
+        presence_curr = convolve_filter(combined_state_2, concept_filter, x=1, y=-1)
+        if presence_curr:
+            return True
+
+    return False
+
 
 def atari(game_state):
     """
@@ -233,16 +283,6 @@ def ko():
     is not allowed to recapture the group immediately. Ko is an important concept because it can be
     used to force the opponent to defend their stones, or to create a ko situation in which the
     opponent is not allowed to recapture the group immediately.
-    """
-    pass
-
-
-def ladder():
-    """
-    Possible: Detect sequence of moves concepts
-    In the game of Go, a ladder is a sequence of moves in which a group of stones is chased across
-    the board. Ladders are important because they can be used to capture stones, or to defend stones
-    from capture.
     """
     pass
 
