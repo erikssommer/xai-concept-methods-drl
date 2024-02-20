@@ -10,37 +10,44 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.
 from policy import ConvNet, ResNet
 from policy import FastPredictor
 from policy import LiteModel
+from mcts import MCTS
 import env
 
 class TestFastPredVsPred(unittest.TestCase):
     def test_equal(self):
         # Loading model
-        board_size = 5
-        komi = 0.5
-        model_path = f"../models/training/board_size_{board_size}/net_0.keras"
+        board_size = 7
+        komi = 9.5
+        model_path = f"../models/saved_sessions/resnet/board_size_{board_size}/falcon/net_500.keras"
 
-        model = ConvNet(board_size, model_path)
+        model = ResNet(board_size, model_path)
         fast_model = FastPredictor(LiteModel.from_keras_model(model.model))
 
         # Creating input
         go_env = env.GoEnv(board_size, komi)
         go_env.reset()
-
-        current_player = 0
-        # Play some random moves
-        for _ in range(4):
-            action = go_env.uniform_random_action()
-            _, _, game_over, _ = go_env.step(action)
-            current_player = 1 - current_player
-
-        # Getting the state
         state = go_env.canonical_state()
 
-        state = np.delete(state, [2,3,4,5], axis=0)
+        # Using mcts to generate a state
+        mcts = MCTS(state, 1000, board_size, board_size * board_size * 2, fast_model, komi=komi)
 
-        #if current_player == 1:
-            #print("Current player is 1")
-            #state[2] = np.ones((board_size, board_size))
+        mcts.search()
+
+        # Move to a leaf node
+        root = mcts.root
+
+        # Loop through the children and select the one with the highest visit count
+        while root.is_expanded() and root.predict_state_rep is not None:
+            highest_visits = -1
+            best_child = None
+            for child in root.children:
+                if child.n_visit_count > highest_visits:
+                    highest_visits = child.n_visit_count
+                    best_child = child
+            root = best_child
+        
+        state = root.parent.predict_state_rep
+
 
         state_slow = np.reshape(state, (1, *state.shape))
 
