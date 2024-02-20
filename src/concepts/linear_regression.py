@@ -3,7 +3,7 @@ from sklearn.metrics import r2_score
 import numpy as np
 import tensorflow as tf
 
-def perform_regression(points, targets, validation_points, validation_targets, is_binary, epochs=50, dynamic=False):
+def perform_regression(points, targets, validation_points, validation_targets, is_binary, epochs=50, dynamic=False, verbose=0):
     if is_binary:
         return perform_logistic_regression(
             points, 
@@ -11,7 +11,8 @@ def perform_regression(points, targets, validation_points, validation_targets, i
             validation_points, 
             validation_targets,
             epochs=epochs,
-            dynamic=dynamic
+            dynamic=dynamic,
+            verbose=verbose
         )
     else:
         return perform_linear_regression(
@@ -19,10 +20,11 @@ def perform_regression(points, targets, validation_points, validation_targets, i
             targets, 
             validation_points, 
             validation_targets,
-            dynamic=dynamic
+            dynamic=dynamic,
+            verbose=verbose
         )
 
-def perform_logistic_regression(points, targets, validation_points, validation_targets, epochs, dynamic):
+def perform_logistic_regression(points, targets, validation_points, validation_targets, epochs, dynamic, verbose):
     """
     Classification using logistic regression
     """
@@ -34,9 +36,9 @@ def perform_logistic_regression(points, targets, validation_points, validation_t
 
     with tf.device('/GPU:0'):
         if dynamic:
-            model.fit(points, targets, epochs=epochs)
+            model.fit(points, targets, epochs=epochs, verbose=0)
         else:
-            model.fit(points, targets, validation_data=(validation_points, validation_targets), epochs=epochs)
+            model.fit(points, targets, validation_data=(validation_points, validation_targets), epochs=epochs, verbose=verbose)
 
     train_preds = model.predict(points) > 0.5
     print(binary_accuracy_metric(targets, train_preds))
@@ -46,12 +48,12 @@ def perform_logistic_regression(points, targets, validation_points, validation_t
     return binary_accuracy_metric(validation_targets, val_preds)
 
 
-def perform_linear_regression(points, targets, validation_points, validation_targets, dynamic):
+def perform_linear_regression(points, targets, validation_points, validation_targets, dynamic, verbose):
     """
     Regression using linear regression
     """
     model = linear_model.LinearRegression()
-    model = model.fit(points, targets)
+    model = model.fit(points, targets, verbose=verbose)
     if dynamic:
         predictions = model.predict(points)
         return r2_score(targets, predictions)

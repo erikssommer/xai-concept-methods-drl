@@ -1,5 +1,6 @@
 import numpy as np
 from env import gogame, govars
+from .concept_utils import convolve_filter
 
 """
 Static concepts are concepts that can be determined from a single gamestate.
@@ -43,44 +44,25 @@ def one_eye(game_state) -> bool:
     """
     In the game of Go, an eye is a empty point surrounded by stones of a single color
     """
-    black_pieces = game_state[0]
-    white_pieces = game_state[1]
+    curr_pieces = game_state[0]
+    opposing_pieces = game_state[1]
 
-    board = [[0 for _ in range(len(black_pieces))]
-             for j in range(len(black_pieces))]
+    concept_filter = np.array([
+        [-1, 1, -1],
+        [ 1, 0,  1],
+        [-1, 1, -1]
+    ])
 
-    # Combine black and white arrays into one array where black is 1 and white is -1
-    for i in range(len(black_pieces)):
-        for j in range(len(black_pieces[i])):
-            if black_pieces[i][j] == 1:
-                board[i][j] = 1
-            elif white_pieces[i][j] == 1:
-                board[i][j] = -1
-            else:
-                board[i][j] = 0
+    # Pad the current and previous state
+    curr_pieces = np.pad(curr_pieces, 1, 'constant', constant_values=1)
+    prev_state = np.pad(prev_state, 1, 'constant', constant_values=1)
 
-    # Using numpy pad function, pad the board with 1s around the edges
-    black_board = np.pad(board, 1, 'constant', constant_values=1)
+    # Check if the current state maches the 1's in the concept filter
+    # -1's in the concept filter are ignored
+    presence_curr = convolve_filter(curr_pieces, concept_filter)
+    presence_opposing = convolve_filter(opposing_pieces, concept_filter)
 
-    # In the black frame array, check if there is a 0 surrounded by only 1s
-    for i in range(len(black_board)):
-        for j in range(len(black_board[i])):
-            if black_board[i][j] == 0:
-                # Check if the surrounding indexes are all 1s
-                if black_board[i-1][j] == 1 and black_board[i+1][j] == 1 and black_board[i][j-1] == 1 and black_board[i][j+1] == 1:
-                    return True
-
-    # In the white frame array, check if there is a 0 surrounded by only -1s
-    white_board = np.pad(board, 1, 'constant', constant_values=-1)
-
-    for i in range(len(white_board)):
-        for j in range(len(white_board[i])):
-            if white_board[i][j] == 0:
-                # Check if the surrounding indexes are all -1s
-                if white_board[i-1][j] == -1 and white_board[i+1][j] == -1 and white_board[i][j-1] == -1 and white_board[i][j+1] == -1:
-                    return True
-
-    return False
+    return presence_curr or presence_opposing
 
 
 def two_eyes(game_state) -> bool:
@@ -93,84 +75,37 @@ def two_eyes(game_state) -> bool:
     black_pieces = game_state[0]
     white_pieces = game_state[1]
 
-    board = [[0 for _ in range(len(black_pieces))]
-             for _ in range(len(black_pieces))]
+    concept_filter_0 = np.array([
+        [ 1, 1, 1, 1, 1],
+        [ 1, 0, 1, 0, 1],
+        [ 1, 1, 1, 1, 1],
+    ])
 
-    # Combine black and white arrays into one array where black is 1 and white is -1
-    for i in range(len(black_pieces)):
-        for j in range(len(black_pieces[i])):
-            if black_pieces[i][j] == 1:
-                board[i][j] = 1
-            elif white_pieces[i][j] == 1:
-                board[i][j] = -1
-            else:
-                board[i][j] = 0
+    concept_filter_45 = np.array([
+        [ 1,  1,  1, -1, -1],
+        [ 1,  0,  1, -1, -1],
+        [ 1,  1,  1,  1,  1],
+        [-1, -1,  1,  0,  1],
+        [-1, -1,  1,  1,  1],
+    ])
 
-    # Using numpy pad function, pad the board with 1s around the edges
-    black_board = np.pad(board, 1, 'constant', constant_values=1)
+    # Rotate the filters to get all possible orientations
+    concept_filter_90 = np.rot90(concept_filter_0)
+    concept_filter_135 = np.rot90(concept_filter_45)
+    concept_filter_225 = np.rot90(concept_filter_135)
+    concept_filter_270 = np.rot90(concept_filter_225)
 
-    # In the black frame array, check if there is two 0s with one 1 between them and surrounded by only 1s
-    for i in range(len(black_board)):
-        for j in range(len(black_board[i])):
-            if black_board[i][j] == 0:
-                # Check if the surrounding indexes are all 1s
-                if black_board[i-1][j] == 1 and black_board[i+1][j] == 1 and black_board[i][j-1] == 1 and black_board[i][j+1] == 1:
-                    # Also need to test if the corners are 1s
-                    if black_board[i-1][j-1] == 1 and black_board[i-1][j+1] == 1 and black_board[i+1][j-1] == 1 and black_board[i+1][j+1] == 1:
-                        # Check if there is a 0 on the other side of the 1 to the left of the 0
-                        if j - 2 >= 0 and black_board[i][j-2] == 0:
-                            # Is covered by the right check
-                            pass
-                        # Check if there is a 0 on the other side of the 1 to the right of the 0
-                        if j + 2 < len(black_board[i]) and black_board[i][j+2] == 0:
-                            # Test if the surrounding indexes are all 1s
-                            if black_board[i-1][j+2] == 1 and black_board[i+1][j+2] == 1 and black_board[i][j+3] == 1 and black_board[i][j+1] == 1:
-                                # Also need to test if the corners are 1s
-                                if black_board[i-1][j+3] == 1 and black_board[i+1][j+3] == 1 and black_board[i-1][j+1] == 1 and black_board[i+1][j+1] == 1:
-                                    return True
-                        # Check if there is a 0 on the other side of the 1 above the 0
-                        if i - 2 >= 0 and black_board[i-2][j] == 0:
-                            # Is covered by the bottom check
-                            pass
-                        # Check if there is a 0 on the other side of the 1 below the 0
-                        if i+2 < len(black_board) and black_board[i+2][j] == 0:
-                            # Test if the surrounding indexes are all 1s
-                            if black_board[i-1][j] == 1 and black_board[i+3][j] == 1 and black_board[i][j+1] == 1 and black_board[i][j-1] == 1:
-                                # Also need to test if the corners are 1s
-                                if black_board[i-1][j-1] == 1 and black_board[i+3][j-1] == 1 and black_board[i-1][j+1] == 1 and black_board[i+3][j+1] == 1:
-                                    return True
+    # Pad the current and previous state
+    black_pieces = np.pad(black_pieces, 1, 'constant', constant_values=1)
+    white_pieces = np.pad(white_pieces, 1, 'constant', constant_values=1)
 
-    white_board = np.pad(board, 1, 'constant', constant_values=-1)
-
-    # In the white frame array, check if there is two 0s with one -1 between them and surrounded by only -1s
-    for i in range(len(white_board)):
-        for j in range(len(white_board[i])):
-            if white_board[i][j] == 0:
-                # Check if the surrounding indexes are all -1s
-                if white_board[i-1][j] == -1 and white_board[i+1][j] == -1 and white_board[i][j-1] == -1 and white_board[i][j+1] == -1:
-                    # Also need to test if the corners are -1s
-                    if white_board[i-1][j-1] == -1 and white_board[i-1][j+1] == -1 and white_board[i+1][j-1] == -1 and white_board[i+1][j+1] == -1:
-                        # Check if there is a 0 on the other side of the -1 to the left of the 0
-                        if j - 2 >= 0 and white_board[i][j-2] == 0:
-                            pass
-                        # Check if there is a 0 on the other side of the -1 to the right of the 0
-                        if j + 2 < len(black_board[i]) and white_board[i][j+2] == 0:
-                            # Test if the surrounding indexes are all -1s
-                            if white_board[i-1][j+2] == -1 and white_board[i+1][j+2] == -1 and white_board[i][j+3] == -1 and white_board[i][j+1] == -1:
-                                # Also need to test if the corners are -1s
-                                if white_board[i-1][j+3] == -1 and white_board[i+1][j+3] == -1 and white_board[i-1][j+1] == -1 and white_board[i+1][j+1] == -1:
-                                    return True
-                        # Check if there is a 0 on the other side of the -1 above the 0
-                        if i - 2 >= 0 and white_board[i-2][j] == 0:
-                            pass
-                        # Check if there is a 0 on the other side of the -1 below the 0
-                        if i+2 < len(black_board) and white_board[i+2][j] == 0:
-                            # Test if the surrounding indexes are all -1s
-                            if white_board[i-1][j] == -1 and white_board[i+3][j] == -1 and white_board[i][j+1] == -1 and white_board[i][j-1] == -1:
-                                # Also need to test if the corners are -1s
-                                if white_board[i-1][j-1] == -1 and white_board[i+3][j-1] == -1 and white_board[i-1][j+1] == -1 and white_board[i+3][j+1] == -1:
-                                    return True
-
+    # Loop through all the filters and check if the concept is present in the current state and not in the previous state
+    for concept_filter in [concept_filter_45, concept_filter_135, concept_filter_225, concept_filter_270, concept_filter_0, concept_filter_90]:
+        presence_curr = convolve_filter(black_pieces, concept_filter)
+        presence_prev = convolve_filter(white_pieces, concept_filter)
+        if presence_curr or presence_prev:
+            return True
+        
     return False
 
 def tsumego(game_state) -> bool:
