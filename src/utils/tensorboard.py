@@ -1,7 +1,6 @@
 import tensorflow as tf
 import os
 import time
-from utils import config
 
 def tensorboard_setup():
     # Delete the ../tensorboard_logs directory if it exists
@@ -17,9 +16,14 @@ def tensorboard_setup():
     return tensorboard_callback, logdir
 
 def write_to_tensorboard(history, episode, logdir):
-     # Add the metrics to TensorBoard
+    # Add the metrics and graph to TensorBoard
     with tf.summary.create_file_writer(logdir).as_default():
-        for loss in ["loss", "value_output_loss", "policy_output_loss"]:
+        for loss in ["value_output_loss", "policy_output_loss"]:
             tf.summary.scalar(name=loss, data=history.history[loss][0], step=episode)
         for acc in ["value_output_accuracy", "policy_output_accuracy"]:
             tf.summary.scalar(name=acc, data=history.history[acc][0], step=episode)
+
+        tf.summary.trace_on()
+        # Call only one tf.function when tracing.
+        # Write the graph to a file
+        tf.summary.trace_export("graph", 0)
