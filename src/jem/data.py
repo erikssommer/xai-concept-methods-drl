@@ -2,20 +2,61 @@ import numpy as np
 from concepts import generate_static_concept_datasets
 from .concepts import *
 from typing import Tuple, List
-from env import gogame
 
-def get_data(agents, cases_to_sample, board_size) -> Tuple[np.ndarray, np.ndarray, np.ndarray, int, dict]:
-    """
-    Load the data
-    """
-    explinations = [
+def get_explanation_list():
+    return [
         'a generic move not tied to a strategy',
         'creates one eye',
         'creates two eyes',
         'provides center dominance',
         'provides area advantage',
-        #'leads to a win'
     ]
+
+def init_confusion_matrix():
+    # Initialize the confusion matrix
+    return {
+        "null": {
+            "null": 0,
+            "one_eye": 0,
+            "two_eyes": 0,
+            "center_dominance": 0,
+            "area_advantage": 0,
+        },
+        "one_eye": {
+            "null": 0,
+            "one_eye": 0,
+            "two_eyes": 0,
+            "center_dominance": 0,
+            "area_advantage": 0,
+        },
+        "two_eyes": {
+            "null": 0,
+            "one_eye": 0,
+            "two_eyes": 0,
+            "center_dominance": 0,
+            "area_advantage": 0,
+        },
+        "center_dominance": {
+            "null": 0,
+            "one_eye": 0,
+            "two_eyes": 0,
+            "center_dominance": 0,
+            "area_advantage": 0,
+        },
+        "area_advantage": {
+            "null": 0,
+            "one_eye": 0,
+            "two_eyes": 0,
+            "center_dominance": 0,
+            "area_advantage": 0,
+        },
+    }
+
+
+def get_data(agents, cases_to_sample, board_size) -> Tuple[np.ndarray, np.ndarray, np.ndarray, int, dict]:
+    """
+    Load the data
+    """
 
     concepts_functions = [
         one_eye,
@@ -25,154 +66,104 @@ def get_data(agents, cases_to_sample, board_size) -> Tuple[np.ndarray, np.ndarra
     ]
 
     # Apply one hot encoding to the explinations
+    explanations = get_explanation_list()
     vocab = {}
     vocab[''] = 0
-    for explination in explinations:
-        for word in explination.split():
+    for explanation in explanations:
+        for word in explanation.split():
             if word not in vocab:
                 vocab[word] = len(vocab)
-            
-    explinations = [[vocab[word] for word in explination.split()] for explination in explinations]
+
+    explanations = [[vocab[word] for word in explanation.split()]
+                    for explanation in explanations]
 
     # Pad the explinations
-    max_len = max([len(explination) for explination in explinations])
-    explinations = np.array([explination + [0] * (max_len - len(explination)) for explination in explinations])
+    max_len = max([len(explanation) for explanation in explanations])
+    explanations = np.array(
+        [explination + [0] * (max_len - len(explination)) for explination in explanations])
 
     all_positive_cases = []
     all_negative_cases = []
-    all_explinations = []
+    all_explanations = []
     all_labels = []
 
     for concept_function in concepts_functions:
         # Get the concept explination
-        concept_explination = concept_function()
-        integer_format = convert_explination_to_integers(concept_explination, vocab, max_len)
-        positive_cases, _ = generate_static_concept_datasets(cases_to_sample, agents, board_size, concept_function, nn_format=True)
+        concept_explanation = concept_function()
+        integer_format = convert_explanation_to_integers(
+            concept_explanation, vocab, max_len)
+        positive_cases, _ = generate_static_concept_datasets(
+            cases_to_sample, agents, board_size, concept_function, sample_ratio=1, nn_format=True)
 
         all_positive_cases.extend(positive_cases)
         all_labels.extend([0] * len(positive_cases))
-        all_explinations.extend([integer_format] * len(positive_cases))
+        all_explanations.extend([integer_format] * len(positive_cases))
 
         # For each positive state, create a negative case with all the other explinations
         for positive_case in positive_cases:
-            for _, explination in enumerate(explinations):
-                if not np.array_equal(explination, integer_format):
+            for _, explanation in enumerate(explanations):
+                if not np.array_equal(explanation, integer_format):
                     all_negative_cases.append(positive_case)
                     all_labels.append(1)
-                    all_explinations.append(explination)
+                    all_explanations.append(explanation)
 
     all_states = np.array(all_positive_cases + all_negative_cases)
-    all_explinations = np.array(all_explinations, dtype=np.int32)
+    all_explanations = np.array(all_explanations, dtype=np.int32)
     all_labels = np.array(all_labels, dtype=np.float32)
 
-    return all_states, all_explinations, all_labels, max_len, vocab
+    return all_states, all_explanations, all_labels, max_len, vocab
 
-def convert_integers_to_explinations(integers: np.ndarray, vocab: dict) -> List[str]:
+
+def convert_integers_to_explanations(integers: np.ndarray, vocab: dict) -> List[str]:
     """
     Convert the integers to explinations
     """
-    explinations = []
+    explanations = []
 
     for integer in integers:
-        explination = " ".join([word for word, index in vocab.items() if index == integer and index != 0])
-        explinations.append(explination)
+        explanation = " ".join(
+            [word for word, index in vocab.items() if index == integer and index != 0])
+        explanations.append(explanation)
 
     # Make it a string
-    explinations = " ".join(explinations)
+    explanations = " ".join(explanations)
 
     # Strip the last space
-    explinations = explinations.strip()
-    
-    short_hand = translate_explination(explinations)
+    explanations = explanations.strip()
+
+    short_hand = translate_explanation(explanations)
 
     return short_hand
 
-    
 
-def init_confusion_matrix():
-    # Initialize the confusion matrix
-    confusion_matrix = {
-        "null": {
-            "null": 0,
-            "eye": 0,
-            "double_eye": 0,
-            "center_dominance": 0,
-            "area_advantage": 0,
-            "win": 0
-        },
-        "eye": {
-            "null": 0,
-            "eye": 0,
-            "double_eye": 0,
-            "center_dominance": 0,
-            "area_advantage": 0,
-            "win": 0
-        },
-        "double_eye": {
-            "null": 0,
-            "eye": 0,
-            "double_eye": 0,
-            "center_dominance": 0,
-            "area_advantage": 0,
-            "win": 0
-        },
-        "center_dominance": {
-            "null": 0,
-            "eye": 0,
-            "double_eye": 0,
-            "center_dominance": 0,
-            "area_advantage": 0,
-            "win": 0
-        },
-        "area_advantage": {
-            "null": 0,
-            "eye": 0,
-            "double_eye": 0,
-            "center_dominance": 0,
-            "area_advantage": 0,
-            "win": 0
-        },
-        "win": {
-            "null": 0,
-            "eye": 0,
-            "double_eye": 0,
-            "center_dominance": 0,
-            "area_advantage": 0,
-            "win": 0
-        }
-    }
-
-    return confusion_matrix
-
-def convert_explination_to_integers(explination: str, vocab: dict, max_len: int) -> np.ndarray:
+def convert_explanation_to_integers(explanation: str, vocab: dict, max_len: int) -> np.ndarray:
     """
     Convert the explination to integers
     """
-    explination = explination.split()
-    explination = [vocab[word] for word in explination]
-    explination = np.array(explination, dtype=np.int32)
+    explanation = explanation.split()
+    explanation = [vocab[word] for word in explanation]
+    explanation = np.array(explanation, dtype=np.int32)
 
     # Pad the explination
-    explination = np.pad(explination, (0, max_len - len(explination)), 'constant', constant_values=0)
+    explanation = np.pad(
+        explanation, (0, max_len - len(explanation)), 'constant', constant_values=0)
 
-    return explination
+    return explanation
 
 
-def translate_explination(explination: str):
+def translate_explanation(explanation: str):
     """
     Translate the explination
     """
-    if explination == 'a generic move not tied to a strategy':
+    if explanation == 'a generic move not tied to a strategy':
         return "null"
-    elif explination == 'creates one eye':
-        return "eye"
-    elif explination == 'creates two eyes':
-        return "double_eye"
-    elif explination == 'provides center dominance':
+    elif explanation == 'creates one eye':
+        return "one_eye"
+    elif explanation == 'creates two eyes':
+        return "two_eyes"
+    elif explanation == 'provides center dominance':
         return "center_dominance"
-    elif explination == 'provides area advantage':
+    elif explanation == 'provides area advantage':
         return "area_advantage"
-    elif explination == 'leads to a win':
-        return "win"
     else:
-        raise ValueError("Invalid explination: " + explination)
+        raise ValueError("Invalid explination: " + explanation)
