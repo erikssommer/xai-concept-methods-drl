@@ -186,6 +186,8 @@ concept_presences/
 notebooks/plots/
 notebooks/visualization/
 
+datasets/
+
 # Mac files
 .DS_Store
 ._.DS_Store
