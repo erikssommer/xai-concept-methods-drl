@@ -2,68 +2,62 @@ import numpy as np
 from concepts import generate_static_concept_datasets
 from .concepts import *
 from typing import Tuple, List
+import pickle
+import os
 
-def get_explanation_list():
+def get_concept_functions():
+    """
+    This is where the concept functions are declared. Explanations and confusion matrix are automatically generated from this list.
+    """
     return [
-        'a generic move not tied to a strategy',
-        'creates one eye',
-        'creates two eyes',
-        'provides center dominance',
-        'provides area advantage',
+        capture_group_of_stones,
+        capture_a_stone,
+        one_eye,
+        two_eyes,
     ]
 
+def get_explanation_list():
+    concept_list = []
+    null_exp = 'a generic move not tied to a strategy'
+    concept_list.append(null_exp)
+    for concept_function in get_concept_functions():
+        # Returns the concept explination if no board state is given
+        concept_list.append(concept_function())
+
+    return concept_list
+
 def init_confusion_matrix():
-    # Initialize the confusion matrix
-    return {
-        "null": {
-            "null": 0,
-            "one_eye": 0,
-            "two_eyes": 0,
-            "center_dominance": 0,
-            "area_advantage": 0,
-        },
-        "one_eye": {
-            "null": 0,
-            "one_eye": 0,
-            "two_eyes": 0,
-            "center_dominance": 0,
-            "area_advantage": 0,
-        },
-        "two_eyes": {
-            "null": 0,
-            "one_eye": 0,
-            "two_eyes": 0,
-            "center_dominance": 0,
-            "area_advantage": 0,
-        },
-        "center_dominance": {
-            "null": 0,
-            "one_eye": 0,
-            "two_eyes": 0,
-            "center_dominance": 0,
-            "area_advantage": 0,
-        },
-        "area_advantage": {
-            "null": 0,
-            "one_eye": 0,
-            "two_eyes": 0,
-            "center_dominance": 0,
-            "area_advantage": 0,
-        },
-    }
+    # Create a confusion matrix dictionary from the name of the concepts
+    confusion_matrix = {}
+    # Create the null concept
+    confusion_matrix['null'] = {}
+    confusion_matrix['null']['null'] = 0
+    for concept_function in get_concept_functions():
+        confusion_matrix['null'][concept_function.__name__] = 0
+    for concept_function in get_concept_functions():
+        confusion_matrix[concept_function.__name__] = {}
+        confusion_matrix[concept_function.__name__]['null'] = 0
+        for c_f in get_concept_functions():
+            confusion_matrix[concept_function.__name__][c_f.__name__] = 0
 
+    return confusion_matrix
 
-def get_data(agents, cases_to_sample, board_size) -> Tuple[np.ndarray, np.ndarray, np.ndarray, int, dict]:
+def translate_explanation(explanation: str):
+    """
+    Translate the explination
+    """
+    if explanation == 'a generic move not tied to a strategy':
+        return "null"
+    for concept_function in get_concept_functions():
+        if explanation == concept_function():
+            return concept_function.__name__
+
+def generate_data(agents, cases_to_sample, board_size) -> Tuple[np.ndarray, np.ndarray, np.ndarray, int, dict]:
     """
     Load the data
     """
 
-    concepts_functions = [
-        one_eye,
-        two_eyes,
-        center_dominance,
-        area_advantage,
-    ]
+    print(f'Generating dataset for board size {board_size}')
 
     # Apply one hot encoding to the explinations
     explanations = get_explanation_list()
@@ -87,7 +81,7 @@ def get_data(agents, cases_to_sample, board_size) -> Tuple[np.ndarray, np.ndarra
     all_explanations = []
     all_labels = []
 
-    for concept_function in concepts_functions:
+    for concept_function in get_concept_functions():
         # Get the concept explination
         concept_explanation = concept_function()
         integer_format = convert_explanation_to_integers(
@@ -150,20 +144,41 @@ def convert_explanation_to_integers(explanation: str, vocab: dict, max_len: int)
 
     return explanation
 
+def load_datasets_from_pickle(board_size):
+    # Test if the folder exists
+    if not os.path.exists(f'../datasets/jem/board_size_{board_size}'):
+        raise FileNotFoundError(f'No dataset found for board size {board_size}')
+    
+    print(f'Loading dataset for board size {board_size}')
+    
+    with open(f'../datasets/jem/board_size_{board_size}/states.pkl', 'rb') as f:
+        states = pickle.load(f)
+    with open(f'../datasets/jem/board_size_{board_size}/explanations.pkl', 'rb') as f:
+        explanations = pickle.load(f)
+    with open(f'../datasets/jem/board_size_{board_size}/labels.pkl', 'rb') as f:
+        labels = pickle.load(f)
+    with open(f'../datasets/jem/board_size_{board_size}/max_sent_len.pkl', 'rb') as f:
+        max_sent_len = pickle.load(f)
+    with open(f'../datasets/jem/board_size_{board_size}/vocab.pkl', 'rb') as f:
+        vocab = pickle.load(f)
 
-def translate_explanation(explanation: str):
-    """
-    Translate the explination
-    """
-    if explanation == 'a generic move not tied to a strategy':
-        return "null"
-    elif explanation == 'creates one eye':
-        return "one_eye"
-    elif explanation == 'creates two eyes':
-        return "two_eyes"
-    elif explanation == 'provides center dominance':
-        return "center_dominance"
-    elif explanation == 'provides area advantage':
-        return "area_advantage"
-    else:
-        raise ValueError("Invalid explination: " + explanation)
+    return states, explanations, labels, max_sent_len, vocab
+
+def save_datasets_to_pickle(states, explanations, labels, max_sent_len, vocab, board_size):
+    # Create the directories if they don't exist
+    os.makedirs(f'../datasets', exist_ok=True)
+    os.makedirs(f'../datasets/jem', exist_ok=True)
+    os.makedirs(f'../datasets/jem/board_size_{board_size}', exist_ok=True)
+
+    print(f'Saving dataset for board size {board_size}')
+
+    with open(f'../datasets/jem/board_size_{board_size}/states.pkl', 'wb') as f:
+        pickle.dump(states, f)
+    with open(f'../datasets/jem/board_size_{board_size}/explanations.pkl', 'wb') as f:
+        pickle.dump(explanations, f)
+    with open(f'../datasets/jem/board_size_{board_size}/labels.pkl', 'wb') as f:
+        pickle.dump(labels, f)
+    with open(f'../datasets/jem/board_size_{board_size}/max_sent_len.pkl', 'wb') as f:
+        pickle.dump(max_sent_len, f)
+    with open(f'../datasets/jem/board_size_{board_size}/vocab.pkl', 'wb') as f:
+        pickle.dump(vocab, f)
