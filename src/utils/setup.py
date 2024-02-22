@@ -39,7 +39,7 @@ def concept_folder_setup_and_score(concept_type, model_type, board_name, session
                 os.remove(f"../concept_presences/{concept_type}/{model_type}/{board_name}/{session_name}/{concept_name}/{name}/{file}")
 
     os.makedirs("../concept_presences", exist_ok=True)
-    os.makedirs("../concept_presences/{concept_type}", exist_ok=True)
+    os.makedirs(f"../concept_presences/{concept_type}", exist_ok=True)
     os.makedirs(f"../concept_presences/{concept_type}/{model_type}", exist_ok=True)
     os.makedirs(f"../concept_presences/{concept_type}/{model_type}/{board_name}", exist_ok=True)
     os.makedirs(f"../concept_presences/{concept_type}/{model_type}/{board_name}/{session_name}", exist_ok=True)
