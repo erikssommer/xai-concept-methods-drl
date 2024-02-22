@@ -8,9 +8,9 @@ import numpy as np
 
 from concepts import convolve_filter
 
-def one_eye(board_state: np.ndarray = None, name="creates one eye"):
+def one_eye(board_state: np.ndarray = None, desc="creates one eye"):
     if board_state is None:
-        return name
+        return desc
     
     concept_filter = np.array([
         [-1, 1, -1],
@@ -32,9 +32,9 @@ def one_eye(board_state: np.ndarray = None, name="creates one eye"):
 
     return presence_curr and not presence_prev
 
-def two_eyes(board_state: np.ndarray = None, name="creates two eyes"):
+def two_eyes(board_state: np.ndarray = None, desc="creates two eyes"):
     if board_state is None:
-        return name
+        return desc
     
     concept_filter_0 = np.array([
         [ 1, 1, 1, 1, 1],
@@ -72,10 +72,48 @@ def two_eyes(board_state: np.ndarray = None, name="creates two eyes"):
         
     return False
 
-
-def center_dominance(board_state: np.ndarray = None, name="provides center dominance"):
+def capture_a_stone(board_state: np.ndarray = None, desc="captures a stone"):
     if board_state is None:
-        return name
+        return desc
+    
+    # If the current state has less stones than the previous state
+    # then the concept is present
+    curr_state_opponent = board_state[0]
+    prev_state_opponent = board_state[1]
+
+    # See if one of the 1´s in the previous state is a 0 in the current state
+    for i in range(curr_state_opponent.shape[0]):
+        for j in range(curr_state_opponent.shape[0]):
+            if prev_state_opponent[i, j] == 1 and curr_state_opponent[i, j] == 0:
+                return True
+    
+    return False
+
+def capture_group_of_stones(board_state: np.ndarray = None, desc="captures a group of stones"):
+    if board_state is None:
+        return desc
+    
+    # If the current state has less stones than the previous state
+    # then the concept is present
+    curr_state_opponent = board_state[0]
+    prev_state_opponent = board_state[1]
+
+    # See of the current state has more than one stone less than the previous state
+    counter = 0
+    for i in range(curr_state_opponent.shape[0]):
+        for j in range(curr_state_opponent.shape[0]):
+            if prev_state_opponent[i, j] == 1 and curr_state_opponent[i, j] == 0:
+                counter += 1
+                
+    if counter > 1:
+        return True
+    
+    return False
+
+
+def center_dominance(board_state: np.ndarray = None, desc="provides center dominance"):
+    if board_state is None:
+        return desc
     
     # If the new stone is placed away from the border
     # then the concept is present
@@ -87,9 +125,9 @@ def center_dominance(board_state: np.ndarray = None, name="provides center domin
     return presence_curr
 
 
-def area_advantage(board_state: np.ndarray = None, name="provides area advantage"):
+def area_advantage(board_state: np.ndarray = None, desc="provides area advantage"):
     if board_state is None:
-        return name
+        return desc
     
     # If the current state has more stones than the previous state
     # then the concept is present
