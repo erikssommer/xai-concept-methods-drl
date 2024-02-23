@@ -8,7 +8,24 @@ import numpy as np
 
 from concepts import convolve_filter
 
-def one_eye(board_state: np.ndarray = None, desc="creates one eye"):
+def null(board_state: np.ndarray = None, desc="a generic move not tied to a strategy"):
+    
+    if board_state is None:
+        return desc
+    
+    # Running all the other concepts to see if they are present
+    if one_eye(board_state):
+        return False
+    if two_eyes(board_state):
+        return False
+    if capture_a_stone(board_state):
+        return False
+    if capture_group_of_stones(board_state):
+        return False
+
+    return True
+
+def one_eye(board_state: np.ndarray = None, desc="creates one eye where the opponent cannot place a stone"):
     if board_state is None:
         return desc
     
@@ -32,7 +49,7 @@ def one_eye(board_state: np.ndarray = None, desc="creates one eye"):
 
     return presence_curr and not presence_prev
 
-def two_eyes(board_state: np.ndarray = None, desc="creates two eyes"):
+def two_eyes(board_state: np.ndarray = None, desc="creates two eyes resulting in forming a living group"):
     if board_state is None:
         return desc
     
@@ -72,7 +89,7 @@ def two_eyes(board_state: np.ndarray = None, desc="creates two eyes"):
         
     return False
 
-def capture_a_stone(board_state: np.ndarray = None, desc="captures a stone"):
+def capture_a_stone(board_state: np.ndarray = None, desc="captures one of the opponent's stones"):
     if board_state is None:
         return desc
     
@@ -89,7 +106,7 @@ def capture_a_stone(board_state: np.ndarray = None, desc="captures a stone"):
     
     return False
 
-def capture_group_of_stones(board_state: np.ndarray = None, desc="captures a group of stones"):
+def capture_group_of_stones(board_state: np.ndarray = None, desc="captures a group of the oppontens stones"):
     if board_state is None:
         return desc
     

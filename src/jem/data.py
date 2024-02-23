@@ -10,6 +10,7 @@ def get_concept_functions():
     This is where the concept functions are declared. Explanations and confusion matrix are automatically generated from this list.
     """
     return [
+        null,
         capture_group_of_stones,
         capture_a_stone,
         one_eye,
@@ -18,8 +19,6 @@ def get_concept_functions():
 
 def get_explanation_list():
     concept_list = []
-    null_exp = 'a generic move not tied to a strategy'
-    concept_list.append(null_exp)
     for concept_function in get_concept_functions():
         # Returns the concept explination if no board state is given
         concept_list.append(concept_function())
@@ -29,14 +28,8 @@ def get_explanation_list():
 def init_confusion_matrix():
     # Create a confusion matrix dictionary from the name of the concepts
     confusion_matrix = {}
-    # Create the null concept
-    confusion_matrix['null'] = {}
-    confusion_matrix['null']['null'] = 0
-    for concept_function in get_concept_functions():
-        confusion_matrix['null'][concept_function.__name__] = 0
     for concept_function in get_concept_functions():
         confusion_matrix[concept_function.__name__] = {}
-        confusion_matrix[concept_function.__name__]['null'] = 0
         for c_f in get_concept_functions():
             confusion_matrix[concept_function.__name__][c_f.__name__] = 0
 
@@ -46,8 +39,6 @@ def translate_explanation(explanation: str):
     """
     Translate the explination
     """
-    if explanation == 'a generic move not tied to a strategy':
-        return "null"
     for concept_function in get_concept_functions():
         if explanation == concept_function():
             return concept_function.__name__
@@ -150,7 +141,7 @@ def load_datasets_from_pickle(board_size):
         raise FileNotFoundError(f'No dataset found for board size {board_size}')
     
     print(f'Loading dataset for board size {board_size}')
-    
+
     with open(f'../datasets/jem/board_size_{board_size}/states.pkl', 'rb') as f:
         states = pickle.load(f)
     with open(f'../datasets/jem/board_size_{board_size}/explanations.pkl', 'rb') as f:
