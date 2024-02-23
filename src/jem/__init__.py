@@ -1,2 +1,2 @@
 from .model import JointEmbeddingModel
-from .data import *
+from .data_utils import *
