@@ -5,6 +5,7 @@ This is done so that the agent can get a reward WHEN it does a move that creates
 """
 
 import numpy as np
+from env import gogame
 
 from concepts import convolve_filter
 
@@ -128,30 +129,22 @@ def capture_group_of_stones(board_state: np.ndarray = None, desc="captures a gro
     return False
 
 
-def center_dominance(board_state: np.ndarray = None, desc="provides center dominance"):
-    if board_state is None:
-        return desc
-    
-    # If the new stone is placed away from the border
-    # then the concept is present
-    curr_state = board_state[0]
-    prev_state = board_state[1]
-
-    presence_curr = np.sum(curr_state[1:-1, 1:-1]) > np.sum(prev_state[1:-1, 1:-1])
-
-    return presence_curr
-
-
-def area_advantage(board_state: np.ndarray = None, desc="provides area advantage"):
+def area_advantage(board_state: np.ndarray = None, desc="provides area advantage by surrounding a larger area"):
     if board_state is None:
         return desc
     
     # If the current state has more stones than the previous state
     # then the concept is present
-    curr_state = board_state[0]
-    prev_state = board_state[1]
+    black_area_curr, white_area_curr = gogame.areas_nn_format(board_state, 0, 2)
+    black_area_prev, white_area_prev = gogame.areas_nn_format(board_state, 1, 3)
 
-    presence_curr = np.sum(curr_state) > np.sum(prev_state)
+    # If the previous state has more black area than white area than the move does not provide area advantage
+    if black_area_prev > white_area_prev:
+        return False
 
-    return presence_curr
+    # If the current state has more black area than the previous state and more black area than white area
+    if black_area_curr > black_area_prev and black_area_curr > white_area_curr:
+        return True
+
+    return False
     

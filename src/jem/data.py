@@ -11,6 +11,7 @@ def get_concept_functions():
     """
     return [
         null,
+        area_advantage,
         capture_group_of_stones,
         capture_a_stone,
         one_eye,
