@@ -305,6 +305,33 @@ def areas(state):
 
     return black_area, white_area
 
+def areas_nn_format(state, x, y):
+    '''
+    Return black area, white area
+    '''
+
+    all_pieces = np.sum(state[[x, y]], axis=0)
+    empties = 1 - all_pieces
+
+    empty_labels, num_empty_areas = label(empties)
+
+    black_area, white_area = np.sum(state[x]), np.sum(state[y])
+    for l in range(1, num_empty_areas + 1):
+        empty_area = empty_labels == l
+        neighbors = ndimage.binary_dilation(empty_area)
+        black_claim = False
+        white_claim = False
+        if (state[x] * neighbors > 0).any():
+            black_claim = True
+        if (state[y] * neighbors > 0).any():
+            white_claim = True
+        if black_claim and not white_claim:
+            black_area += np.sum(empty_area)
+        elif white_claim and not black_claim:
+            white_area += np.sum(empty_area)
+
+    return black_area, white_area
+
 
 def batch_areas(batch_state):
     black_areas, white_areas = [], []
