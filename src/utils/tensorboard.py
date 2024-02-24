@@ -35,9 +35,9 @@ def write_to_tensorboard(tb_writer, history, outcomes, episode):
         # Plot the winrate
         tf.summary.scalar(name="winrate_black", data=winrate, step=episode)
 
-        tf.summary.trace_on()
+        #tf.summary.trace_on()
         # Call only one tf.function when tracing.
         # Write the graph to a file
-        tf.summary.trace_export("graph", 0)
+        #tf.summary.trace_export("graph", 0)
     
     tb_writer.flush()
