@@ -188,13 +188,12 @@ def rl_mpi():
         state_buffer = []
         distribution_buffer = []
         value_buffer = []
-        outcomes = []
 
     os.makedirs(fast_predictor_path, exist_ok=True)
 
     if rank == 0:
         # Create the tensorboard callback
-        tensorboard_callback, logdir = tensorboard_setup()
+        tb_writer, tb_callback = tensorboard_setup()
 
         if resnet:
             agent = ResNet(board_size)
@@ -245,6 +244,7 @@ def rl_mpi():
             del data
             del results
         else:
+            outcomes = []
             for _ in range(1, ranksize):
                 results = comm.recv()
                 # print("A result is recieved!", flush=True)
@@ -252,6 +252,9 @@ def rl_mpi():
                 distribution_buffer.extend(results["distributions"])
                 value_buffer.extend(results["values"])
                 outcomes.extend(results["winners"])
+
+            outcomes = np.array(outcomes)
+
         # Generate stuff for three epochs before starting to checkpoint and train
         if rank != 0:
             continue
@@ -267,25 +270,16 @@ def rl_mpi():
                 np.array(distribution_buffer),
                 np.array(value_buffer),
                 epochs=1,
-                callbacks=[tensorboard_callback]
+                callbacks=[tb_callback]
             )
 
             # Add the metrics to TensorBoard
-            write_to_tensorboard(history, epoch, logdir)
+            write_to_tensorboard(tb_writer, history, outcomes, epoch)
 
         if epoch != 0 and epoch in save_intervals:
             agent.save_model(
                 f'../models/training/{model_type}/board_size_{board_size}/net_{epoch}.keras')
 
     if rank == 0:
-        # Loop through the outcomes and calculate the winrate
-        winrate = 0
-        for outcome in outcomes:
-            if outcome == 1:
-                winrate += 1
-        winrate /= len(outcomes)
-
-        print(f"Winrate as black: {winrate}", flush=True)
-
         # End the timer
         timer.end_timer()

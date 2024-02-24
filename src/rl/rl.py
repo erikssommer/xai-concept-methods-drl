@@ -83,7 +83,7 @@ def rl():
         start_episode = 0
 
     # Create the tensorboard callback
-    tensorboard_callback, logdir = tensorboard_setup()
+    tb_writer, tb_callback = tensorboard_setup()
 
     # Loop through the number of episodes
     for _ in tqdm(range(start_episode, episodes)):
@@ -208,10 +208,10 @@ def rl():
                 np.array(distribution_buffer),
                 np.array(value_buffer),
                 epochs=1,
-                callbacks=[tensorboard_callback]
+                callbacks=[tb_callback]
             )
             # Add the metrics to TensorBoard
-            write_to_tensorboard(history, start_episode, logdir)
+            write_to_tensorboard(tb_writer, history, np.array([outcome]), start_episode)
         else:
             if config.render:
                 print("No cases in the replay buffer")
