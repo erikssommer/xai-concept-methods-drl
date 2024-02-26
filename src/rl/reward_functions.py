@@ -1,25 +1,12 @@
-from .concepts import concept_functions_to_use
 from abc import ABC, abstractmethod
-import data_utils
-from .model import JointEmbeddingModel
 import numpy as np
-from .explanations import Explanations
+
+from jem import JointEmbeddingModel, data_utils, concept_functions_to_use
 
 class RewardFunction(ABC):
     @abstractmethod
     def reward_function(self, board_state, outcome):
         pass
-
-    @staticmethod
-    def get_reward_function(reward_function_name):
-        if reward_function_name == "zero_sum":
-            return ZeroSumRewardFunction()
-        elif reward_function_name == "concept_fn":
-            return ConceptRewardFunction()
-        elif reward_function_name == "jem":
-            return JemRewardFunction()
-        else:
-            raise ValueError(f"Invalid reward function name: {reward_function_name}")
 
 class ZeroSumRewardFunction(RewardFunction):
     def reward_function(self, board_state, outcome):
@@ -38,21 +25,21 @@ class ConceptRewardFunction(RewardFunction):
         return outcome
 
 class JemRewardFunction(RewardFunction):
+    def __init__(self):
+        self.jem = JointEmbeddingModel('../models/jem/joint_embedding_model.keras')
+        self.explanation_list = data_utils.get_explanation_list()
+        self.vocab, _, self.max_sent_len = data_utils.gen_vocab_explanations_max_len(self.explanation_list)
+
     def reward_function(self, board_state, outcome):
-        jem = JointEmbeddingModel('../models/jem/joint_embedding_model.keras')
-
-        explanation_list = data_utils.get_explanation_list()  # Get the list of explanations
-        vocab, _, max_sent_len = data_utils.gen_vocab_explanations_max_len(explanation_list)
-
         l2_norm_arr = []  # List to store L2 norms
 
         total_state_embeddings = []  # List to store total state embeddings
         total_explanation_embeddings = []  # List to store total explanation embeddings
 
-        for _, explanation in enumerate(explanation_list):
-            encoded_explanation = data_utils.convert_explanation_to_integers(explanation, vocab, max_sent_len)
+        for _, explanation in enumerate(self.explanation_list):
+            encoded_explanation = data_utils.convert_explanation_to_integers(explanation, self.vocab, self.max_sent_len)
 
-            state_embed, exp_embed, _ = jem.predict(board_state, encoded_explanation)
+            state_embed, exp_embed, _ = self.jem.predict(board_state, encoded_explanation)
             total_state_embeddings.append(state_embed)
             total_explanation_embeddings.append(exp_embed)
 
@@ -69,3 +56,14 @@ class JemRewardFunction(RewardFunction):
             return min(1, reward + outcome)
         else:
             return outcome
+
+
+def get_reward_function(reward_function_type):
+    if reward_function_type == "zero_sum":
+        return ZeroSumRewardFunction().reward_function
+    elif reward_function_type == "concept_fn":
+        return ConceptRewardFunction().reward_function
+    elif reward_function_type == "jem":
+        return JemRewardFunction().reward_function
+    else:
+        raise ValueError(f"Invalid reward function type: {reward_function_type}")
