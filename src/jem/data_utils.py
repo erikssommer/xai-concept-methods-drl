@@ -5,22 +5,9 @@ from typing import Tuple, List
 import pickle
 import os
 
-def get_concept_functions():
-    """
-    This is where the concept functions are declared. Explanations and confusion matrix are automatically generated from this list.
-    """
-    return [
-        null,
-        area_advantage,
-        capture_group_of_stones,
-        capture_a_stone,
-        one_eye,
-        two_eyes,
-    ]
-
 def get_explanation_list():
     concept_list = []
-    for concept_function in get_concept_functions():
+    for concept_function in concept_functions_to_use():
         # Returns the concept explination if no board state is given
         concept_list.append(concept_function())
 
@@ -29,9 +16,9 @@ def get_explanation_list():
 def init_confusion_matrix():
     # Create a confusion matrix dictionary from the name of the concepts
     confusion_matrix = {}
-    for concept_function in get_concept_functions():
+    for concept_function in concept_functions_to_use():
         confusion_matrix[concept_function.__name__] = {}
-        for c_f in get_concept_functions():
+        for c_f in concept_functions_to_use():
             confusion_matrix[concept_function.__name__][c_f.__name__] = 0
 
     return confusion_matrix
@@ -40,7 +27,7 @@ def translate_explanation(explanation: str):
     """
     Translate the explination
     """
-    for concept_function in get_concept_functions():
+    for concept_function in concept_functions_to_use():
         if explanation == concept_function():
             return concept_function.__name__
 
@@ -73,7 +60,7 @@ def generate_data(agents, cases_to_sample, board_size) -> Tuple[np.ndarray, np.n
     all_explanations = []
     all_labels = []
 
-    for concept_function in get_concept_functions():
+    for concept_function in concept_functions_to_use():
         # Get the concept explination
         concept_explanation = concept_function()
         integer_format = convert_explanation_to_integers(

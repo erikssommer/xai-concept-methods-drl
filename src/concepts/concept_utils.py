@@ -69,7 +69,7 @@ def generate_static_concept_datasets(cases_to_sample, agents, board_size, concep
     positive_cases = []
     negative_cases = []
 
-    positive_bar = tqdm(total=cases_to_sample, desc=f"Positive cases for concept: {concept_function.__name__}")
+    positive_bar = tqdm(total=cases_to_sample, desc=f"Positive cases for concept '{concept_function.__name__}'")
 
     while len(positive_cases) < cases_to_sample or len(negative_cases) < cases_to_sample:
         for i in range(len(agents)):
