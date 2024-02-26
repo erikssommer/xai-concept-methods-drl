@@ -10,6 +10,7 @@ import env
 from mcts import MCTS
 from utils import config
 from policy import ConvNet, ResNet, FastPredictor, LiteModel
+from jem import RewardFunction
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # or any {'0', '1', '2'}
 
@@ -25,7 +26,8 @@ def perform_mcts_episodes(episodes: int,
                           komi: float,
                           board_size: int,
                           non_det_moves: int,
-                          move_cap: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+                          move_cap: int,
+                          reward_fn: RewardFunction) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
 
     np.seterr(over="ignore", invalid="raise")
 
@@ -136,7 +138,7 @@ def perform_mcts_episodes(episodes: int,
 
             state_buffer.append(state)
             distribution_buffer.append(dist)
-            value_buffer.append(outcome)
+            value_buffer.append(reward_fn.reward_function(state, outcome))
 
         game_winners.append(winner)
 
@@ -174,6 +176,8 @@ def rl_mpi():
     model_type = "resnet" if resnet else "convnet"
     fast_predictor_path = f"../models/fastpred/training/{model_type}/board_size_{board_size}"
 
+    reward_function_type = config.reward_function
+
     if rank == 0:
         # Start a timer
         timer = Timer()
@@ -188,6 +192,8 @@ def rl_mpi():
         state_buffer = []
         distribution_buffer = []
         value_buffer = []
+    else:
+        reward_fn = RewardFunction.get_reward_function(reward_function_type)
 
     os.makedirs(fast_predictor_path, exist_ok=True)
 
@@ -230,7 +236,8 @@ def rl_mpi():
                 komi,
                 board_size,
                 non_deterministic_moves,
-                move_cap
+                move_cap,
+                reward_fn
             )
 
             data = {

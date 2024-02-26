@@ -11,6 +11,7 @@ import numpy as np
 import gc
 from utils import tensorboard_setup, write_to_tensorboard, folder_setup
 from env import govars
+from jem import RewardFunction, ZeroSumRewardFunction, ConceptRewardFunction, JemRewardFunction
 
 import absl.logging
 
@@ -49,6 +50,9 @@ def rl():
     move_cap = config.move_cap
     resnet = config.resnet
     model_type = "resnet" if resnet else "convnet"
+    reward_function_type = config.reward_function
+
+    reward_fn = RewardFunction.get_reward_function(reward_function_type)
 
     folder_setup(model_type)
 
@@ -198,7 +202,7 @@ def rl():
 
             state_buffer.append(state)
             distribution_buffer.append(dist)
-            value_buffer.append(outcome)
+            value_buffer.append(reward_fn.reward_function(state, outcome))
         
         # Test if value buffer is not empty
         if len(value_buffer) > 0:
