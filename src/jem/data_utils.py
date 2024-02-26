@@ -40,20 +40,7 @@ def generate_data(agents, cases_to_sample, board_size) -> Tuple[np.ndarray, np.n
 
     # Apply one hot encoding to the explinations
     explanations = get_explanation_list()
-    vocab = {}
-    vocab[''] = 0
-    for explanation in explanations:
-        for word in explanation.split():
-            if word not in vocab:
-                vocab[word] = len(vocab)
-
-    explanations = [[vocab[word] for word in explanation.split()]
-                    for explanation in explanations]
-
-    # Pad the explinations
-    max_len = max([len(explanation) for explanation in explanations])
-    explanations = np.array(
-        [explination + [0] * (max_len - len(explination)) for explination in explanations])
+    vocab, explanations, max_len = gen_vocab_explanations_max_len(explanations)
 
     all_positive_cases = []
     all_negative_cases = []
@@ -85,6 +72,24 @@ def generate_data(agents, cases_to_sample, board_size) -> Tuple[np.ndarray, np.n
     all_labels = np.array(all_labels, dtype=np.float32)
 
     return all_states, all_explanations, all_labels, max_len, vocab
+
+def gen_vocab_explanations_max_len(explanations):
+    vocab = {}
+    vocab[''] = 0
+    for explanation in explanations:
+        for word in explanation.split():
+            if word not in vocab:
+                vocab[word] = len(vocab)
+
+    explanations = [[vocab[word] for word in explanation.split()]
+                    for explanation in explanations]
+
+    # Pad the explinations
+    max_len = max([len(explanation) for explanation in explanations])
+    explanations = np.array(
+        [explination + [0] * (max_len - len(explination)) for explination in explanations])
+
+    return vocab, explanations, max_len
 
 
 def convert_integers_to_explanations(integers: np.ndarray, vocab: dict) -> List[str]:
