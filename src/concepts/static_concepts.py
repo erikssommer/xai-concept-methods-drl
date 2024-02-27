@@ -266,6 +266,14 @@ def ladder(game_state) -> bool:
 
     return False
 
+def number_of_own_stones(game_state) -> int:
+    """
+    Continous concept (non-binary)
+    In the game of Go, the number of stones that a player has on the board is an important concept
+    because it can be used to determine the winner of the game.
+    """
+    return np.sum(game_state[0])
+
 
 def atari(game_state):
     """
