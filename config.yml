@@ -1,7 +1,7 @@
 # MCTS config
 episodes: 10000 # Single process
 episodes_per_epoch: 2 # Multi process
-simulations: 500 # m
+simulations: 300 # m
 c: 1.3 # Exploration constant
 non_det_moves: 5 # Number of plies to use for non-deterministic playouts
 epochs: 1000
@@ -21,8 +21,8 @@ pre_trained_path: ../models/pre_trained/board_size_5/
 
 # Replay buffer config
 rbuf_size: 2048 # Single process (2048)
-rbuf_cap: 20000 # Multi process
-sample_ratio: 0.4 # 40% chance of adding case to replay buffer, helps with overfitting
+rbuf_cap: 30000 # Multi process
+sample_ratio: 0.5 # 40% chance of adding case to replay buffer, helps with overfitting
 batch_size: 128 # 512
 clear_rbuf: false
 
