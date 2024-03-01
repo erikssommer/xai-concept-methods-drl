@@ -70,7 +70,7 @@ class ResNet(BaseNet):
             base = tf.keras.layers.ReLU(name="res_block_3_relu")(conv_res)
 
             # Policy head
-            policy = tf.keras.layers.Conv2D(64, (1, 1), padding="same")(base)
+            policy = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE/2, (1, 1), padding="same")(base)
             policy = tf.keras.layers.BatchNormalization()(policy)
             policy = tf.keras.layers.ReLU()(policy)
             policy = tf.keras.layers.Flatten()(policy)
