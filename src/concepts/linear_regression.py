@@ -35,7 +35,7 @@ def perform_logistic_regression(points, targets, validation_points, validation_t
 
     with tf.device('/GPU:0'):
         if dynamic:
-            model.fit(points, targets, epochs=epochs, verbose=0)
+            model.fit(points, targets, epochs=epochs, verbose=verbose)
         else:
             model.fit(points, targets, validation_data=(validation_points, validation_targets), epochs=epochs, verbose=verbose)
 

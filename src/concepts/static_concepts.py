@@ -55,7 +55,7 @@ def one_eye(game_state) -> bool:
 
     # Pad the current and previous state
     curr_pieces = np.pad(curr_pieces, 1, 'constant', constant_values=1)
-    prev_state = np.pad(prev_state, 1, 'constant', constant_values=1)
+    opposing_pieces = np.pad(opposing_pieces, 1, 'constant', constant_values=1)
 
     # Check if the current state maches the 1's in the concept filter
     # -1's in the concept filter are ignored
@@ -273,6 +273,43 @@ def number_of_own_stones(game_state) -> int:
     because it can be used to determine the winner of the game.
     """
     return np.sum(game_state[0])
+
+def difference_in_stones(game_state) -> int:
+    """
+    Continous concept (non-binary)
+    In the game of Go, the difference in the number of stones that each player has on the board is an important
+    concept because it can be used to determine the winner of the game.
+    """
+    return np.sum(game_state[0]) - np.sum(game_state[1])
+
+def number_of_eyes(game_state) -> int:
+    curr_pieces = game_state[0]
+    opposing_pieces = game_state[1]
+
+    concept_filter = np.array([
+        [-1, 1, -1],
+        [ 1, 0,  1],
+        [-1, 1, -1]
+    ])
+
+    # Pad the current and previous state
+    curr_pieces = np.pad(curr_pieces, 1, 'constant', constant_values=1)
+    opposing_pieces = np.pad(opposing_pieces, 1, 'constant', constant_values=1)
+
+    # Check if the current state maches the 1's in the concept filter
+    # -1's in the concept filter are ignored
+    _, nr_of_occurances_curr = convolve_filter(curr_pieces, concept_filter, count_occurances=True)
+    _, nr_of_occurances_opposing = convolve_filter(opposing_pieces, concept_filter, count_occurances=True)
+
+    return nr_of_occurances_curr + nr_of_occurances_opposing
+
+def number_of_liberties(game_state) -> int:
+    """
+    Continous concept (non-binary)
+    In the game of Go, the number of liberties that a group of stones has is an important concept
+    because it can be used to determine if the group is alive or dead.
+    """
+    return np.sum(gogame.liberties(game_state))
 
 
 def atari(game_state):

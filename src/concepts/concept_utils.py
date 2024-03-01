@@ -69,7 +69,7 @@ def play_match(agents, board_size, concept_function, sample_ratio, binary=True, 
     return positive_cases, negative_cases
 
 
-def generate_static_concept_datasets(cases_to_sample, agents, board_size, concept_function, sample_ratio=0.8, nn_format=False, binary=False):
+def generate_static_concept_datasets(cases_to_sample, agents, board_size, concept_function, sample_ratio=0.8, nn_format=False, binary=True):
 
     positive_cases = []
     negative_cases = []
@@ -92,7 +92,7 @@ def generate_static_concept_datasets(cases_to_sample, agents, board_size, concep
 
     return positive_cases, negative_cases
 
-def convolve_filter(board_state: np.ndarray, concept_filter: np.ndarray, x=1, y=0):
+def convolve_filter(board_state: np.ndarray, concept_filter: np.ndarray, x=1, y=0, count_occurances=False):
 
     # Count the number of 1's and 0's in the concept filter
     total_sim = 0
@@ -108,6 +108,7 @@ def convolve_filter(board_state: np.ndarray, concept_filter: np.ndarray, x=1, y=
     filter_size_wide = concept_filter.shape[0]
     filter_size_height = concept_filter.shape[1]
     presence = False
+    nr_of_occurances = 0
 
     # Check if the current state maches the 1's in the concept filter
     # -1's in the concept filter are ignored
@@ -125,8 +126,12 @@ def convolve_filter(board_state: np.ndarray, concept_filter: np.ndarray, x=1, y=
                         total -= 1
             if total == 0:
                 presence = True
-                break
-        if presence:
-            break
+                nr_of_occurances += 1
+
+                if not count_occurances:
+                    return presence
+        
     
+    if count_occurances:
+        return presence, nr_of_occurances
     return presence
