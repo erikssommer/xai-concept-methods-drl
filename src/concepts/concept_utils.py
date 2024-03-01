@@ -2,7 +2,7 @@ import numpy as np
 import env
 from tqdm import tqdm
 
-def play_match(agents, board_size, concept_function, sample_ratio, nn_format=False):
+def play_match(agents, board_size, concept_function, sample_ratio, binary=True, nn_format=False):
     go_env = env.GoEnv(board_size)
     go_env.reset()
 
@@ -41,10 +41,15 @@ def play_match(agents, board_size, concept_function, sample_ratio, nn_format=Fal
             else:
                 pos = concept_function(state)
             
-            if pos:
+            
+            if binary:
+                if pos:
+                    positive_cases.append(state_copy)
+                elif not pos:
+                    negative_cases.append(state_copy)
+            else:
                 positive_cases.append(state_copy)
-            elif not pos:
-                negative_cases.append(state_copy)
+                negative_cases.append(pos)
 
         if random_moves:
             action = go_env.uniform_random_action()
@@ -64,21 +69,22 @@ def play_match(agents, board_size, concept_function, sample_ratio, nn_format=Fal
     return positive_cases, negative_cases
 
 
-def generate_static_concept_datasets(cases_to_sample, agents, board_size, concept_function, sample_ratio=0.8, nn_format=False):
+def generate_static_concept_datasets(cases_to_sample, agents, board_size, concept_function, sample_ratio=0.8, nn_format=False, binary=False):
 
     positive_cases = []
     negative_cases = []
 
-    positive_bar = tqdm(total=cases_to_sample, desc=f"Positive cases for concept '{concept_function.__name__}'")
+    if binary:
+        positive_bar = tqdm(total=cases_to_sample, desc=f"Positive cases for concept '{concept_function.__name__}'")
+    else:
+        positive_bar = tqdm(total=cases_to_sample, desc=f"Continues cases for concept '{concept_function.__name__}'")
 
     while len(positive_cases) < cases_to_sample or len(negative_cases) < cases_to_sample:
         for i in range(len(agents)):
             for j in range(i + 1, len(agents)):
-                pos, neg = play_match([agents[i], agents[j]], board_size, concept_function, sample_ratio, nn_format=nn_format)
-
+                pos, neg = play_match([agents[i], agents[j]], board_size, concept_function, sample_ratio, binary, nn_format=nn_format)
                 positive_cases.extend(pos)
                 negative_cases.extend(neg)
-
                 positive_bar.update(len(pos))
 
     positive_cases = positive_cases[:cases_to_sample]

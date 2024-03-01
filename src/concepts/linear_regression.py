@@ -21,7 +21,6 @@ def perform_regression(points, targets, validation_points, validation_targets, i
             validation_points, 
             validation_targets,
             dynamic=dynamic,
-            verbose=verbose
         )
 
 def perform_logistic_regression(points, targets, validation_points, validation_targets, epochs, dynamic, verbose):
@@ -48,15 +47,16 @@ def perform_logistic_regression(points, targets, validation_points, validation_t
     return binary_accuracy_metric(validation_targets, val_preds)
 
 
-def perform_linear_regression(points, targets, validation_points, validation_targets, dynamic, verbose):
+def perform_linear_regression(points, targets, validation_points, validation_targets, dynamic):
     """
     Regression using linear regression
     """
     model = linear_model.LinearRegression()
-    model = model.fit(points, targets, verbose=verbose)
+    model = model.fit(points, targets)
     if dynamic:
         predictions = model.predict(points)
         return r2_score(targets, predictions)
+    
     predictions = model.predict(validation_points)
     return r2_score(validation_targets, predictions)
 
