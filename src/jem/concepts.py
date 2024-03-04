@@ -21,7 +21,7 @@ def concept_functions_to_use():
         one_eye,
         capture_a_stone,
         capture_group_of_stones,
-        area_advantage
+        #area_advantage
     ]
 
 def null(board_state: np.ndarray = None, reward_shaping: bool = False) -> Tuple[bool, Optional[str], Optional[float]]:

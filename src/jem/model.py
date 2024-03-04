@@ -42,30 +42,28 @@ class JointEmbeddingModel:
             x = tf.keras.layers.LSTM(units=output_exp_embed)(x)
             explanation_final = tf.keras.layers.ReLU(name='final_explanation')(x)
 
-            combined_outputs = tf.keras.layers.concatenate([state_final, explanation_final], name="combined_output")
             # Concatenate the two embeddings and create the model
             self.model = tf.keras.Model(inputs=[board_inputs, explanation_inputs], 
-                                        outputs=[state_final, explanation_final, combined_outputs])
+                                        outputs=[state_final, explanation_final])
 
             if summary:
                 self.model.summary()
 
+        def loss_fn(y, pred):
+            # Split the concatinated pred tensor into state_embed and concept_embed
+            state_embed, concept_embed = tf.split(pred, num_or_size_splits=2, axis=1)
+            batch_size = tf.shape(state_embed)[0]
+            difference = state_embed - concept_embed 
+            l2_norm = tf.norm(difference, axis=1, ord=2)
+
+            loss = tf.reduce_sum((l2_norm - y) ** 2) / tf.cast(batch_size, dtype=tf.float32)
+
+            return loss
+
         self.model.compile(
             optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate),
-            loss={'combined_output': self.loss_fn}
+            loss=loss_fn
         )
-
-    def loss_fn(self, y, pred):
-        # Split the concatinated pred tensor into state_embed and concept_embed
-        state_embed, concept_embed = tf.split(pred, 2, axis=1)
-
-        batch_size = tf.shape(state_embed)[0]
-        difference = state_embed - concept_embed 
-        l2_norm = tf.norm(difference, axis=1, ord=2)
-
-        loss = tf.reduce_sum((l2_norm - y) ** 2) / tf.cast(batch_size, dtype=tf.float32)
-
-        return loss
 
     def fit(self, train_states, train_explinations, train_labels, val_states, val_explinations, val_labels, batch_size=32, epochs=10):
         with tf.device('/device:GPU:0'):
