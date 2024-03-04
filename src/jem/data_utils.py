@@ -4,6 +4,7 @@ from .concepts import *
 from typing import Tuple, List
 import pickle
 import os
+from tqdm import tqdm
 
 def get_explanation_list():
     concept_list = []
@@ -42,8 +43,7 @@ def generate_data(agents, cases_to_sample, board_size) -> Tuple[np.ndarray, np.n
     explanations = get_explanation_list()
     vocab, explanations, max_len = gen_vocab_explanations_max_len(explanations)
 
-    all_positive_cases = []
-    all_negative_cases = []
+    all_cases = []
     all_explanations = []
     all_labels = []
 
@@ -55,7 +55,7 @@ def generate_data(agents, cases_to_sample, board_size) -> Tuple[np.ndarray, np.n
         positive_cases, _ = generate_static_concept_datasets(
             cases_to_sample, agents, board_size, concept_function, sample_ratio=1, nn_format=True)
 
-        all_positive_cases.extend(positive_cases)
+        all_cases.extend(positive_cases)
         all_labels.extend([0] * len(positive_cases))
         all_explanations.extend([integer_format] * len(positive_cases))
 
@@ -63,11 +63,11 @@ def generate_data(agents, cases_to_sample, board_size) -> Tuple[np.ndarray, np.n
         for positive_case in positive_cases:
             for _, explanation in enumerate(explanations):
                 if not np.array_equal(explanation, integer_format):
-                    all_negative_cases.append(positive_case)
+                    all_cases.append(positive_case)
                     all_labels.append(1)
                     all_explanations.append(explanation)
 
-    all_states = np.array(all_positive_cases + all_negative_cases)
+    all_states = np.array(all_cases)
     all_explanations = np.array(all_explanations, dtype=np.int32)
     all_labels = np.array(all_labels, dtype=np.float32)
 

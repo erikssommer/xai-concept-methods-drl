@@ -59,8 +59,8 @@ def one_eye(game_state) -> bool:
 
     # Check if the current state maches the 1's in the concept filter
     # -1's in the concept filter are ignored
-    presence_curr = convolve_filter(curr_pieces, concept_filter)
-    presence_opposing = convolve_filter(opposing_pieces, concept_filter)
+    presence_curr, _ = convolve_filter(curr_pieces, concept_filter)
+    presence_opposing, _ = convolve_filter(opposing_pieces, concept_filter)
 
     return presence_curr or presence_opposing
 
@@ -101,8 +101,8 @@ def two_eyes(game_state) -> bool:
 
     # Loop through all the filters and check if the concept is present in the current state and not in the previous state
     for concept_filter in [concept_filter_45, concept_filter_135, concept_filter_225, concept_filter_270, concept_filter_0, concept_filter_90]:
-        presence_curr = convolve_filter(black_pieces, concept_filter)
-        presence_prev = convolve_filter(white_pieces, concept_filter)
+        presence_curr, _ = convolve_filter(black_pieces, concept_filter)
+        presence_prev, _ = convolve_filter(white_pieces, concept_filter)
         if presence_curr or presence_prev:
             return True
         
@@ -257,10 +257,10 @@ def ladder(game_state) -> bool:
 
     # Loop through all the filters and check if the concept is present in the current state and not in the previous state
     for concept_filter in [concept_filter, concept_filter_90, concept_filter_180, concept_filter_270]:
-        presence_curr = convolve_filter(combined_state_1, concept_filter, x=1, y=-1)
+        presence_curr, _ = convolve_filter(combined_state_1, concept_filter, x=1, y=-1)
         if presence_curr:
             return True
-        presence_curr = convolve_filter(combined_state_2, concept_filter, x=1, y=-1)
+        presence_curr, _ = convolve_filter(combined_state_2, concept_filter, x=1, y=-1)
         if presence_curr:
             return True
 

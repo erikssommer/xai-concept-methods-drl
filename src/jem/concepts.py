@@ -9,7 +9,7 @@ from env import gogame
 from .explanations import Explanations
 from typing import Optional, Tuple
 
-from concepts import convolve_filter
+from concepts import convolve_filter_all_positions
 
 def concept_functions_to_use():
     """
@@ -53,7 +53,7 @@ def one_eye(board_state: np.ndarray = None, reward_shaping: bool = False) -> Tup
 
     concept_filter = np.array([
         [-1, 1, -1],
-        [1, 0,  1],
+        [ 1, 0,  1],
         [-1, 1, -1]
     ])
 
@@ -66,10 +66,7 @@ def one_eye(board_state: np.ndarray = None, reward_shaping: bool = False) -> Tup
 
     # Check if the current state maches the 1's in the concept filter
     # -1's in the concept filter are ignored
-    presence_curr = convolve_filter(curr_state, concept_filter)
-    presence_prev = convolve_filter(prev_state, concept_filter)
-
-    presence = presence_curr and not presence_prev
+    presence = convolve_filter_all_positions(curr_state, prev_state, concept_filter)
 
     if reward_shaping:
         return presence, explanation, reward
@@ -89,9 +86,9 @@ def two_eyes(board_state: np.ndarray = None, reward_shaping: bool = False) -> Tu
     ])
 
     concept_filter_45 = np.array([
-        [1,  1,  1, -1, -1],
-        [1,  0,  1, -1, -1],
-        [1,  1,  1,  1,  1],
+        [ 1,  1,  1, -1, -1],
+        [ 1,  0,  1, -1, -1],
+        [ 1,  1,  1,  1,  1],
         [-1, -1,  1,  0,  1],
         [-1, -1,  1,  1,  1],
     ])
@@ -102,11 +99,11 @@ def two_eyes(board_state: np.ndarray = None, reward_shaping: bool = False) -> Tu
     concept_filter_225 = np.rot90(concept_filter_135)
     concept_filter_270 = np.rot90(concept_filter_225)
 
-    filter_list = [concept_filter_45, 
-                   concept_filter_135, 
-                   concept_filter_225, 
-                   concept_filter_270, 
-                   concept_filter_0, 
+    filter_list = [concept_filter_45,
+                   concept_filter_135,
+                   concept_filter_225,
+                   concept_filter_270,
+                   concept_filter_0,
                    concept_filter_90]
 
     curr_state = board_state[0]
@@ -118,9 +115,8 @@ def two_eyes(board_state: np.ndarray = None, reward_shaping: bool = False) -> Tu
 
     # Loop through all the filters and check if the concept is present in the current state and not in the previous state
     for concept_filter in filter_list:
-        presence_curr = convolve_filter(curr_state, concept_filter)
-        presence_prev = convolve_filter(prev_state, concept_filter)
-        if presence_curr and not presence_prev:
+        presence = convolve_filter_all_positions(curr_state, prev_state, concept_filter)
+        if presence:
             if reward_shaping:
                 return True, explanation, reward
             else:

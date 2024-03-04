@@ -1,6 +1,7 @@
 import numpy as np
 import env
 from tqdm import tqdm
+from typing import Tuple
 
 def play_match(agents, board_size, concept_function, sample_ratio, binary=True, nn_format=False):
     go_env = env.GoEnv(board_size)
@@ -92,7 +93,35 @@ def generate_static_concept_datasets(cases_to_sample, agents, board_size, concep
 
     return positive_cases, negative_cases
 
-def convolve_filter(board_state: np.ndarray, concept_filter: np.ndarray, x=1, y=0, count_occurances=False):
+def convolve_filter(board_state: np.ndarray, concept_filter: np.ndarray, x=1, y=0, count_occurances=False) -> Tuple[bool, int]:
+    """
+    This function convolves a concept filter over a board state and returns True if the concept is present in the board state.
+    If count_occurances is True, the function will also return the number of occurances of the concept in the board state.
+    Returns the index of where the concept is present in the board state.
+    
+    Args:
+        board_state: np.ndarray
+        The current board state
+        
+        concept_filter: np.ndarray
+        The concept filter to convolve over the board state
+        
+        x: int
+        The value that represents the concept (e.g. 1 for stone)
+        
+        y: int
+        The value that represents the concept (e.g. 0 for empty)
+        
+        count_occurances: bool
+        If True, the function will return the number of occurances of the concept in the board state
+        
+        Returns:
+        presence: bool
+        True if the concept is present in the board state
+        
+        nr_of_occurances: int
+        The number of occurances of the concept in the board state
+    """
 
     # Count the number of 1's and 0's in the concept filter
     total_sim = 0
@@ -129,9 +158,94 @@ def convolve_filter(board_state: np.ndarray, concept_filter: np.ndarray, x=1, y=
                 nr_of_occurances += 1
 
                 if not count_occurances:
-                    return presence
-        
+                    return presence, nr_of_occurances
     
-    if count_occurances:
-        return presence, nr_of_occurances
-    return presence
+    return presence, nr_of_occurances
+
+def filter_at_position(board_state: np.ndarray, concept_filter: np.ndarray, total_sim, x, y, i, j):
+    """
+    This function checks if a concept filter is present at a specific position in the board state.
+    Returns True if the concept filter is present at the specified position.
+
+    Args:
+        board_state: np.ndarray
+        The current board state
+
+        concept_filter: np.ndarray
+        The concept filter to convolve over the board state
+
+        x: int
+        The value that represents the concept (e.g. 1 for stone)
+
+        y: int
+        The value that represents the concept (e.g. 0 for empty)
+
+        i: int
+        The row index of the board state where the concept filter should be checked
+
+        j: int
+        The column index of the board state where the concept filter should be checked
+
+        Returns:
+        presence: bool
+        True if the concept filter is present at the specified position
+    """
+
+    filter_size_wide = concept_filter.shape[0]
+    filter_size_height = concept_filter.shape[1]
+    current_area = board_state[i:i+filter_size_wide, j:j+filter_size_height]
+
+    total = total_sim
+
+    for k in range(0, filter_size_wide):
+        for l in range(0, filter_size_height):
+            if concept_filter[k, l] == x and current_area[k, l] == x:
+                total -= 1
+            elif concept_filter[k, l] == y and current_area[k, l] == y:
+                total -= 1
+    if total == 0:
+        return True
+    return False
+
+def convolve_filter_all_positions(current_state: np.ndarray, prev_state: np.ndarray, concept_filter: np.ndarray, x=1, y=0):
+    """
+    This function convolves a concept filter over a board state and returns True if the concept is present in the current board state and not in the previous board state.
+    If the concept is present in the current board_state and in the previous board_state, the function continues to find the next occurance of the concept in the current board_state and
+    tests the concept in the prev board_state at the same position. This continues until the end of the board_state is reached.
+    Returns true if the concept is present in the current board_state and not in the previous board_state.
+    """
+
+    # Count the number of 1's and 0's in the concept filter
+    total_sim = 0
+    for i in range(0, concept_filter.shape[0]):
+        for j in range(0, concept_filter.shape[1]):
+            if concept_filter[i, j] == x:
+                total_sim += 1
+            elif concept_filter[i, j] == y:
+                total_sim += 1
+
+    # Fist see of concept is present in current state
+    stride = 1
+    filter_size_wide = concept_filter.shape[0]
+    filter_size_height = concept_filter.shape[1]
+
+    # Check if the current state maches the 1's in the concept filter
+    # -1's in the concept filter are ignored
+    for i in range(0, current_state.shape[0]-2, stride):
+        for j in range(0, current_state.shape[0]-2, stride):
+            current_area = current_state[i:i+filter_size_wide, j:j+filter_size_height]
+            if current_area.shape != concept_filter.shape:
+                continue
+            total = total_sim
+            for k in range(0, filter_size_wide):
+                for l in range(0, filter_size_height):
+                    if concept_filter[k, l] == x and current_area[k, l] == x:
+                        total -= 1
+                    elif concept_filter[k, l] == y and current_area[k, l] == y:
+                        total -= 1
+            if total == 0:
+                presence_prev = filter_at_position(prev_state, concept_filter, total_sim, x, y, i, j)
+                if not presence_prev:
+                    return True
+
+    return False
