@@ -4,6 +4,7 @@ Class for the joint embedding model
 
 import tensorflow as tf
 import numpy as np
+from tqdm import tqdm
 
 
 class JointEmbeddingModel:
@@ -49,27 +50,49 @@ class JointEmbeddingModel:
             if summary:
                 self.model.summary()
 
-        def loss_fn(y, pred):
+    def fit(self, train_states, train_explinations, train_labels, val_states, val_explinations, val_labels, batch_size=32, epochs=10):
+        # Define a custom training loop using the loss function
+        optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
+        train_loss = tf.keras.metrics.Mean(name='train_loss')
+        val_loss = tf.keras.metrics.Mean(name='val_loss')
+        
+        @tf.function
+        def loss_fn(y, state_embed, concept_embed):
             # Split the concatinated pred tensor into state_embed and concept_embed
-            state_embed, concept_embed = tf.split(pred, num_or_size_splits=2, axis=1)
             batch_size = tf.shape(state_embed)[0]
             difference = state_embed - concept_embed 
             l2_norm = tf.norm(difference, axis=1, ord=2)
-
             loss = tf.reduce_sum((l2_norm - y) ** 2) / tf.cast(batch_size, dtype=tf.float32)
-
             return loss
 
-        self.model.compile(
-            optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate),
-            loss=loss_fn
-        )
+        @tf.function
+        def train_step(states, explinations, labels):
+            with tf.GradientTape() as tape:
+                state_embed, concept_embed = self.model([states, explinations], training=True)
+                loss = loss_fn(labels, state_embed, concept_embed)
+            gradients = tape.gradient(loss, self.model.trainable_variables)
+            optimizer.apply_gradients(zip(gradients, self.model.trainable_variables))
+            train_loss(loss)
 
-    def fit(self, train_states, train_explinations, train_labels, val_states, val_explinations, val_labels, batch_size=32, epochs=10):
-        with tf.device('/device:GPU:0'):
-            self.model.fit(x=[train_states, train_explinations], y=train_labels, 
-                           validation_data=([val_states, val_explinations], val_labels),
-                           batch_size=batch_size, epochs=epochs)
+        @tf.function
+        def val_step(states, explinations, labels):
+            state_embed, concept_embed = self.model([states, explinations], training=False)
+            loss = loss_fn(labels, state_embed, concept_embed)
+            val_loss(loss)
+
+        # Train the model
+        bar = tqdm(range(epochs))
+        for _ in bar:
+            train_loss.reset_states()
+            val_loss.reset_states()
+
+            for i in range(0, len(train_states), batch_size):
+                train_step(train_states[i:i+batch_size], train_explinations[i:i+batch_size], train_labels[i:i+batch_size])
+
+            for i in range(0, len(val_states), batch_size):
+                val_step(val_states[i:i+batch_size], val_explinations[i:i+batch_size], val_labels[i:i+batch_size])
+
+            bar.set_description(f'Loss: {train_loss.result()}, Val Loss: {val_loss.result()}')
 
     def predict(self, state: np.ndarray, explination: np.ndarray):
         if len(state.shape) == 3:
