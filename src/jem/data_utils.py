@@ -4,13 +4,36 @@ from .concepts import *
 from typing import Tuple, List
 import pickle
 import os
-from tqdm import tqdm
+
+def get_explanation_from_state(state: np.ndarray, jem=False):
+    """
+    Get the explination from the state
+    """
+    explanation_list = []
+    reward_list = []
+    if jem:
+        raise NotImplementedError('Not implemented')
+    else:
+        # Get the explination from the state
+        for concept_function in concept_functions_to_use():
+            if concept_function(state):
+                explanation, reward = concept_function()
+                explanation_list.append(explanation)
+                reward_list.append(str(reward))
+
+    # Create a sentance from the explinations with 'and' between them
+    explanation_str = " and ".join(explanation_list)
+    reward_str = " and ".join(reward_list)
+
+    return explanation_str, reward_str
+    
 
 def get_explanation_list():
     concept_list = []
     for concept_function in concept_functions_to_use():
         # Returns the concept explination if no board state is given
-        concept_list.append(concept_function())
+        explanation, _ = concept_function()
+        concept_list.append(explanation)
 
     return concept_list
 
@@ -29,7 +52,8 @@ def translate_explanation(explanation: str):
     Translate the explination
     """
     for concept_function in concept_functions_to_use():
-        if explanation == concept_function():
+        concept_explanation, _ = concept_function()
+        if explanation == concept_explanation:
             return concept_function.__name__
 
 def generate_data(agents, cases_to_sample, board_size) -> Tuple[np.ndarray, np.ndarray, np.ndarray, int, dict]:
@@ -49,7 +73,7 @@ def generate_data(agents, cases_to_sample, board_size) -> Tuple[np.ndarray, np.n
 
     for concept_function in concept_functions_to_use():
         # Get the concept explination
-        concept_explanation = concept_function()
+        concept_explanation, _ = concept_function()
         integer_format = convert_explanation_to_integers(
             concept_explanation, vocab, max_len)
         positive_cases, _ = generate_static_concept_datasets(

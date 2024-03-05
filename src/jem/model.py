@@ -22,6 +22,7 @@ class JointEmbeddingModel:
                  summary: bool = True):
         
         num_channels = 5
+        self.learning_rate = learning_rate
 
         if load_path:
             self.model = tf.keras.models.load_model(load_path)
@@ -52,7 +53,7 @@ class JointEmbeddingModel:
 
     def fit(self, train_states, train_explinations, train_labels, val_states, val_explinations, val_labels, batch_size=32, epochs=10):
         # Define a custom training loop using the loss function
-        optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
+        optimizer = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
         train_loss = tf.keras.metrics.Mean(name='train_loss')
         val_loss = tf.keras.metrics.Mean(name='val_loss')
         
