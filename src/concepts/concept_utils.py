@@ -49,8 +49,8 @@ def play_match(agents, board_size, concept_function, sample_ratio, binary=True, 
             state_to_sample = np.array([state_after_action[1], state[0], state_after_action[0],
                             state[1], np.zeros((board_size, board_size))])
         else:
-            state_to_sample = np.array([state_after_action[0], state[1], state_after_action[1],
-                                state[0], np.ones((board_size, board_size))])
+            state_to_sample = np.array([state_after_action[0], state[1], state_after_action[0],
+                                state[1], np.ones((board_size, board_size))])
             
         if np.random.random() < sample_ratio:
             if nn_format:
