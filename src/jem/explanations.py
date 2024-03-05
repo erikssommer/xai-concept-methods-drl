@@ -12,3 +12,4 @@ class Explanations(Enum):
     CAPTURE_A_STONE = "captures one of the opponent's stones", 0.2
     CAPTURE_GROUP_OF_STONES = "captures a group of the opponent's stones", 0.5
     AREA_ADVANTAGE = "creates an area advantage", 0.2
+    PLAY_CENTER_IN_OPENING = "plays in the center of the board in the opening to gain control", 0.1
