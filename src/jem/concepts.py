@@ -17,18 +17,19 @@ def concept_functions_to_use():
     """
     return [
         null,
+        play_center_in_opening,
         two_eyes,
         one_eye,
         capture_a_stone,
         capture_group_of_stones,
-        #area_advantage
+        area_advantage
     ]
 
 def null(board_state: np.ndarray = None, reward_shaping: bool = False) -> Tuple[bool, Optional[str], Optional[float]]:
     explanation, reward = Explanations.NULL.value
 
     if board_state is None:
-        return explanation
+        return explanation, reward
 
     # Running all the other concepts to see if they are present
     for concept_function in concept_functions_to_use():
@@ -49,7 +50,7 @@ def null(board_state: np.ndarray = None, reward_shaping: bool = False) -> Tuple[
 def one_eye(board_state: np.ndarray = None, reward_shaping: bool = False) -> Tuple[bool, Optional[str], Optional[float]]:
     explanation, reward = Explanations.ONE_EYE.value
     if board_state is None:
-        return explanation
+        return explanation, reward
 
     concept_filter = np.array([
         [-1, 1, -1],
@@ -77,7 +78,7 @@ def one_eye(board_state: np.ndarray = None, reward_shaping: bool = False) -> Tup
 def two_eyes(board_state: np.ndarray = None, reward_shaping: bool = False) -> Tuple[bool, Optional[str], Optional[float]]:
     explanation, reward = Explanations.TWO_EYES.value
     if board_state is None:
-        return explanation
+        return explanation, reward
 
     concept_filter_0 = np.array([
         [1, 1, 1, 1, 1],
@@ -131,12 +132,12 @@ def two_eyes(board_state: np.ndarray = None, reward_shaping: bool = False) -> Tu
 def capture_a_stone(board_state: np.ndarray = None, reward_shaping: bool = False) -> Tuple[bool, Optional[str], Optional[float]]:
     explanation, reward = Explanations.CAPTURE_A_STONE.value
     if board_state is None:
-        return explanation
+        return explanation, reward
 
     # If the current state has less stones than the previous state
     # then the concept is present
-    curr_state_opponent = board_state[0]
-    prev_state_opponent = board_state[1]
+    curr_state_opponent = board_state[2]
+    prev_state_opponent = board_state[3]
 
     # See if one of the 1´s in the previous state is a 0 in the current state
     for i in range(curr_state_opponent.shape[0]):
@@ -156,12 +157,12 @@ def capture_a_stone(board_state: np.ndarray = None, reward_shaping: bool = False
 def capture_group_of_stones(board_state: np.ndarray = None, reward_shaping: bool = False) -> Tuple[bool, Optional[str], Optional[float]]:
     explanation, reward = Explanations.CAPTURE_GROUP_OF_STONES.value
     if board_state is None:
-        return explanation
+        return explanation, reward
 
     # If the current state has less stones than the previous state
     # then the concept is present
-    curr_state_opponent = board_state[0]
-    prev_state_opponent = board_state[1]
+    curr_state_opponent = board_state[2]
+    prev_state_opponent = board_state[3]
 
     # See of the current state has more than one stone less than the previous state
     counter = 0
@@ -185,7 +186,7 @@ def capture_group_of_stones(board_state: np.ndarray = None, reward_shaping: bool
 def area_advantage(board_state: np.ndarray = None, reward_shaping: bool = False) -> Tuple[bool, Optional[str], Optional[float]]:
     explanation, reward = Explanations.AREA_ADVANTAGE.value
     if board_state is None:
-        return explanation
+        return explanation, reward
 
     # If the current state has more stones than the previous state
     # then the concept is present
@@ -212,3 +213,52 @@ def area_advantage(board_state: np.ndarray = None, reward_shaping: bool = False)
         return False, explanation, reward
     else:
         return False
+    
+def play_center_in_opening(board_state: np.ndarray = None, reward_shaping: bool = False) -> Tuple[bool, Optional[str], Optional[float]]:
+    explanation, reward = Explanations.PLAY_CENTER_IN_OPENING.value
+    if board_state is None:
+        return explanation, reward
+    
+    # If the new stone in the current state is in the center of the board
+    # Find the position of the new stone
+    curr_state = board_state[0]
+    prev_state = board_state[1]
+
+    opponent_state = board_state[2]
+
+    # Count the number of stones on the board
+    stone_count = 0
+    for i in range(curr_state.shape[0]):
+        for j in range(curr_state.shape[0]):
+            if curr_state[i, j] == 1:
+                stone_count += 1
+
+    for i in range(opponent_state.shape[0]):
+        for j in range(opponent_state.shape[0]):
+            if opponent_state[i, j] == 1:
+                stone_count += 1
+    
+    # If the stone count is less than 10 then the move is in the opening
+    if stone_count > 10:
+        if reward_shaping:
+            return False, explanation, reward
+        else:
+            return False
+
+
+    # Find the position of the new stone
+    for i in range(curr_state.shape[0]):
+        for j in range(curr_state.shape[0]):
+            if curr_state[i, j] == 1 and prev_state[i, j] == 0:
+                if i >= 2 and i <= 4 and j >= 2 and j <= 4:
+                    if reward_shaping:
+                        return True, explanation, reward
+                    else:
+                        return True
+                    
+    if reward_shaping:
+        return False, explanation, reward
+    else:
+        return False
+
+
