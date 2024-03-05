@@ -96,7 +96,7 @@ class JointEmbeddingModel:
             for i in range(0, len(val_states), batch_size):
                 val_step(val_states[i:i+batch_size], val_explinations[i:i+batch_size], val_labels[i:i+batch_size])
 
-            bar.set_description(f'Loss: {train_loss.result()}, Val Loss: {val_loss.result()}')
+            bar.set_description(f'Loss: {round(float(train_loss.result()), 5)}, Val Loss: {round(float(val_loss.result()), 5)}')
 
     def predict(self, state: np.ndarray, explination: np.ndarray):
         if len(state.shape) == 3:
