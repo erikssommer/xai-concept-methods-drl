@@ -84,6 +84,9 @@ class JointEmbeddingModel:
             loss = loss_fn(labels, state_embed, concept_embed)
             val_loss(loss)
 
+        loss_history = []
+        val_loss_history = []
+
         # Train the model
         bar = tqdm(range(epochs))
         for _ in bar:
@@ -97,6 +100,11 @@ class JointEmbeddingModel:
                 val_step(val_states[i:i+batch_size], val_explinations[i:i+batch_size], val_labels[i:i+batch_size])
 
             bar.set_description(f'Loss: {round(float(train_loss.result()), 5)}, Val Loss: {round(float(val_loss.result()), 5)}')
+
+            loss_history.append(float(train_loss.result()))
+            val_loss_history.append(float(val_loss.result()))
+
+        return loss_history, val_loss_history
 
     def predict(self, state: np.ndarray, explination: np.ndarray):
         if len(state.shape) == 3:
