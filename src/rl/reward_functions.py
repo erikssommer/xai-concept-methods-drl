@@ -14,13 +14,19 @@ class ZeroSumRewardFunction(RewardFunction):
 
 class ConceptRewardFunction(RewardFunction):
     def reward_function(self, board_state, outcome):
+        highest_reward = 0
         for concept_function in concept_functions_to_use():
             if concept_function.__name__ == 'null':
                 continue
             presence, _, reward = concept_function(board_state, reward_shaping=True)
             if presence:
-                # Return the reward pluss the outcome and maximum 1
-                return min(1, reward + outcome)
+                if reward > highest_reward:
+                    highest_reward = reward
+
+        # Using the highest reward (Option is to stack the rewards and use the sum of the rewards)
+        if highest_reward > 0:
+            # Return the reward pluss the outcome and maximum 1
+            return min(1, reward + outcome)
 
         return outcome
 
