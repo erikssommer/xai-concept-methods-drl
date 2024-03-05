@@ -50,6 +50,9 @@ class JointEmbeddingModel:
 
             if summary:
                 self.model.summary()
+        
+        # Compile the model
+        self.model.compile()
 
     def fit(self, train_states, train_explinations, train_labels, val_states, val_explinations, val_labels, batch_size=32, epochs=10):
         # Define a custom training loop using the loss function
