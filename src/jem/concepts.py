@@ -203,7 +203,7 @@ def area_advantage(board_state: np.ndarray = None, reward_shaping: bool = False)
             return False
 
     # If the current state has more black area than the previous state and more black area than white area
-    if black_area_curr > black_area_prev and black_area_curr < white_area_curr:
+    if black_area_curr > black_area_prev and black_area_prev < white_area_prev:
         if reward_shaping:
             return True, explanation, reward
         else:
