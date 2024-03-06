@@ -47,6 +47,7 @@ def perform_mcts_episodes(episodes: int,
 
         turns = []
         states = []
+        states_after_action = []
         distributions = []
 
         # Create the environment
@@ -83,22 +84,26 @@ def perform_mcts_episodes(episodes: int,
 
             best_action_node, distribution = tree.search(move_nr)
 
+            # Apply the action to the environment
+            _, _, game_over, _ = go_env.step(best_action_node.action)
+
             # Add the case to the replay buffer
             if np.random.random() < sample_ratio:
+                
+                state_after_action = go_env.canonical_state()
+
                 if curr_player == 0:
-                    state = np.array([curr_state[0], prev_turn_state, curr_state[1],
-                                     prev_opposing_state, np.zeros((board_size, board_size))])
+                    state = np.array([curr_state[0], prev_turn_state, curr_state[1], prev_opposing_state, np.zeros((board_size, board_size))])
+                    state_after_action = np.array([state_after_action[1], curr_state[0], state_after_action[0], curr_state[1], np.zeros((board_size, board_size))])
                 else:
-                    state = np.array([curr_state[0], prev_turn_state, curr_state[1],
-                                     prev_opposing_state, np.ones((board_size, board_size))])
+                    state = np.array([curr_state[0], prev_turn_state, curr_state[1], prev_opposing_state, np.ones((board_size, board_size))])
+                    state_after_action = np.array([state_after_action[1], curr_state[0], state_after_action[0], curr_state[1], np.ones((board_size, board_size))])
 
                 # Add the case to the replay buffer
                 turns.append(curr_player)
                 states.append(state)
+                states_after_action.append(state_after_action)
                 distributions.append(distribution)
-
-            # Apply the action to the environment
-            _, _, game_over, _ = go_env.step(best_action_node.action)
 
             # Update the root node of the mcts tree
             tree.set_root_node(best_action_node)
@@ -124,7 +129,7 @@ def perform_mcts_episodes(episodes: int,
         assert winner != 0
 
         # Set the values of the states
-        for (dist, state, turn) in zip(distributions, states, turns):
+        for (dist, state, state_after_action, turn) in zip(distributions, states, states_after_action, turns):
             if turn == 0 and winner == 1:
                 outcome = 1
             elif turn == 1 and winner == -1:
@@ -138,7 +143,7 @@ def perform_mcts_episodes(episodes: int,
 
             state_buffer.append(state)
             distribution_buffer.append(dist)
-            value_buffer.append(reward_fn(state, outcome))
+            value_buffer.append(reward_fn(state_after_action, outcome))
 
         game_winners.append(winner)
 
