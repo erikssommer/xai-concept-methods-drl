@@ -31,10 +31,6 @@ def perform_mcts_episodes(episodes: int,
 
     np.seterr(over="ignore", invalid="raise")
 
-    gpus = tf.config.experimental.list_physical_devices('GPU')
-    for gpu in gpus:
-        tf.config.experimental.set_memory_growth(gpu, True)
-
     state_buffer = []
     distribution_buffer = []
     value_buffer = []
@@ -89,7 +85,7 @@ def perform_mcts_episodes(episodes: int,
 
             # Add the case to the replay buffer
             if np.random.random() < sample_ratio:
-                
+
                 state_after_action = go_env.canonical_state()
 
                 if curr_player == 0:
