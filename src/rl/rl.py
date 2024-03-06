@@ -94,6 +94,7 @@ def rl():
 
         turns = []
         states = []
+        states_after_action = []
         distributions = []
 
         state_buffer = []
@@ -141,20 +142,27 @@ def rl():
             #graph = root.visualize_tree()
             #graph.render('./visualization/images/tree', view=True)
 
+            # Apply the action to the environment
+            _, _, game_over, _ = go_env.step(best_action_node.action)
+
             # Add the case to the replay buffer
             if np.random.random() < sample_ratio:
+
+                state_after_action = go_env.canonical_state()
+
                 if curr_player == 0:
                     state = np.array([curr_state[0], prev_turn_state, curr_state[1], prev_opposing_state, np.zeros((board_size, board_size))])
+                    state_after_action = np.array([state_after_action[1], curr_state[0], state_after_action[0], curr_state[1], np.zeros((board_size, board_size))])
                 else:
                     state = np.array([curr_state[0], prev_turn_state, curr_state[1], prev_opposing_state, np.ones((board_size, board_size))])
+                    state_after_action = np.array([state_after_action[1], curr_state[0], state_after_action[0], curr_state[1], np.ones((board_size, board_size))])
 
                 # Add the case to the replay buffer
                 turns.append(curr_player)
                 states.append(state)
-                distributions.append(distribution)
+                states_after_action.append(state_after_action)
 
-            # Apply the action to the environment
-            _, _, game_over, _ = go_env.step(best_action_node.action)
+                distributions.append(distribution)
 
             if config.render:
                 # Render the board
@@ -188,7 +196,7 @@ def rl():
             print(f"Winner: {winner}")
 
         # Set the values of the states
-        for (dist, state, turn) in zip(distributions, states, turns):
+        for (dist, state, state_after_action, turn) in zip(distributions, states, states_after_action, turns):
             if turn == govars.BLACK and winner == 1:
                 outcome = 1
             elif turn == govars.WHITE and winner == -1:
@@ -202,7 +210,7 @@ def rl():
 
             state_buffer.append(state)
             distribution_buffer.append(dist)
-            value_buffer.append(reward_fn(state, outcome))
+            value_buffer.append(reward_fn(state_after_action, outcome))
         
         # Test if value buffer is not empty
         if len(value_buffer) > 0:

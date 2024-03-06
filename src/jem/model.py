@@ -9,9 +9,9 @@ from tqdm import tqdm
 
 class JointEmbeddingModel:
     def __init__(self,
-                 vocab_size,
-                 max_sent_len,
-                 board_size,
+                 vocab_size=None,
+                 max_sent_len=None,
+                 board_size=7,
                  learning_rate=0.001,
                  input_state_embed=64,
                  hidden_state_embed=32,

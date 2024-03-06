@@ -25,14 +25,14 @@ class ConceptRewardFunction(RewardFunction):
 
         # Using the highest reward (Option is to stack the rewards and use the sum of the rewards)
         if highest_reward > 0:
-            # Return the reward pluss the outcome and maximum 1
-            return min(1, reward + outcome)
+            # Return the highest reward pluss the outcome and maximum 1
+            return min(1, highest_reward + outcome)
 
         return outcome
 
 class JemRewardFunction(RewardFunction):
     def __init__(self):
-        self.jem = JointEmbeddingModel('../models/jem/joint_embedding_model.keras')
+        self.jem = JointEmbeddingModel(load_path='../models/jem/joint_embedding_model.keras')
         self.explanation_list = data_utils.get_explanation_list()
         self.vocab, _, self.max_sent_len = data_utils.gen_vocab_explanations_max_len(self.explanation_list)
 
@@ -45,7 +45,7 @@ class JemRewardFunction(RewardFunction):
         for _, explanation in enumerate(self.explanation_list):
             encoded_explanation = data_utils.convert_explanation_to_integers(explanation, self.vocab, self.max_sent_len)
 
-            state_embed, exp_embed, _ = self.jem.predict(board_state, encoded_explanation)
+            state_embed, exp_embed = self.jem.predict(board_state, encoded_explanation)
             total_state_embeddings.append(state_embed)
             total_explanation_embeddings.append(exp_embed)
 
