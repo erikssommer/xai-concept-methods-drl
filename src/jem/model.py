@@ -29,10 +29,10 @@ class JointEmbeddingModel:
         else:
             # Convolutional layers for the board
             board_inputs = tf.keras.Input(shape=(num_channels, board_size, board_size))
-            x = tf.keras.layers.Conv2D(filters=32, kernel_size=(3, 3), activation='relu', padding='same')(board_inputs)
-            x = tf.keras.layers.Conv2D(filters=32, kernel_size=(3, 3), activation='relu', padding='same')(x)
-            x = tf.keras.layers.Conv2D(filters=32, kernel_size=(3, 3), activation='relu', padding='same')(x)
-            x = tf.keras.layers.Conv2D(filters=32, kernel_size=(3, 3), activation='relu', padding='same')(x)
+            x = tf.keras.layers.Conv2D(filters=64, kernel_size=(3, 3), activation='relu', padding='same')(board_inputs)
+            x = tf.keras.layers.Conv2D(filters=64, kernel_size=(3, 3), activation='relu', padding='same')(x)
+            x = tf.keras.layers.Conv2D(filters=64, kernel_size=(3, 3), activation='relu', padding='same')(x)
+            x = tf.keras.layers.Conv2D(filters=64, kernel_size=(3, 3), activation='relu', padding='same')(x)
             x = tf.keras.layers.Flatten()(x)
             x = tf.keras.layers.Dense(units=input_state_embed, activation='relu')(x)
             x = tf.keras.layers.Dense(units=hidden_state_embed, activation='relu')(x)
@@ -56,55 +56,56 @@ class JointEmbeddingModel:
 
     def fit(self, train_states, train_explinations, train_labels, val_states, val_explinations, val_labels, batch_size=32, epochs=10):
         # Define a custom training loop using the loss function
-        optimizer = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
-        train_loss = tf.keras.metrics.Mean(name='train_loss')
-        val_loss = tf.keras.metrics.Mean(name='val_loss')
-        
-        @tf.function
-        def loss_fn(y, state_embed, concept_embed):
-            # Split the concatinated pred tensor into state_embed and concept_embed
-            batch_size = tf.shape(state_embed)[0]
-            difference = state_embed - concept_embed 
-            l2_norm = tf.norm(difference, axis=1, ord=2)
-            loss = tf.reduce_sum((l2_norm - y) ** 2) / tf.cast(batch_size, dtype=tf.float32)
-            return loss
+        with tf.device('/device:GPU:0'):
+            optimizer = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
+            train_loss = tf.keras.metrics.Mean(name='train_loss')
+            val_loss = tf.keras.metrics.Mean(name='val_loss')
+            
+            @tf.function
+            def loss_fn(y, state_embed, concept_embed):
+                # Split the concatinated pred tensor into state_embed and concept_embed
+                batch_size = tf.shape(state_embed)[0]
+                difference = state_embed - concept_embed 
+                l2_norm = tf.norm(difference, axis=1, ord=2)
+                loss = tf.reduce_sum((l2_norm - y) ** 2) / tf.cast(batch_size, dtype=tf.float32)
+                return loss
 
-        @tf.function
-        def train_step(states, explinations, labels):
-            with tf.GradientTape() as tape:
-                state_embed, concept_embed = self.model([states, explinations], training=True)
+            @tf.function
+            def train_step(states, explinations, labels):
+                with tf.GradientTape() as tape:
+                    state_embed, concept_embed = self.model([states, explinations], training=True)
+                    loss = loss_fn(labels, state_embed, concept_embed)
+                gradients = tape.gradient(loss, self.model.trainable_variables)
+                optimizer.apply_gradients(zip(gradients, self.model.trainable_variables))
+                train_loss(loss)
+
+            @tf.function
+            def val_step(states, explinations, labels):
+                state_embed, concept_embed = self.model([states, explinations], training=False)
                 loss = loss_fn(labels, state_embed, concept_embed)
-            gradients = tape.gradient(loss, self.model.trainable_variables)
-            optimizer.apply_gradients(zip(gradients, self.model.trainable_variables))
-            train_loss(loss)
+                val_loss(loss)
 
-        @tf.function
-        def val_step(states, explinations, labels):
-            state_embed, concept_embed = self.model([states, explinations], training=False)
-            loss = loss_fn(labels, state_embed, concept_embed)
-            val_loss(loss)
+            loss_history = []
+            val_loss_history = []
 
-        loss_history = []
-        val_loss_history = []
+            # Train the model
+            bar = tqdm(range(epochs))
+            for _ in bar:
+                train_loss.reset_states()
+                val_loss.reset_states()
 
-        # Train the model
-        bar = tqdm(range(epochs))
-        for _ in bar:
-            train_loss.reset_states()
-            val_loss.reset_states()
+                for i in range(0, len(train_states), batch_size):
+                    train_step(train_states[i:i+batch_size], train_explinations[i:i+batch_size], train_labels[i:i+batch_size])
 
-            for i in range(0, len(train_states), batch_size):
-                train_step(train_states[i:i+batch_size], train_explinations[i:i+batch_size], train_labels[i:i+batch_size])
+                for i in range(0, len(val_states), batch_size):
+                    val_step(val_states[i:i+batch_size], val_explinations[i:i+batch_size], val_labels[i:i+batch_size])
 
-            for i in range(0, len(val_states), batch_size):
-                val_step(val_states[i:i+batch_size], val_explinations[i:i+batch_size], val_labels[i:i+batch_size])
+                bar.set_description(f'Loss: {round(float(train_loss.result()), 5)}, Val Loss: {round(float(val_loss.result()), 5)}')
 
-            bar.set_description(f'Loss: {round(float(train_loss.result()), 5)}, Val Loss: {round(float(val_loss.result()), 5)}')
+                loss_history.append(float(train_loss.result()))
+                val_loss_history.append(float(val_loss.result()))
 
-            loss_history.append(float(train_loss.result()))
-            val_loss_history.append(float(val_loss.result()))
-
-        return loss_history, val_loss_history
+            return loss_history, val_loss_history
 
     def predict(self, state: np.ndarray, explination: np.ndarray):
         if len(state.shape) == 3:
@@ -113,7 +114,7 @@ class JointEmbeddingModel:
         if len(explination.shape) == 1:
             explination = explination.reshape((1, *explination.shape))
 
-        with tf.device('/device:CPU:0'):
+        with tf.device('/device:GPU:0'):
             return self.model([state, explination], training=False)
 
     def save_model(self, path):

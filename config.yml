@@ -1,7 +1,7 @@
 # MCTS config
 episodes: 10000 # Single process
-episodes_per_epoch: 2 # Multi process
-simulations: 300 # m
+episodes_per_epoch: 1 # Multi process
+simulations: 10 # m
 c: 1.3 # Exploration constant
 non_det_moves: 5 # Number of plies to use for non-deterministic playouts
 epochs: 1000
@@ -28,7 +28,7 @@ clear_rbuf: false
 
 # GO config
 board_size: 7 # k
-komi: 4.5 # gives white a bonus of x points at the end of the game due to black going first
+komi: 3.5 # gives white a bonus of x points at the end of the game due to black going first
 move_cap: 120
 
 # Debug config
@@ -39,4 +39,4 @@ plot: false
 nr_of_topp_games: 2 # g
 
 # Reward function config
-reward_function: "zero_sum" # zero_sum, "concept_fn" or "jem"
+reward_function: "jem" # zero_sum, "concept_fn" or "jem"
