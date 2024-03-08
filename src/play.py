@@ -77,10 +77,12 @@ def play_game():
             
             valid_moves = go_env.valid_moves()
 
-            if curr_player == 0:
-                state = np.array([game_state[0], prev_turn_state, game_state[1], prev_opposing_state, np.zeros((board_size, board_size))])
-            else:
-                state = np.array([game_state[0], prev_turn_state, game_state[1], prev_opposing_state, np.ones((board_size, board_size))])
+            state = np.array([game_state[0], 
+                              prev_turn_state, 
+                              game_state[1], 
+                              prev_opposing_state, 
+                              np.full((board_size, board_size), curr_player)])
+            
             # Get the value estimation of the current state
             value = actor_net.value_estimation(state, valid_moves)
             

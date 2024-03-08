@@ -150,12 +150,8 @@ def rl():
 
                 state_after_action = go_env.canonical_state()
 
-                if curr_player == 0:
-                    state = np.array([curr_state[0], prev_turn_state, curr_state[1], prev_opposing_state, np.zeros((board_size, board_size))])
-                    state_after_action = np.array([state_after_action[1], curr_state[0], state_after_action[0], curr_state[1], np.zeros((board_size, board_size))])
-                else:
-                    state = np.array([curr_state[0], prev_turn_state, curr_state[1], prev_opposing_state, np.ones((board_size, board_size))])
-                    state_after_action = np.array([state_after_action[1], curr_state[0], state_after_action[0], curr_state[1], np.ones((board_size, board_size))])
+                state = np.array([curr_state[0], prev_turn_state, curr_state[1], prev_opposing_state, np.full((board_size, board_size), curr_player)])
+                state_after_action = np.array([state_after_action[1], curr_state[0], state_after_action[0], curr_state[1], np.full((board_size, board_size), curr_player)])
 
                 # Add the case to the replay buffer
                 turns.append(curr_player)

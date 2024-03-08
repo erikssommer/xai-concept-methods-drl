@@ -99,12 +99,8 @@ class Topp:
                     while not terminated:
                         curr_state = go_env.canonical_state()
                         valid_moves = go_env.valid_moves()
-                        if current_player == 0:
-                            state = np.array([curr_state[0], prev_turn_state, curr_state[1], prev_opposing_state, np.zeros(
-                                (self.board_size, self.board_size))])
-                        else:
-                            state = np.array([curr_state[0], prev_turn_state, curr_state[1], prev_opposing_state, np.ones(
-                                (self.board_size, self.board_size))])
+                        state = np.array([curr_state[0], prev_turn_state, curr_state[1], prev_opposing_state, np.full(
+                                (self.board_size, self.board_size), current_player)])
 
                         if moves > self.move_cap:
                             print("Move cap reached in game between {} and {}, termination game!".format(

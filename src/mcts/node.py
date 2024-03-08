@@ -106,12 +106,11 @@ class Node:
         else:
             prev_opposing_state = np.zeros((board_size, board_size))
 
-        if self.player == 1:
-            state = np.array([self.state[0], prev_turn_state, self.state[1],
-                             prev_opposing_state, np.ones((board_size, board_size))])
-        else:
-            state = np.array([self.state[0], prev_turn_state, self.state[1],
-                             prev_opposing_state, np.zeros((board_size, board_size))])
+        state = np.array([self.state[0], 
+                          prev_turn_state, 
+                          self.state[1], 
+                          prev_opposing_state, 
+                          np.full((board_size, board_size), self.player)])
 
         self.predict_state_rep = state
 

@@ -31,10 +31,7 @@ def play_match(agents, board_size, concept_function, sample_ratio, binary=True, 
 
         valid_moves = go_env.valid_moves()
 
-        if current_player == 0:
-            state_copy = np.array([state[0], prev_turn_state, state[1], prev_opposing_state, np.zeros((board_size, board_size))])
-        else:
-            state_copy = np.array([state[0], prev_turn_state, state[1], prev_opposing_state, np.ones((board_size, board_size))])
+        state_copy = np.array([state[0], prev_turn_state, state[1], prev_opposing_state, np.full((board_size, board_size), current_player)])
 
         if random_moves:
             action = go_env.uniform_random_action()
@@ -45,12 +42,7 @@ def play_match(agents, board_size, concept_function, sample_ratio, binary=True, 
 
         state_after_action = go_env.canonical_state()
 
-        if current_player == 0:
-            state_to_sample = np.array([state_after_action[1], state[0], state_after_action[0],
-                            state[1], np.zeros((board_size, board_size))])
-        else:
-            state_to_sample = np.array([state_after_action[1], state[0], state_after_action[0],
-                                state[1], np.ones((board_size, board_size))])
+        state_to_sample = np.array([state_after_action[1], state[0], state_after_action[0], state[1], np.full((board_size, board_size), current_player)])
             
         if np.random.random() < sample_ratio:
             if nn_format:
