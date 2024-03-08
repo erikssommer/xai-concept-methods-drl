@@ -14,6 +14,10 @@ class ZeroSumRewardFunction(RewardFunction):
 
 class ConceptRewardFunction(RewardFunction):
     def reward_function(self, board_state, outcome):
+        # Actions leading to a win is allways rewarded with 1 (max reward)
+        if outcome == 1:
+            return 1
+        
         highest_reward = 0
         for concept_function in concept_functions_to_use():
             if concept_function.__name__ == 'null':
@@ -37,6 +41,10 @@ class JemRewardFunction(RewardFunction):
         self.vocab, _, self.max_sent_len = data_utils.gen_vocab_explanations_max_len(self.explanation_list)
 
     def reward_function(self, board_state, outcome):
+        # Actions leading to a win is allways rewarded with 1(max reward)
+        if outcome == 1:
+            return 1
+        
         l2_norm_arr = []  # List to store L2 norms
 
         total_state_embeddings = []  # List to store total state embeddings
