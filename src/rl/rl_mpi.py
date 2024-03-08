@@ -200,7 +200,7 @@ def rl_mpi():
 
     if rank == 0:
         # Create the tensorboard callback
-        tb_writer, tb_callback = tensorboard_setup()
+        tb_writer, tb_callback = tensorboard_setup(reward_function_type)
 
         if resnet:
             agent = ResNet(board_size)

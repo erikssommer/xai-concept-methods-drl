@@ -87,7 +87,7 @@ def rl():
         start_episode = 0
 
     # Create the tensorboard callback
-    tb_writer, tb_callback = tensorboard_setup()
+    tb_writer, tb_callback = tensorboard_setup(reward_function_type)
 
     # Loop through the number of episodes
     for episode in tqdm(range(start_episode, episodes)):

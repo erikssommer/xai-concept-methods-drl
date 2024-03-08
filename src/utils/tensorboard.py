@@ -2,13 +2,18 @@ import tensorflow as tf
 import os
 import time
 
-def tensorboard_setup():
+def tensorboard_setup(reward_function_type):
+    reward_function_type = f'{reward_function_type}_reward_function'
     # Delete the ../tensorboard_logs directory if it exists
     if os.path.exists('../tensorboard_logs'):
-        os.system('rm -rf ../tensorboard_logs')
+        # Test if the direcory contains files containing the reward function type
+        for folder in os.listdir('../tensorboard_logs'):
+            if reward_function_type in folder:
+                # Remove the file
+                os.system(f'rm -rf ../tensorboard_logs/{folder}')
 
     # Create a log directory with a timestamp
-    logdir = '../tensorboard_logs/' + time.strftime("%Y%m%d-%H%M%S")
+    logdir = f'../tensorboard_logs/{reward_function_type}_{time.strftime("%Y%m%d-%H%M%S")}'
 
     # Create a TensorBoard callback
     tb_callback = tf.keras.callbacks.TensorBoard(log_dir=logdir)
