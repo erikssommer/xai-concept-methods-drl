@@ -184,7 +184,7 @@ def rl_mpi():
         timer = Timer()
         timer.start_timer()
 
-        folder_setup(model_type)
+        save_path = folder_setup(model_type, reward_function_type, board_size)
 
         gpus = tf.config.list_physical_devices("GPU")
         print("\nNum GPUs Available: ", len(gpus))
@@ -206,8 +206,7 @@ def rl_mpi():
             agent = ResNet(board_size)
         else:
             agent = ConvNet(board_size)
-        agent.save_model(
-            f"../models/training/{model_type}/board_size_{board_size}/net_0.keras")
+        agent.save_model(f"{save_path}/net_0.keras")
 
         # Calculate the number of games in total
         total = number_of_threads_generating_data * \
@@ -285,8 +284,7 @@ def rl_mpi():
             write_to_tensorboard(tb_writer, history, outcomes, epoch)
 
         if epoch != 0 and epoch in save_intervals:
-            agent.save_model(
-                f'../models/training/{model_type}/board_size_{board_size}/net_{epoch}.keras')
+            agent.save_model(f'{save_path}/net_{epoch}.keras')
 
     if rank == 0:
         # End the timer

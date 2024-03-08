@@ -3,30 +3,44 @@ import random
 import string
 import json
 
-from utils import config
-
-def folder_setup(model_type):
-    board_size = config.board_size
+def folder_setup(model_type, reward_function_type, board_size) -> str:
+    """
+    Create the folder structure for the models and return the path to the folder
+    
+    Args:
+    model_type (str): The type of model to train
+    reward_function_type (str): The type of reward function to use
+    board_size (int): The size of the board
+    
+    Returns:
+    str: The path to the folder
+    """
+    reward_function_type = f'{reward_function_type}_reward_function'
     # Create the folder containing the models if it doesn't exist
     if not os.path.exists('../models'):
         os.makedirs(f'../models/')
     if not os.path.exists(f'../models/training'):
         os.makedirs(f'../models/training/')
-    if not os.path.exists(f'../models/training/{model_type}'):
-        os.makedirs(f'../models/training/{model_type}/')
-    if not os.path.exists(f'../models/training/{model_type}/board_size_{board_size}'):
-        os.makedirs(f'../models/training/{model_type}/board_size_{board_size}/')
+    if not os.path.exists(f'../models/training/{reward_function_type}'):
+        os.makedirs(f'../models/training/{reward_function_type}')
+    if not os.path.exists(f'../models/training/{reward_function_type}/{model_type}'):
+        os.makedirs(f'../models/training/{reward_function_type}/{model_type}/')
+    if not os.path.exists(f'../models/training/{reward_function_type}/{model_type}/board_size_{board_size}'):
+        os.makedirs(f'../models/training/{reward_function_type}/{model_type}/board_size_{board_size}/')
     else:
         # Delete the model folders
-        folders = os.listdir(f'../models/training/{model_type}/board_size_{board_size}')
+        folders = os.listdir(f'../models/training/{reward_function_type}/{model_type}/board_size_{board_size}')
         for folder in folders:
             # Test if ends with .keras
             if not folder.endswith('.keras'):
                 # Delete the folder even if it's not empty
-                os.system(f'rm -rf ../models/training/{model_type}/board_size_{board_size}/{folder}')
+                os.system(f'rm -rf ../models/training/{reward_function_type}/{model_type}/board_size_{board_size}/{folder}')
             else:
                 # Delete the file
-                os.remove(f'../models/training/{model_type}/board_size_{board_size}/{folder}')
+                os.remove(f'../models/training/{reward_function_type}/{model_type}/board_size_{board_size}/{folder}')
+    
+    # Return the path to the folder
+    return f'../models/training/{reward_function_type}/{model_type}/board_size_{board_size}'
 
 def concept_folder_setup_and_score(concept_type, model_type, board_name, session_name, concept_name, name, score):
     # Remove the files if they exist

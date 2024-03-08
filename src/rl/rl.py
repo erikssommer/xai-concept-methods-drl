@@ -38,7 +38,7 @@ def rl():
     c = config.c
     komi = config.komi
     board_size = config.board_size
-    save_interval = config.episodes // config.nr_of_anets
+    save_interval = config.save_intervals
     sample_ratio = config.sample_ratio
     pre_trained = config.pre_trained
     clear_rbuf = config.clear_rbuf
@@ -54,7 +54,7 @@ def rl():
 
     reward_fn = get_reward_function(reward_function_type)
 
-    folder_setup(model_type)
+    save_path = folder_setup(model_type, reward_function_type, board_size)
 
     if pre_trained:
         # Try to get the first file in the pre trained path directory
@@ -83,14 +83,14 @@ def rl():
             neural_network = ConvNet(board_size)
 
         # Save initial (random) weights
-        neural_network.save_model(f"../models/training/{model_type}/board_size_{board_size}/net_0.keras")
+        neural_network.save_model(f"{save_path}/net_0.keras")
         start_episode = 0
 
     # Create the tensorboard callback
     tb_writer, tb_callback = tensorboard_setup()
 
     # Loop through the number of episodes
-    for _ in tqdm(range(start_episode, episodes)):
+    for episode in tqdm(range(start_episode, episodes)):
 
         turns = []
         states = []
@@ -228,10 +228,10 @@ def rl():
             if config.render:
                 print("No cases in the replay buffer")
         
-        if start_episode != 0 and start_episode % save_interval == 0:
+        if start_episode != 0 and episode in save_interval:
             # Save the neural network model
             neural_network.save_model(
-                f'../models/training/{model_type}/board_size_{board_size}/net_{start_episode}.keras')
+                f'{save_path}/net_{start_episode}.keras')
 
         # Delete references and garbadge collection      
         del tree.root
@@ -265,7 +265,7 @@ def rl():
 
     # Save the final neural network model
     neural_network.save_model(
-        f'../models/training/{model_type}/board_size_{board_size}/net_{episodes}.keras')
+        f'{save_path}/net_{episodes}.keras')
     
     print(f"Low counter: {low_counter}")
     print(f"Black winner: {black_winner}")
