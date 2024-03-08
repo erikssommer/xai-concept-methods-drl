@@ -12,7 +12,7 @@ class JointEmbeddingModel:
                  vocab_size=None,
                  max_sent_len=None,
                  board_size=7,
-                 learning_rate=0.001,
+                 learning_rate=0.0001,
                  input_state_embed=64,
                  hidden_state_embed=32,
                  output_state_embed=16,
@@ -67,7 +67,8 @@ class JointEmbeddingModel:
                 batch_size = tf.shape(state_embed)[0]
                 difference = state_embed - concept_embed 
                 l2_norm = tf.norm(difference, axis=1, ord=2)
-                loss = tf.reduce_sum((l2_norm - y) ** 2) / tf.cast(batch_size, dtype=tf.float32)
+                #l2_norm = tf.reduce_sum(((state_embed * concept_embed)) ** 2, 1).sqrt()
+                loss = tf.reduce_sum((l2_norm - y) ** 2, 0) / tf.cast(batch_size, dtype=tf.float32)
                 return loss
 
             @tf.function
