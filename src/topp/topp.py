@@ -30,7 +30,7 @@ class Topp:
         self.komi = komi
         self.model_type = model_type
 
-    def add_agents(self, greedy_move: bool = False, resnet: bool = False) -> None:
+    def add_agents(self, greedy_move: bool = False, resnet: bool = False, use_fast_predictor: bool = False) -> None:
         if self.dir in 'saved_sessions' or 'model_performance' in self.dir:
             path = f'../models/{self.dir}/{self.model_type}/board_size_{self.board_size}/{self.version}'
         else:
@@ -47,7 +47,13 @@ class Topp:
         # Add the agents
         for folder in sorted_folders:
             self.agents.append(
-                Agent(self.board_size, path, folder, greedy_move, resnet=resnet))
+                Agent(self.board_size, 
+                      path, 
+                      folder, 
+                      greedy_move, 
+                      resnet=resnet, 
+                      use_fast_predictor=use_fast_predictor))
+            
             self.num_nn += 1
 
         if len(self.agents) == 0:
@@ -166,9 +172,7 @@ class Topp:
                     else:
                         starting_agent = i
 
-    def plot_results(self, block: bool = True) -> None:
-        plt.clf()
-        plt.ion()
+    def plot_results(self) -> None:
         # x is agent name
         x = [agent.name for agent in self.agents]
         # y is number of wins
@@ -182,7 +186,8 @@ class Topp:
         # Set a larger width
         plt.figure(figsize=(12, 8))
         sns.barplot(x='Agent', y='Wins', hue='Player', data=df)
-        plt.show(block=block)
+        plt.title('Wins by agent')
+        plt.show()
 
     def get_results(self) -> None:
         agents_result = sorted(self.agents, key=lambda x: x.win, reverse=True)

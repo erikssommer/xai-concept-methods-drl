@@ -1,5 +1,4 @@
-from policy import ConvNet
-from policy import ResNet
+from policy import ConvNet, ResNet, FastPredictor, LiteModel
 import numpy as np
 from typing import Tuple
 
@@ -10,7 +9,8 @@ class Agent:
                  path: str,
                  name: str,
                  greedy_move: bool = False,
-                 resnet: bool = False):
+                 resnet: bool = False,
+                 use_fast_predictor: bool = False):
 
         self.name = name  # Naming the player the same as the network for clarity
         self.greedy_move = greedy_move
@@ -29,13 +29,17 @@ class Agent:
         self.loss = 0
         self.draw = 0
         if resnet:
-            self.nn = ResNet(board_size, (f'{path}/{name}'))
+            nn = ResNet(board_size, (f'{path}/{name}'))
         else:
-            self.nn = ConvNet(board_size, (f'{path}/{name}'))
+            nn = ConvNet(board_size, (f'{path}/{name}'))
+        
+        if use_fast_predictor:
+            self.predictor = FastPredictor(LiteModel.from_keras_model(nn.model))
+        self.predictor = nn
 
     # Play a round of the turnament
     def choose_action(self, state: np.ndarray, valid_moves: np.ndarray) -> Tuple[int, float]:
-        return self.nn.best_action(state, valid_moves, self.greedy_move)
+        return self.predictor.best_action(state, valid_moves, self.greedy_move)
 
     # Add a win
     def add_win(self, player: int) -> None:

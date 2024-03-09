@@ -29,3 +29,16 @@ class FastPredictor:
         policy = utils.normalize(policy)
         
         return policy
+    
+    def best_action(self, state: np.ndarray, valid_moves: np.ndarray, greedy_move: bool = False, alpha: float = None) -> Tuple[int, float]:
+        policy, value = self.predict(state, valid_moves)
+
+        if greedy_move:
+            return np.argmax(policy), value
+
+        if alpha and np.random.random() < alpha:
+            # Selecting move randomly, but weighted by the distribution (0 = argmax, 1 = probablistic)
+            return np.argmax(policy), value
+
+        # Selecting move randomly, but weighted by the distribution (0 = argmax, 1 = probablistic)
+        return np.random.choice(len(policy), p=policy), value
