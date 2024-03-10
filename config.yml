@@ -40,3 +40,7 @@ nr_of_topp_games: 2 # g
 
 # Reward function config
 reward_function: "jem" # zero_sum, "concept_fn" or "jem"
+
+# Concept bottleneck config
+concept_bottleneck_model: false
+nr_concepts: 8
