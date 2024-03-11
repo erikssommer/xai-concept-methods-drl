@@ -46,7 +46,7 @@ class ConceptNet(BaseNet):
             policy = tf.keras.layers.Dense(BLOCK_FILTER_SIZE/2, activation="relu")(policy)
 
             # Concept bottleneck
-            concept_bottleneck_output = tf.keras.layers.Dense(self.nr_concepts, activation="softmax", name="concept_bottleneck_output")(policy)
+            concept_bottleneck_output = tf.keras.layers.Dense(self.nr_concepts, activation="sigmoid", name="concept_bottleneck_output")(policy)
 
             policy = tf.keras.layers.Dense(BLOCK_FILTER_SIZE/2, activation="relu")(concept_bottleneck_output)
             policy = tf.keras.layers.Dense(BLOCK_FILTER_SIZE, activation="relu")(policy)
@@ -64,7 +64,7 @@ class ConceptNet(BaseNet):
                 self.model.summary()
 
         self.model.compile(
-            loss={"concept_bottleneck_output": tf.keras.losses.CategoricalCrossentropy(),
+            loss={"concept_bottleneck_output": tf.keras.losses.BinaryCrossentropy(),
                   "policy_output": tf.keras.losses.CategoricalCrossentropy(),
                   "value_output": tf.keras.losses.MeanSquaredError()},
             loss_weights={"concept_bottleneck_output": 1.0, "policy_output": 1.0, "value_output": 1.0},
