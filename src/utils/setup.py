@@ -21,23 +21,23 @@ def folder_setup(model_type, reward_function_type, board_size) -> str:
         os.makedirs(f'../models/')
     if not os.path.exists(f'../models/training'):
         os.makedirs(f'../models/training/')
-    if not os.path.exists(f'../models/training/{reward_function_type}'):
-        os.makedirs(f'../models/training/{reward_function_type}')
-    if not os.path.exists(f'../models/training/{reward_function_type}/{model_type}'):
-        os.makedirs(f'../models/training/{reward_function_type}/{model_type}/')
-    if not os.path.exists(f'../models/training/{reward_function_type}/{model_type}/board_size_{board_size}'):
-        os.makedirs(f'../models/training/{reward_function_type}/{model_type}/board_size_{board_size}/')
+    if not os.path.exists(f'../models/training/{model_type}'):
+        os.makedirs(f'../models/training/{model_type}')
+    if not os.path.exists(f'../models/training/{model_type}/{reward_function_type}'):
+        os.makedirs(f'../models/training/{model_type}/{reward_function_type}/')
+    if not os.path.exists(f'../models/training/{model_type}/{reward_function_type}/board_size_{board_size}'):
+        os.makedirs(f'../models/training/{model_type}/{reward_function_type}/board_size_{board_size}/')
     else:
         # Delete the model folders
-        folders = os.listdir(f'../models/training/{reward_function_type}/{model_type}/board_size_{board_size}')
+        folders = os.listdir(f'../models/training/{model_type}/{reward_function_type}/board_size_{board_size}')
         for folder in folders:
             # Test if ends with .keras
             if not folder.endswith('.keras'):
                 # Delete the folder even if it's not empty
-                os.system(f'rm -rf ../models/training/{reward_function_type}/{model_type}/board_size_{board_size}/{folder}')
+                os.system(f'rm -rf ../models/training/{model_type}/{reward_function_type}/board_size_{board_size}/{folder}')
             else:
                 # Delete the file
-                os.remove(f'../models/training/{reward_function_type}/{model_type}/board_size_{board_size}/{folder}')
+                os.remove(f'../models/training/{model_type}/{reward_function_type}/board_size_{board_size}/{folder}')
     
     # Return the path to the folder
     return f'../models/training/{reward_function_type}/{model_type}/board_size_{board_size}'
