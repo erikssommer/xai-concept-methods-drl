@@ -33,17 +33,16 @@ def get_number_of_concepts():
     """
     return len(concept_functions_to_use()) + 1 # Pluss one for the outcome (concept: leads to win)
 
-def one_hot_encode_concepts(game_state: np.ndarray, outcome, allow_multiple_concepts=False) -> np.ndarray:
+def one_hot_encode_concepts(game_state: np.ndarray, outcome) -> np.ndarray:
     """
     One hot encode the concepts
     """
     # Pluss one for the outcome (concept: leads to win)
     one_hot_encoded_concepts = np.zeros(len(concept_functions_to_use()) + 1, dtype=np.int32)
+    
     for i, concept_function in enumerate(concept_functions_to_use()):
         if concept_function(game_state):
             one_hot_encoded_concepts[i] = 1
-            if not allow_multiple_concepts:
-                break
     
     # Add the outcome as the last element
     if outcome == 1:
