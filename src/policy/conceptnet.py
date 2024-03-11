@@ -105,7 +105,7 @@ class ConceptNet(BaseNet):
         with tf.device("/CPU:0"):
             res = self.model(state, training=False)
 
-        policy, value = res
+        _, policy, value = res
 
         # Get the policy array and value number from the result
         policy = policy[0]
@@ -119,6 +119,15 @@ class ConceptNet(BaseNet):
         del state
 
         return policy, value
+    
+    def predict_concepts(self, states: np.ndarray) -> Tuple[np.ndarray]:
+        """Predict the concept bottleneck and the policy of a state"""
+        with tf.device("/CPU:0"):
+            res = self.model.predict(states)
+
+        concepts, _, _ = res
+
+        return concepts
 
     def mask_invalid_moves(self, policy: np.ndarray, valid_moves: np.ndarray) -> np.ndarray:
 
