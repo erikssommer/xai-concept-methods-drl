@@ -9,7 +9,8 @@ from tqdm import tqdm
 import env
 from mcts import MCTS
 from utils import config
-from policy import ConvNet, ResNet, FastPredictor, LiteModel
+from policy import FastPredictor, LiteModel, get_policy
+from jem import data_utils
 from .reward_functions import get_reward_function, RewardFunction
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # or any {'0', '1', '2'}
@@ -27,11 +28,13 @@ def perform_mcts_episodes(episodes: int,
                           board_size: int,
                           non_det_moves: int,
                           move_cap: int,
+                          model_type: str,
                           reward_fn: RewardFunction) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
 
     np.seterr(over="ignore", invalid="raise")
 
     state_buffer = []
+    concept_buffer = []
     distribution_buffer = []
     value_buffer = []
     game_winners = []
@@ -137,6 +140,11 @@ def perform_mcts_episodes(episodes: int,
             distribution_buffer.append(dist)
             value_buffer.append(reward_fn(state_after_action, outcome))
 
+            # Target for the concept bottleneck outputlayer
+            if model_type == "conceptnet":
+                concept = data_utils.one_hot_encode_concepts(state_after_action, outcome)
+                concept_buffer.append(concept)
+            
         game_winners.append(winner)
 
         # Delete references and garbadge collection
@@ -146,7 +154,7 @@ def perform_mcts_episodes(episodes: int,
 
         gc.collect()
 
-    return state_buffer, distribution_buffer, value_buffer, game_winners
+    return state_buffer, concept_buffer, distribution_buffer, value_buffer, game_winners
 
 
 def rl_mpi():
@@ -157,7 +165,6 @@ def rl_mpi():
     np.seterr(over="ignore")
 
     board_size = config.board_size
-    resnet = config.resnet
     epochs = config.epochs
     simulations = config.simulations
     replay_buffer_cap = config.rbuf_cap
@@ -170,10 +177,11 @@ def rl_mpi():
     cpuct = config.c
     non_deterministic_moves = config.non_det_moves
     save_intervals = config.save_intervals
-    model_type = "resnet" if resnet else "convnet"
-    fast_predictor_path = f"../models/fastpred/training/{model_type}/board_size_{board_size}"
-
+    model_type = config.model_type
     reward_function_type = config.reward_function
+    clear_tensorboard = config.clear_tensorboard
+    fast_predictor_path = f"../models/fastpred/training/{model_type}/board_size_{board_size}"
+    number_of_concepts = data_utils.get_number_of_concepts()
 
     if rank == 0:
         # Start a timer
@@ -186,7 +194,10 @@ def rl_mpi():
         print("\nNum GPUs Available: ", len(gpus))
         for gpu in gpus:
             tf.config.experimental.set_memory_growth(gpu, True)
+        
+        # Initialize the buffers
         state_buffer = []
+        concept_buffer = []
         distribution_buffer = []
         value_buffer = []
     else:
@@ -196,12 +207,9 @@ def rl_mpi():
 
     if rank == 0:
         # Create the tensorboard callback
-        tb_writer, tb_callback = tensorboard_setup(reward_function_type)
+        tb_writer, tb_callback = tensorboard_setup(model_type, reward_function_type, clear_tensorboard)
 
-        if resnet:
-            agent = ResNet(board_size)
-        else:
-            agent = ConvNet(board_size)
+        agent = get_policy(model_type, board_size, number_of_concepts)
         agent.save_model(f"{save_path}/net_0.keras")
 
         # Calculate the number of games in total
@@ -233,14 +241,16 @@ def rl_mpi():
                 board_size,
                 non_deterministic_moves,
                 move_cap,
+                model_type,
                 reward_fn
             )
 
             data = {
                 "states": results[0],
-                "distributions": results[1],
-                "values": results[2],
-                "winners": results[3]
+                "concepts": results[1],
+                "distributions": results[2],
+                "values": results[3],
+                "winners": results[4]
             }
             # print("Results from {} sent.".format(rank), flush=True)
             comm.send(data, 0)
@@ -252,6 +262,7 @@ def rl_mpi():
                 results = comm.recv()
                 # print("A result is recieved!", flush=True)
                 state_buffer.extend(results["states"])
+                concept_buffer.extend(results["concepts"])
                 distribution_buffer.extend(results["distributions"])
                 value_buffer.extend(results["values"])
                 outcomes.extend(results["winners"])
@@ -265,16 +276,27 @@ def rl_mpi():
         history = None
         if epoch > epochs_skip:
             state_buffer = state_buffer[-replay_buffer_cap:]
+            concept_buffer = concept_buffer[-replay_buffer_cap:]
             distribution_buffer = distribution_buffer[-replay_buffer_cap:]
             value_buffer = value_buffer[-replay_buffer_cap:]
 
-            history = agent.fit(
-                np.array(state_buffer),
-                np.array(distribution_buffer),
-                np.array(value_buffer),
-                epochs=1,
-                callbacks=[tb_callback]
-            )
+            if model_type == "conceptnet":
+                history = agent.fit(
+                    np.array(state_buffer),
+                    np.array(concept_buffer),
+                    np.array(distribution_buffer),
+                    np.array(value_buffer),
+                    epochs=1,
+                    callbacks=[tb_callback]
+                )
+            else:
+                history = agent.fit(
+                    np.array(state_buffer),
+                    np.array(distribution_buffer),
+                    np.array(value_buffer),
+                    epochs=1,
+                    callbacks=[tb_callback]
+                )
 
             # Add the metrics to TensorBoard
             write_to_tensorboard(tb_writer, history, outcomes, epoch)
