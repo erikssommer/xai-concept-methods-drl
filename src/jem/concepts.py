@@ -18,7 +18,7 @@ def concept_functions_to_use():
     return [
         null,
         play_center_in_opening,
-        #two_eyes,
+        two_eyes,
         one_eye,
         capture_a_stone,
         capture_group_of_stones,

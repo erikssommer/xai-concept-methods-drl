@@ -8,7 +8,8 @@ epochs: 1000
 epoch_skip: 0
 
 # Neural Network config
-resnet: true
+model_type: convnet # resnet, convnet, conceptnet
+reward_function: zero_sum # zero_sum, concept_fn or jem
 resnet_filters: 64 # f
 convnet_filters: 64 # f
 nr_of_anets: 10 # m
@@ -18,6 +19,7 @@ end_learning_rate: 0.0001
 decay_steps: 10000
 pre_trained: false # Remember to set sigma and epsilon to 0 for faster training
 pre_trained_path: ../models/pre_trained/board_size_5/
+clear_tensorboard: true
 
 # Replay buffer config
 rbuf_size: 2048 # Single process (2048)
@@ -37,10 +39,3 @@ plot: false
 
 # Topp config
 nr_of_topp_games: 2 # g
-
-# Reward function config
-reward_function: "jem" # zero_sum, "concept_fn" or "jem"
-
-# Concept bottleneck config
-concept_bottleneck_model: false
-nr_concepts: 8

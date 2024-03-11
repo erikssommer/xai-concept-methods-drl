@@ -8,7 +8,7 @@ from typing import Tuple
 
 
 class ConceptNet(BaseNet):
-    def __init__(self, board_size: int, load_path: str = None, summary: bool = True):
+    def __init__(self, board_size: int, nr_of_concepts: int, load_path: str = None, summary: bool = True):
         """
         Convolutional neural network for the actor-critic policy.
 
@@ -25,7 +25,7 @@ class ConceptNet(BaseNet):
         self.output = board_size ** 2 + 1
         self.batch_size = config.batch_size
         self.learning_rate = config.learning_rate
-        self.nr_concepts = config.nr_concepts
+        self.nr_concepts = nr_of_concepts
 
         if load_path:
             self.model = tf.keras.models.load_model(load_path)
@@ -42,6 +42,7 @@ class ConceptNet(BaseNet):
             # Policy head
             policy = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (1, 1), activation="relu", padding="same")(base)
             policy = tf.keras.layers.Flatten()(policy)
+            policy = tf.keras.layers.Dense(BLOCK_FILTER_SIZE, activation="relu")(policy)
             policy = tf.keras.layers.Dense(BLOCK_FILTER_SIZE/2, activation="relu")(policy)
 
             # Concept bottleneck

@@ -4,20 +4,17 @@ import tensorflow as tf
 from tqdm import tqdm
 from utils import config
 from mcts import MCTS
-from policy import ConvNet, ResNet
-from policy import FastPredictor
-from policy import LiteModel
+from policy import FastPredictor, LiteModel, get_policy
+from jem import data_utils
 import numpy as np
 import gc
 from utils import tensorboard_setup, write_to_tensorboard, folder_setup
-from env import govars
+from env import GoEnv, govars
 from .reward_functions import get_reward_function
 
 import absl.logging
 
 absl.logging.set_verbosity(absl.logging.ERROR)
-
-import env
 
 def rl():
     print("Starting single thread RL with canonical board representation")
@@ -48,9 +45,10 @@ def rl():
     pre_trained_path = config.pre_trained_path
     non_det_moves = config.non_det_moves
     move_cap = config.move_cap
-    resnet = config.resnet
-    model_type = "resnet" if resnet else "convnet"
+    model_type = config.model_type
     reward_function_type = config.reward_function
+    clear_tensorboard = config.clear_tensorboard
+    number_of_concepts = data_utils.get_number_of_concepts()
 
     reward_fn = get_reward_function(reward_function_type)
 
@@ -70,24 +68,23 @@ def rl():
             exit()
         
         # Load the neural network
-        if resnet:
-            neural_network = ResNet(board_size, model_path)
-        else:
-            neural_network = ConvNet(board_size, model_path)
+        neural_network = get_policy(model_type, board_size, model_path, number_of_concepts)
         
     else:
         # Create the neural network
-        if resnet:
-            neural_network = ResNet(board_size)
-        else:
-            neural_network = ConvNet(board_size)
+        neural_network = get_policy(model_type, board_size, number_of_concepts)
 
         # Save initial (random) weights
         neural_network.save_model(f"{save_path}/net_0.keras")
         start_episode = 0
 
     # Create the tensorboard callback
-    tb_writer, tb_callback = tensorboard_setup(reward_function_type)
+    tb_writer, tb_callback = tensorboard_setup(model_type, reward_function_type, clear_tensorboard)
+
+    state_buffer = []
+    concept_buffer = []
+    distribution_buffer = []
+    value_buffer = []
 
     # Loop through the number of episodes
     for episode in tqdm(range(start_episode, episodes)):
@@ -97,12 +94,8 @@ def rl():
         states_after_action = []
         distributions = []
 
-        state_buffer = []
-        distribution_buffer = []
-        value_buffer = []
-
         # Create the environment
-        go_env = env.GoEnv(size=board_size, komi=komi)
+        go_env = GoEnv(size=board_size, komi=komi)
 
         # Create the fast predictor for speed and memory efficiency
         model = FastPredictor(LiteModel.from_keras_model(neural_network.model))
@@ -207,17 +200,33 @@ def rl():
             state_buffer.append(state)
             distribution_buffer.append(dist)
             value_buffer.append(reward_fn(state_after_action, outcome))
+            
+            # Target for the concept bottleneck outputlayer
+            if model_type == "conceptnet":
+                concept = data_utils.one_hot_encode_concepts(state_after_action, outcome)
+                concept_buffer.append(concept)
         
         # Test if value buffer is not empty
         if len(value_buffer) > 0:
-            # Train the neural network
-            history = neural_network.fit(
-                np.array(state_buffer),
-                np.array(distribution_buffer),
-                np.array(value_buffer),
-                epochs=1,
-                callbacks=[tb_callback]
-            )
+            if model_type == "conceptnet":
+                # Train the concept bottleneck model
+                history = neural_network.fit(
+                    np.array(state_buffer[-rbuf_size:]),
+                    np.array(concept_buffer[-rbuf_size:]),
+                    np.array(distribution_buffer[-rbuf_size:]),
+                    np.array(value_buffer[-rbuf_size:]),
+                    epochs=1,
+                    callbacks=[tb_callback]
+                )
+            else:
+                # Train the res/convnet
+                history = neural_network.fit(
+                    np.array(state_buffer[-rbuf_size:]),
+                    np.array(distribution_buffer[-rbuf_size:]),
+                    np.array(value_buffer[-rbuf_size:]),
+                    epochs=1,
+                    callbacks=[tb_callback]
+                )
             # Add the metrics to TensorBoard
             write_to_tensorboard(tb_writer, history, np.array([outcome]), start_episode)
         else:
@@ -234,15 +243,6 @@ def rl():
         del tree
         del go_env
         del model
-
-        # Clear the replay buffer lists
-        turns = []
-        states = []
-        distributions = []
-
-        state_buffer = []
-        distribution_buffer = []
-        value_buffer = []
 
         if winner == 1:
             black_winner += 1

@@ -26,7 +26,30 @@ def get_explanation_from_state(state: np.ndarray, jem=False):
     reward_str = " and ".join(reward_list)
 
     return explanation_str, reward_str
+
+def get_number_of_concepts():
+    """
+    Get the number of concepts
+    """
+    return len(concept_functions_to_use()) + 1 # Pluss one for the outcome (concept: leads to win)
+
+def one_hot_encode_concepts(game_state: np.ndarray, outcome, allow_multiple_concepts=False) -> np.ndarray:
+    """
+    One hot encode the concepts
+    """
+    # Pluss one for the outcome (concept: leads to win)
+    one_hot_encoded_concepts = np.zeros(len(concept_functions_to_use()) + 1, dtype=np.int32)
+    for i, concept_function in enumerate(concept_functions_to_use()):
+        if concept_function(game_state):
+            one_hot_encoded_concepts[i] = 1
+            if not allow_multiple_concepts:
+                break
     
+    # Add the outcome as the last element
+    if outcome == 1:
+        one_hot_encoded_concepts[-1] = 1
+
+    return one_hot_encoded_concepts
 
 def get_explanation_list():
     concept_list = []
