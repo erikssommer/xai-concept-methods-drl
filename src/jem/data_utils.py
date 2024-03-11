@@ -1,5 +1,5 @@
 import numpy as np
-from concepts import generate_static_concept_datasets
+from concepts import generate_static_concept_datasets, generate_one_hot_concepts_dataset
 from .concepts import *
 from typing import Tuple, List
 import pickle
@@ -77,6 +77,30 @@ def translate_explanation(explanation: str):
         concept_explanation, _ = concept_function()
         if explanation == concept_explanation:
             return concept_function.__name__
+        
+def concept_functions_to_dict():
+    concept_dict = {}
+
+    for concept_function in concept_functions_to_use():
+        concept_dict[concept_function.__name__] = 0
+
+    concept_dict['win'] = 0
+    
+    return concept_dict
+
+
+def generate_concept_one_hot_encodings(agents, cases_to_sample, board_size) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Generate the one hot encodings for the concepts
+    """
+    print(f'Generating one hot encodings for board size {board_size}')
+
+    board_states, one_hot_concepts = generate_one_hot_concepts_dataset(cases_to_sample, agents, board_size, one_hot_encode_concepts)
+
+    board_states = np.array(board_states)
+    one_hot_concepts = np.array(one_hot_concepts)
+
+    return board_states, one_hot_concepts
 
 def generate_data(agents, cases_to_sample, board_size) -> Tuple[np.ndarray, np.ndarray, np.ndarray, int, dict]:
     """
