@@ -38,8 +38,6 @@ def rl():
     save_interval = config.save_intervals
     sample_ratio = config.sample_ratio
     pre_trained = config.pre_trained
-    clear_rbuf = config.clear_rbuf
-    batch_size = config.batch_size
     rbuf_size = config.rbuf_size
     episodes = config.episodes
     pre_trained_path = config.pre_trained_path
