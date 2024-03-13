@@ -1,5 +1,5 @@
 import numpy as np
-from concepts import generate_static_concept_datasets, generate_one_hot_concepts_dataset
+from concepts import generate_static_concept_datasets, generate_binary_concept_dataset
 from .concepts import *
 from typing import Tuple, List
 import pickle
@@ -33,22 +33,22 @@ def get_number_of_concepts():
     """
     return len(concept_functions_to_use()) + 1 # Pluss one for the outcome (concept: leads to win)
 
-def one_hot_encode_concepts(game_state: np.ndarray, outcome) -> np.ndarray:
+def binary_encode_concepts(game_state: np.ndarray, outcome) -> np.ndarray:
     """
-    One hot encode the concepts
+    Binary encode the concepts
     """
     # Pluss one for the outcome (concept: leads to win)
-    one_hot_encoded_concepts = np.zeros(len(concept_functions_to_use()) + 1, dtype=np.int32)
+    binary_encoded_concepts = np.zeros(len(concept_functions_to_use()) + 1, dtype=np.int32)
     
     for i, concept_function in enumerate(concept_functions_to_use()):
         if concept_function(game_state):
-            one_hot_encoded_concepts[i] = 1
+            binary_encoded_concepts[i] = 1
     
     # Add the outcome as the last element
     if outcome == 1:
-        one_hot_encoded_concepts[-1] = 1
+        binary_encoded_concepts[-1] = 1
 
-    return one_hot_encoded_concepts
+    return binary_encoded_concepts
 
 def get_explanation_list():
     concept_list = []
@@ -89,18 +89,18 @@ def concept_functions_to_dict():
     return concept_dict
 
 
-def generate_concept_one_hot_encodings(agents, cases_to_sample, board_size) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+def generate_binary_concept_encodings(agents, cases_to_sample, board_size) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    Generate the one hot encodings for the concepts
+    Generate the binary encodings for the concepts
     """
-    print(f'Generating one hot encodings for board size {board_size}')
+    print(f'Generating binary encodings for board size {board_size}')
 
-    board_states, one_hot_concepts = generate_one_hot_concepts_dataset(cases_to_sample, agents, board_size, one_hot_encode_concepts)
+    board_states, binary_concepts = generate_binary_concept_dataset(cases_to_sample, agents, board_size, binary_encode_concepts)
 
     board_states = np.array(board_states)
-    one_hot_concepts = np.array(one_hot_concepts)
+    binary_concepts = np.array(binary_concepts)
 
-    return board_states, one_hot_concepts
+    return board_states, binary_concepts
 
 def generate_data(agents, cases_to_sample, board_size) -> Tuple[np.ndarray, np.ndarray, np.ndarray, int, dict]:
     """

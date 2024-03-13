@@ -54,8 +54,9 @@ class ConceptNet(BaseNet):
             policy_output = tf.keras.layers.Dense(self.output, activation="softmax", name="policy_output")(policy)
 
             # Value head
-            value = tf.keras.layers.Conv2D(1, (1, 1), activation="relu", padding="same")(base)
+            value = tf.keras.layers.Conv2D(BLOCK_FILTER_SIZE, (1, 1), activation="relu", padding="same")(base)
             value = tf.keras.layers.Flatten()(value)
+            value = tf.keras.layers.Dense(BLOCK_FILTER_SIZE/2, activation="relu")(value)
             value_output = tf.keras.layers.Dense(1, activation="tanh", name="value_output")(value)
 
             self.model = tf.keras.Model(self.position_input, [concept_bottleneck_output, policy_output, value_output])

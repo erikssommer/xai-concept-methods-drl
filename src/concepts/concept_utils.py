@@ -71,9 +71,9 @@ def play_match(agents, board_size, concept_function, sample_ratio, binary=True, 
     
     return positive_cases, negative_cases
 
-def play_match_one_hot_concepts(agents, board_size, one_hot_encode_concepts):
+def play_match_binary_concepts(agents, board_size, binary_encode_concepts):
     states = []
-    one_hot_concepts = []
+    binary_concepts = []
 
     tmp_states = []
     tmp_states_after_action = []
@@ -149,10 +149,10 @@ def play_match_one_hot_concepts(agents, board_size, one_hot_encode_concepts):
         states.append(state)
             
         # Target for the concept bottleneck outputlayer
-        one_hot_concept = one_hot_encode_concepts(state_after_action, outcome)
-        one_hot_concepts.append(one_hot_concept)
+        binary_concept = binary_encode_concepts(state_after_action, outcome)
+        binary_concepts.append(binary_concept)
 
-    return states, one_hot_concepts
+    return states, binary_concepts
 
 
 def generate_static_concept_datasets(cases_to_sample, agents, board_size, concept_function, sample_ratio=0.8, nn_format=False, binary=True):
@@ -178,24 +178,24 @@ def generate_static_concept_datasets(cases_to_sample, agents, board_size, concep
 
     return positive_cases, negative_cases
 
-def generate_one_hot_concepts_dataset(cases_to_sample, agents, board_size, one_hot_encode_concepts):
+def generate_binary_concept_dataset(cases_to_sample, agents, board_size, binary_encode_concepts):
     board_states = []
-    one_hot_concepts = []
+    binary_concepts = []
 
     bar = tqdm(total=cases_to_sample, desc="Generating concept datasets")
 
     while len(board_states) < cases_to_sample:
         for i in range(len(agents)):
             for j in range(i + 1, len(agents)):
-                s, c, = play_match_one_hot_concepts([agents[i], agents[j]], board_size, one_hot_encode_concepts)
+                s, c, = play_match_binary_concepts([agents[i], agents[j]], board_size, binary_encode_concepts)
                 board_states.extend(s)
-                one_hot_concepts.extend(c)
+                binary_concepts.extend(c)
                 bar.update(len(s))
 
     board_states = board_states[:cases_to_sample]
-    one_hot_concepts = one_hot_concepts[:cases_to_sample]
+    binary_concepts = binary_concepts[:cases_to_sample]
 
-    return board_states, one_hot_concepts
+    return board_states, binary_concepts
 
 def convolve_filter(board_state: np.ndarray, concept_filter: np.ndarray, x=1, y=0, count_occurances=False) -> Tuple[bool, int]:
     """

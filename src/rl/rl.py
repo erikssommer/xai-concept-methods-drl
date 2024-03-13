@@ -201,7 +201,7 @@ def rl():
             
             # Target for the concept bottleneck outputlayer
             if model_type == "conceptnet":
-                concept = data_utils.one_hot_encode_concepts(state_after_action, outcome)
+                concept = data_utils.binary_encode_concepts(state_after_action, outcome)
                 concept_buffer.append(concept)
         
         # Test if value buffer is not empty
