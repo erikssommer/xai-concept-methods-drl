@@ -40,7 +40,7 @@ def folder_setup(model_type, reward_function_type, board_size) -> str:
                 os.remove(f'../models/training/{model_type}/{reward_function_type}/board_size_{board_size}/{folder}')
     
     # Return the path to the folder
-    return f'../models/training/{reward_function_type}/{model_type}/board_size_{board_size}'
+    return f'../models/training/{model_type}/{reward_function_type}/board_size_{board_size}'
 
 def concept_folder_setup_and_score(concept_type, model_type, board_name, session_name, concept_name, name, score):
     # Remove the files if they exist
