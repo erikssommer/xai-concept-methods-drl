@@ -8,7 +8,7 @@ from typing import Tuple
 
 
 class ConceptNet(BaseNet):
-    def __init__(self, board_size: int, nr_of_concepts: int, load_path: str = None, summary: bool = True):
+    def __init__(self, board_size: int, nr_of_concepts: int = None, load_path: str = None, summary: bool = True):
         """
         Convolutional neural network for the actor-critic policy.
 

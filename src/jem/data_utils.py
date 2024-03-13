@@ -88,6 +88,15 @@ def concept_functions_to_dict():
     
     return concept_dict
 
+def concept_idx_to_name(concept_idx):
+    """
+    Convert the concept index to the name
+    """
+    if concept_idx == len(concept_functions_to_use()):
+        return 'win'
+    else:
+        return concept_functions_to_use()[concept_idx].__name__
+
 
 def generate_binary_concept_encodings(agents, cases_to_sample, board_size) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """

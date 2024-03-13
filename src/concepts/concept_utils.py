@@ -79,7 +79,7 @@ def play_match_binary_concepts(agents, board_size, binary_encode_concepts):
     tmp_states_after_action = []
     tmp_turn = []
 
-    go_env = GoEnv(board_size)
+    go_env = GoEnv(board_size, komi=1.5)
     go_env.reset()
 
     player_to_start = 1 if np.random.random() > 0.5 else 0
