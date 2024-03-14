@@ -129,6 +129,13 @@ class ConceptNet(BaseNet):
         concepts, _, _ = res
 
         return concepts
+    
+    def predict_all(self, states: np.ndarray) -> Tuple[np.ndarray]:
+        """Predict the concept bottleneck and the policy of a state"""
+        with tf.device("/CPU:0"):
+            res = self.model.predict(states)
+
+        return res
 
     def mask_invalid_moves(self, policy: np.ndarray, valid_moves: np.ndarray) -> np.ndarray:
 
