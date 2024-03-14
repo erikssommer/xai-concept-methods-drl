@@ -2,6 +2,7 @@ import numpy as np
 from env import GoEnv, govars
 from tqdm import tqdm
 from typing import Tuple
+from mcts import MCTS
 
 def play_match(agents, board_size, concept_function, sample_ratio, binary=True, nn_format=False):
     go_env = GoEnv(board_size)
@@ -154,6 +155,96 @@ def play_match_binary_concepts(agents, board_size, binary_encode_concepts):
 
     return states, binary_concepts
 
+def play_match_binary_concepts_distribution(mcts_agent, board_size, simulations, binary_encode_concepts):
+    states = []
+    binary_concepts = []
+    distributions = []
+
+    tmp_states = []
+    tmp_states_after_action = []
+    tmp_distributions = []
+    tmp_turn = []
+
+    komi = 1.5
+
+    go_env = GoEnv(board_size, komi=komi)
+    go_env.reset()
+
+    player_turn = 0
+    moves = 0
+
+    move_cap = 100
+    c = 1.3
+    non_det_moves = 0 # Important to set to 0 so that the MCTS agent does not make non deterministic moves
+
+    # Get the initial state
+    init_state = go_env.canonical_state()
+
+    # Create the initial tree
+    tree = MCTS(init_state, simulations, board_size,
+                    move_cap, mcts_agent, c, komi, non_det_moves)
+
+    game_over = False
+
+    prev_turn_state = np.zeros((board_size, board_size))
+    temp_prev_turn_state = np.zeros((board_size, board_size))
+    prev_opposing_state = np.zeros((board_size, board_size))
+
+    while not game_over and moves < move_cap:
+
+        state = go_env.canonical_state()
+
+        best_action_node, distribution = tree.search(moves)
+
+        state_copy = np.array([state[0], prev_turn_state, state[1], prev_opposing_state, np.full((board_size, board_size), player_turn)])
+
+        _, _, game_over, _ = go_env.step(best_action_node.action)
+
+        state_after_action = go_env.canonical_state()
+
+        state_to_sample = np.array([state_after_action[1], state[0], state_after_action[0], state[1], np.full((board_size, board_size), player_turn)])
+
+        tmp_states.append(state_copy)
+        tmp_states_after_action.append(state_to_sample)
+        tmp_turn.append(player_turn)
+        tmp_distributions.append(distribution)
+
+        # Update the root node of the mcts tree
+        tree.set_root_node(best_action_node)
+        
+        moves += 1
+
+        player_turn = 1 - player_turn
+
+        # Update the previous state
+        prev_turn_state = temp_prev_turn_state
+        prev_opposing_state = state[0]
+        temp_prev_turn_state = prev_opposing_state
+
+    winner = go_env.winner()
+    
+    for (state, state_after_action, turn, distribution) in zip(tmp_states, tmp_states_after_action, tmp_turn, tmp_distributions):
+        if turn == govars.BLACK and winner == 1:
+            outcome = 1
+        elif turn == govars.WHITE and winner == -1:
+            outcome = 1
+        elif turn == govars.BLACK and winner == -1:
+            outcome = -1
+        elif turn == govars.WHITE and winner == 1:
+            outcome = -1
+        else:
+            AssertionError("Invalid winner")
+
+        states.append(state)
+            
+        # Target for the concept bottleneck outputlayer
+        binary_concept = binary_encode_concepts(state_after_action, outcome)
+        binary_concepts.append(binary_concept)
+
+        distributions.append(distribution)
+
+    return states, binary_concepts, distributions
+
 
 def generate_static_concept_datasets(cases_to_sample, agents, board_size, concept_function, sample_ratio=0.8, nn_format=False, binary=True):
 
@@ -196,6 +287,27 @@ def generate_binary_concept_dataset(cases_to_sample, agents, board_size, binary_
     binary_concepts = binary_concepts[:cases_to_sample]
 
     return board_states, binary_concepts
+
+def generate_binary_concept_dataset_distribution(cases_to_sample, agents, board_size, simulations, binary_encode_concepts):
+    board_states = []
+    binary_concepts = []
+    distributions = []
+
+    bar = tqdm(total=cases_to_sample, desc="Generating concept datasets")
+
+    while len(board_states) < cases_to_sample:
+        for agent in agents:
+            s, c, d = play_match_binary_concepts_distribution(agent, board_size, simulations, binary_encode_concepts)
+            board_states.extend(s)
+            binary_concepts.extend(c)
+            distributions.extend(d)
+            bar.update(len(s))
+
+    board_states = board_states[:cases_to_sample]
+    binary_concepts = binary_concepts[:cases_to_sample]
+    distributions = distributions[:cases_to_sample]
+
+    return board_states, binary_concepts, distributions
 
 def convolve_filter(board_state: np.ndarray, concept_filter: np.ndarray, x=1, y=0, count_occurances=False) -> Tuple[bool, int]:
     """

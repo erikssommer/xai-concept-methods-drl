@@ -1,5 +1,5 @@
 import numpy as np
-from concepts import generate_static_concept_datasets, generate_binary_concept_dataset
+from concepts import generate_static_concept_datasets, generate_binary_concept_dataset, generate_binary_concept_dataset_distribution
 from .concepts import *
 from typing import Tuple, List
 import pickle
@@ -110,6 +110,20 @@ def generate_binary_concept_encodings(agents, cases_to_sample, board_size) -> Tu
     binary_concepts = np.array(binary_concepts)
 
     return board_states, binary_concepts
+
+def generate_binary_concept_encodings_and_distribution(cases_to_sample, agents, board_size, simulations) -> Tuple[np.ndarray, np.ndarray, np.ndarray, dict]:
+    """
+    Generate the binary encodings for the concepts and the distribution
+    """
+    print(f'Generating binary encodings for board size {board_size}')
+
+    board_states, binary_concepts, distributions = generate_binary_concept_dataset_distribution(cases_to_sample, agents, board_size, simulations, binary_encode_concepts)
+
+    board_states = np.array(board_states)
+    binary_concepts = np.array(binary_concepts)
+    distributions = np.array(distributions)
+
+    return board_states, binary_concepts, distributions
 
 def generate_data(agents, cases_to_sample, board_size) -> Tuple[np.ndarray, np.ndarray, np.ndarray, int, dict]:
     """
