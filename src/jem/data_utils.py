@@ -27,6 +27,15 @@ def get_explanation_from_state(state: np.ndarray, jem=False):
 
     return explanation_str, reward_str
 
+def get_explanation_from_index(index: int):
+    """
+    Get the explination from the index
+    """
+    if index == len(concept_functions_to_use()):
+        return 'leads to a win', 1
+    else:
+        return concept_functions_to_use()[index]()
+
 def get_number_of_concepts():
     """
     Get the number of concepts
