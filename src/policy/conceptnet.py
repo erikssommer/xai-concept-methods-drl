@@ -164,7 +164,37 @@ class ConceptNet(BaseNet):
 
         # Selecting move randomly, but weighted by the distribution (0 = argmax, 1 = probablistic)
         return np.random.choice(len(policy), p=policy), value
+    
+    def best_action_with_explanation(self, state: np.ndarray, valid_moves: np.ndarray, greedy_move: bool = False, alpha: float = None) -> Tuple[int, int, float]:
+        """Predict the policy and value of a state"""
+        if len(state.shape) == 3:
+            state = np.reshape(state, (1, *state.shape))
 
+        with tf.device("/CPU:0"):
+            res = self.model(state, training=False)
+
+        concept, policy, value = res
+
+        # Get the policy array and value number from the result
+        policy = policy[0]
+        value = value[0][0]
+        concept = concept.numpy()[0]
+        explanation = concept.argmax()
+
+        policy = self.mask_invalid_moves(policy, valid_moves)
+
+        value = value.numpy()
+
+        if greedy_move:
+            return explanation, np.argmax(policy), value
+
+        if alpha and np.random.random() < alpha:
+            # Selecting move randomly, but weighted by the distribution (0 = argmax, 1 = probablistic)
+            return explanation, np.argmax(policy), value
+
+        # Selecting move randomly, but weighted by the distribution (0 = argmax, 1 = probablistic)
+        return explanation, np.random.choice(len(policy), p=policy), value
+    
     def value_estimation(self, state, valid_moves):
         return self.predict(state, valid_moves, value_only=True)
 
