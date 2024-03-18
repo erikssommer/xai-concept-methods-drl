@@ -294,7 +294,7 @@ class DynamicConcepts:
     @staticmethod
     def keep_initiative(board_size: int) -> Tuple[np.ndarray, bool, str]:
         """
-        Concept of starting from a board with a few stones
+        Keep initative is a concept where the player tries to keep the initiative by playing in a way that forces the opponent to respond.
         """
         concept_type_single = False
         # Initialize all planes to zeros

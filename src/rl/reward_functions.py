@@ -9,10 +9,16 @@ class RewardFunction(ABC):
         pass
 
 class ZeroSumRewardFunction(RewardFunction):
+    """
+    Zero sum reward function that uses the outcome as the reward, i.e. 1 for win, -1 for loss, sum of the rewards is 0 
+    """
     def reward_function(self, board_state, outcome):
         return outcome
 
 class ConceptRewardFunction(RewardFunction):
+    """
+    Reward function that uses the concept functions to find the explanation and corresponding reward
+    """
     def reward_function(self, board_state, outcome):
         # Actions leading to a win is allways rewarded with 1 (max reward)
         if outcome == 1:
@@ -35,6 +41,9 @@ class ConceptRewardFunction(RewardFunction):
         return outcome
 
 class JemRewardFunction(RewardFunction):
+    """
+    Reward function that uses the joint embedding model to find the closest explanation and corresponding reward
+    """
     def __init__(self):
         self.jem = JointEmbeddingModel(load_path='../models/jem/joint_embedding_model.keras')
         self.explanation_list = data_utils.get_explanation_list()

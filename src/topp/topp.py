@@ -185,8 +185,8 @@ class Topp:
         df = pd.DataFrame(data=d)
         # Set a larger width
         plt.figure(figsize=(12, 8))
-        sns.barplot(x='Agent', y='Wins', hue='Player', data=df)
-        plt.title('Wins by agent')
+        sns.barplot(x='Checkpoint', y='Wins', hue='Player', data=df)
+        plt.title('Training Progress')
         plt.show()
 
     def get_results(self) -> None:
