@@ -28,7 +28,7 @@ batch_size: 128 # 512
 
 # Go config
 board_size: 5 # k
-komi: 1.5 # gives white a bonus of x points at the end of the game due to black going first (1.5 for 5x5 and 3.5 for 7x7)
+komi: 1.5 # gives white a bonus of x points at the end of the game due to black going first (2.5 for 5x5 and 3.5 for 7x7)
 move_cap: 120
 
 # Debug config
