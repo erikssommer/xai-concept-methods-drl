@@ -117,6 +117,27 @@ class JointEmbeddingModel:
 
         with tf.device('/device:GPU:0'):
             return self.model([state, explination], training=False)
+        
+    def predict_concept(self, board_state, explanation_list, vocab, max_sent_len, convert_explanation_to_integers, concept_functions_to_use):
+        l2_norm_arr = []  # List to store L2 norms
+
+        total_state_embeddings = []  # List to store total state embeddings
+        total_explanation_embeddings = []  # List to store total explanation embeddings
+        for _, explanation in enumerate(explanation_list):
+            encoded_explanation = convert_explanation_to_integers(explanation, vocab, max_sent_len)
+            state_embed, exp_embed = self.predict(board_state, encoded_explanation)
+            total_state_embeddings.append(state_embed)
+            total_explanation_embeddings.append(exp_embed)
+            # Calculate the L2 norm
+            differences = state_embed - exp_embed
+            l2_norm = np.linalg.norm(differences, axis=1, ord=2)
+            l2_norm_arr.append(l2_norm)
+        
+        predicted_index = np.argmin(np.array(l2_norm_arr))  # Get the index of the predicted explanation
+        # Get the reward
+        explanation, _ = concept_functions_to_use()[predicted_index]()
+
+        return explanation
 
     def save_model(self, path):
         self.model.save(path)
