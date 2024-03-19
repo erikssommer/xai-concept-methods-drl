@@ -123,8 +123,11 @@ class ConceptNet(BaseNet):
     
     def predict_concepts(self, states: np.ndarray) -> Tuple[np.ndarray]:
         """Predict the concept bottleneck and the policy of a state"""
+        if len(states.shape) == 3:
+            states = np.reshape(states, (1, *states.shape))
+        
         with tf.device("/CPU:0"):
-            res = self.model.predict(states)
+            res = self.model(states)
 
         concepts, _, _ = res
 
