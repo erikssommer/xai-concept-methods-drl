@@ -222,7 +222,7 @@ def rl_mpi():
         print(
             f"Episodes per thread instance: {episodes_per_thread_instance}", flush=True)
         print(f"Total number of games: {total}", flush=True)
-        print("Reward function: ", reward_function_type, flush=True)
+        print("Reward function:", reward_function_type, flush=True)
 
     for epoch in tqdm(range(1, epochs + 1)):
         if rank == 0:
