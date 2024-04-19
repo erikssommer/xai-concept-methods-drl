@@ -1,6 +1,6 @@
-# Explainable AI in Deep Reinforcement Learning for discovering and leveraging human concepts
+# From Static to Dynamic Concepts in Sequential Decision Making: Using Explainable AI to Improve Reward Functions
 
-Master thesis project in computer science at the Norwegian University of Science and Technology (NTNU)
+Master thesis project in computer science specializing in artificial intelligence at the Norwegian University of Science and Technology (NTNU).
 
 ## Description
 This project is about creating a deep reinforcement learning agent that can learn to play the game of Go on various board sizes. The agent is trained using the AlphaZero algorithm, and the training is done using the distributed computing framework MPI for high performance computing (HPC). The project also includes a concept detection algorithm that can be used to detect human static and dynamic concepts in the trained agent's policy. The concept detection algorithm is based on the concept activation vectors (CAVs) method. The project also includes a tournament of progressive policies (TOPP) algorithm that can be used to compare the performance of the trained agents.
