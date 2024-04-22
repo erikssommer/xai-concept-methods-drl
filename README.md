@@ -1,9 +1,19 @@
 # From Static to Dynamic Concepts in Sequential Decision Making: Using Explainable AI to Improve Reward Functions
 
-Master thesis project in computer science specializing in artificial intelligence at the Norwegian University of Science and Technology (NTNU).
+Codebase for master thesis project in computer science specializing in artificial intelligence at the Norwegian University of Science and Technology (NTNU).
 
 ## Description
-This project is about creating a deep reinforcement learning agent that can learn to play the game of Go on various board sizes. The agent is trained using the AlphaZero algorithm, and the training is done using the distributed computing framework MPI for high performance computing (HPC). The project also includes a concept detection algorithm that can be used to detect human static and dynamic concepts in the trained agent's policy. The concept detection algorithm is based on the concept activation vectors (CAVs) method. The project also includes a tournament of progressive policies (TOPP) algorithm that can be used to compare the performance of the trained agents.
+This project aims to improve the reward functions of deep reinforcement learning agents by using explainable AI to detect static and dynamic concepts in the agent's policy.
+
+The codebase contains:
+*   the deep reinforcmemt training loop, similar to the one outlined in the AlphaZero paper by Google DeepMind
+*   concept detection using Concept Activation Vectors (CAVs) to find static and dynamic concepts in the agent's policy
+*   concept functions for static concepts
+*   algorithm using the monte carlo tree search (MCTS) to unsupervisedly generate datasets for dynamic concepts
+*   joint embedding model to learn the relationship between state-action pairs and conceptual explanations
+*   using the joint embedding model and concept functions to improve the reward function of the agent
+*   Training a concept bottleneck model to learn concepts in the agent's policy
+
 
 ### Install required packages
 ```bash
