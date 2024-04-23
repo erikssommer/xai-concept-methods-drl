@@ -136,8 +136,10 @@ def has_winning_move(game_state) -> bool:
     for i in range(len(legal_moves)):
         if legal_moves[i] == 1:
             # Make a copy of the game state and play the move
-            game_state_copy = game_state.copy()
-            next_state = gogame.next_state(game_state_copy, i, canonical=True)
+            game_state_copy = np.copy(game_state)
+            
+            # Assert that the game state copy is the same as the original game state
+            next_state = gogame.next_state(game_state_copy, i)
 
             # Check if the next player has any legal moves remaining
             next_player_legal_moves = gogame.valid_moves(next_state)
@@ -162,7 +164,7 @@ def capture_stones_threat(game_state) -> bool:
     for i in range(len(legal_moves)):
         if legal_moves[i] == 1:
             # Make a copy of the game state and play the move
-            game_state_copy = game_state.copy()
+            game_state_copy = np.copy(game_state)
 
             # Count the number of black and white stones before the move
             opposing_pieces = game_state_copy[1]
