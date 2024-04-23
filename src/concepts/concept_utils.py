@@ -49,8 +49,7 @@ def play_match(agents, board_size, concept_function, sample_ratio, binary=True, 
             if nn_format:
                 pos = concept_function(state_to_sample)
             else:
-                # TODO Might need to change the current player perspective
-                pos = concept_function(state_after_action)
+                pos = concept_function(state)
             
             
             if binary:
