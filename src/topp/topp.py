@@ -7,6 +7,7 @@ import seaborn as sns
 from .agent import Agent
 import random
 import numpy as np
+from tqdm import tqdm
 
 
 class Topp:
@@ -17,7 +18,8 @@ class Topp:
                  komi: float = 0.5,
                  dir: str = 'training',
                  version: str = None,
-                 model_type: str = 'convnet'):
+                 model_type: str = 'convnet',
+                 reward_function: str = 'zero_sum'):
 
         self.board_size = board_size
         self.num_nn = 0
@@ -29,12 +31,13 @@ class Topp:
         self.version = version
         self.komi = komi
         self.model_type = model_type
+        self.reward_function = reward_function
 
     def add_agents(self, greedy_move: bool = False, resnet: bool = False, use_fast_predictor: bool = False) -> None:
         if self.dir in 'saved_sessions' or 'model_performance' in self.dir:
-            path = f'../models/{self.dir}/{self.model_type}/board_size_{self.board_size}/{self.version}'
+            path = f'../models/{self.dir}/{self.model_type}/{self.reward_function}/board_size_{self.board_size}/{self.version}'
         else:
-            path = f'../models/{self.dir}/{self.model_type}/board_size_{self.board_size}'
+            path = f'../models/{self.dir}/{self.model_type}/{self.reward_function}/board_size_{self.board_size}'
 
         print(f"Loading agents from {path}")
 
@@ -60,9 +63,9 @@ class Topp:
             raise Exception("No agents found")
 
     def run_tournament(self) -> None:
-        for i in range(self.num_nn):
+        for i in tqdm(range(self.num_nn), desc='Playing tournament games'):
             for j in range(i+1, self.num_nn):
-                # Starting agent plays as black
+                # Rest of the code...
                 starting_agent = random.choice([i, j])
 
                 if self.render:
@@ -109,9 +112,9 @@ class Topp:
                                 (self.board_size, self.board_size), current_player)])
 
                         if moves > self.move_cap:
-                            print("Move cap reached in game between {} and {}, termination game!".format(
-                                self.agents[i].name, self.agents[j].name))
-                            sleep(1)
+                            if self.render:
+                                print("Move cap reached in game between {} and {}, termination game!".format(
+                                    self.agents[i].name, self.agents[j].name))
                             break
 
                         agent: Agent = self.agents[current_agent]
@@ -174,18 +177,18 @@ class Topp:
 
     def plot_results(self) -> None:
         # x is agent name
-        x = [agent.name for agent in self.agents]
+        x = [int(agent.name.split('_')[-1].split('.')[0]) for agent in self.agents]
         # y is number of wins
         y = [agent.win for agent in self.agents]
         z_1 = [agent.black_win for agent in self.agents]
         z_2 = [agent.white_win for agent in self.agents]
 
-        d = {'Agent': x*3, 'Wins': z_1 + z_2 + y,
+        d = {'Training steps': x*3, 'Wins': z_1 + z_2 + y,
              'Player': ['Black']*len(x) + ['White']*len(x) + ['Total']*len(x)}
         df = pd.DataFrame(data=d)
         # Set a larger width
         plt.figure(figsize=(12, 8))
-        sns.barplot(x='Checkpoint', y='Wins', hue='Player', data=df)
+        sns.barplot(x='Training steps', y='Wins', hue='Player', data=df)
         plt.title('Training Progress')
         plt.show()
 
