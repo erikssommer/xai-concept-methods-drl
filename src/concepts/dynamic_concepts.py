@@ -452,6 +452,41 @@ class DynamicConcepts:
         return game_state, concept_type_single, "ladder"
     
     @staticmethod
+    def connection_and_separation(board_size: int) -> Tuple[np.ndarray, bool, str]:
+        """
+        Connection and separation are strategies used to connect or separate groups of stones.
+        """
+        concept_type_single = False
+        # Initialize all planes to zeros
+        game_state = np.zeros((6, board_size, board_size))
+
+        # Set up a scenario where Player 1 tries to keep stones connected while Player 2 tries to separate them
+        game_state[0, board_size // 2, board_size // 2] = 1
+        game_state[0, board_size // 2, board_size // 2+1] = 1
+        game_state[0, board_size // 2, board_size // 2+2] = 1
+        game_state[0, board_size // 2-1, board_size // 2-2] = 1
+        game_state[1, board_size // 2+1, board_size // 2] = 1
+        game_state[1, board_size // 2, board_size // 2-2] = 1
+        game_state[1, board_size // 2+1, board_size // 2+2] = 1
+
+        # Set the third plane to represent the current player's turn
+        game_state[2, :, :] = 1
+
+        # Set the fourth plane to represent invalid moves (all territories are claimed)
+        for i in range(board_size):
+            for j in range(board_size):
+                if game_state[0, i, j] == 1 or game_state[1, i, j] == 1:
+                    game_state[3, i, j] = 1
+
+        # Set the fifth plane to represent that the previous move was not a pass
+        game_state[4, :, :] = 0
+
+        # Set the last plane to represent that the game is not over
+        game_state[5, :, :] = 0
+
+        return game_state, concept_type_single, "connection_and_separation"
+    
+    @staticmethod
     def joseki(board_size: int) -> Tuple[np.ndarray, bool, str]:
         """
         A sequence of moves in opening play where stones are placed in a corner of the board.
