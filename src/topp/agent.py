@@ -35,7 +35,8 @@ class Agent:
         
         if use_fast_predictor:
             self.predictor = FastPredictor(LiteModel.from_keras_model(nn.model))
-        self.predictor = nn
+        else:
+            self.predictor = nn
 
     # Play a round of the turnament
     def choose_action(self, state: np.ndarray, valid_moves: np.ndarray) -> Tuple[int, float]:
