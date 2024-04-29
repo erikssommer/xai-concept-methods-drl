@@ -189,15 +189,35 @@ class Topp:
         # Set a larger width
         plt.figure(figsize=(12, 8))
         sns.barplot(x='Training steps', y='Wins', hue='Player', data=df)
-        plt.title('Training Progress')
+        plt.xticks(fontsize=12)
+        plt.yticks(fontsize=12)
+        plt.xlabel('Training steps', fontsize=14)
+        plt.ylabel('Wins', fontsize=14)
+        plt.legend(fontsize=12)
+        # plt.title('Training Progress')
         plt.show()
+
+    def plot_win_percentage(self) -> None:
+        # x is agent name
+        x = [int(agent.name.split('_')[-1].split('.')[0]) for agent in self.agents]
+        # y is win percentage
+        y = [(agent.win / (agent.win + agent.loss + agent.draw)) * 100 for agent in self.agents]
+
+        plt.figure(figsize=(12, 8))
+        plt.plot(x, y, marker='o')
+        plt.xticks(fontsize=12)
+        plt.yticks(fontsize=12)
+        plt.xlabel('Training steps', fontsize=14)
+        plt.ylabel('Win percentage', fontsize=14)
+        plt.ylim(0, 100)
+        # plt.title('Win percentage over training steps', fontsize=16)
+        plt.grid(True)
+        plt.show()
+
 
     def get_results(self) -> None:
         agents_result = sorted(self.agents, key=lambda x: x.win, reverse=True)
 
         for agent in agents_result:
             print(
-                f"Agent {agent.name} won {agent.win} times where {agent.black_win} as black and {agent.white_win} as white, \
-                  lost {agent.loss} times, where {agent.black_loss} as black and {agent.white_loss} as white, \
-                  and drew {agent.draw} times, \
-                  played {agent.player_black} times as black and {agent.player_white} times as white")
+                f"Agent {agent.name} won {agent.win} times where {agent.black_win} as black and {agent.white_win} as white, lost {agent.loss} times, where {agent.black_loss} as black and {agent.white_loss} as white, and drew {agent.draw} times, played {agent.player_black} times as black and {agent.player_white} times as white")
