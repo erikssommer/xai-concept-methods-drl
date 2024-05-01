@@ -270,7 +270,7 @@ def ladder(game_state) -> bool:
 
 def number_of_own_stones(game_state) -> int:
     """
-    Continous concept (non-binary)
+    Continuous concept (non-binary)
     In the game of Go, the number of stones that a player has on the board is an important concept
     because it can be used to determine the winner of the game.
     """
@@ -278,13 +278,19 @@ def number_of_own_stones(game_state) -> int:
 
 def difference_in_stones(game_state) -> int:
     """
-    Continous concept (non-binary)
+    Continuous concept (non-binary)
     In the game of Go, the difference in the number of stones that each player has on the board is an important
     concept because it can be used to determine the winner of the game.
     """
     return np.sum(game_state[0]) - np.sum(game_state[1])
 
 def number_of_eyes(game_state) -> int:
+    """
+    Continuous concept (non-binary)
+    In the game of Go, the number of eyes that a group of stones has is an important concept because it can be used
+    to determine if the group is alive or dead.
+    """
+
     curr_pieces = game_state[0]
     opposing_pieces = game_state[1]
 
@@ -307,11 +313,29 @@ def number_of_eyes(game_state) -> int:
 
 def number_of_liberties(game_state) -> int:
     """
-    Continous concept (non-binary)
+    Continuous concept (non-binary)
     In the game of Go, the number of liberties that a group of stones has is an important concept
     because it can be used to determine if the group is alive or dead.
     """
     return np.sum(gogame.liberties(game_state))
+
+def number_of_legal_moves(game_state) -> int:
+    """
+    Continuous concept (non-binary)
+    In the game of Go, the number of legal moves that a player has is an important concept because it can be used
+    to determine if the player is in atari, or if the player has a winning move.
+    """
+    return np.sum(gogame.valid_moves(game_state))
+
+def territory_score(game_state) -> int:
+    """
+    Continuous concept (non-binary)
+    In the game of Go, territory score is a concept that describes the number of points that a player has surrounded.
+    Territory score is important because it is used to determine the winner of the game.
+    """
+    black_area, _ = gogame.areas(game_state)
+
+    return black_area
 
 
 def atari(game_state):
@@ -330,49 +354,5 @@ def ko():
     is not allowed to recapture the group immediately. Ko is an important concept because it can be
     used to force the opponent to defend their stones, or to create a ko situation in which the
     opponent is not allowed to recapture the group immediately.
-    """
-    pass
-
-
-def seki():
-    """
-    In the game of Go, seki is a situation in which two groups of stones are adjacent to each other,
-    and neither group can capture the other. Seki is important because it can be used to prevent the
-    opponent from capturing a group of stones.
-    """
-    pass
-
-
-def sente():
-    """
-    In the game of Go, sente is a situation in which a player is forced to respond to their opponent's
-    move. Sente is important because it can be used to force the opponent to defend their stones, or
-    to create a ko situation in which the opponent is not allowed to recapture the group immediately.
-    """
-    pass
-
-
-def gote():
-    """
-    In the game of Go, gote is a situation in which a player is not forced to respond to their opponent's
-    move. Gote is important because it can be used to force the opponent to defend their stones, or to
-    create a ko situation in which the opponent is not allowed to recapture the group immediately.
-    """
-    pass
-
-
-def sabaki():
-    """
-    In the game of Go, sabaki is a technique in which a player sacrifices stones in order to gain
-    a better position elsewhere on the board. Sabaki is important because it can be used to gain
-    an advantage over the opponent.
-    """
-    pass
-
-
-def life_and_death():
-    """
-    A group of stones is said to be "alive" if it has at least two eyes, or if it cannot be captured by the opponent. 
-    A group of stones is said to be "dead" if it can be captured by the opponent.
     """
     pass
