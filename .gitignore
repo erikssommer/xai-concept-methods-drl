@@ -171,7 +171,17 @@ tensorboard_logs/
 # Log from training
 log.txt
 
-models/
+models/training
+models/best_models
+models/cbm
+models/fastpred
+models/model_performance
+models/other_models
+models/reward_shaping
+models/probing_models
+mdoels/pre_trained
+models/saved_sessions
+models/play_against
 
 concept_presences/
 notebooks/plots/
