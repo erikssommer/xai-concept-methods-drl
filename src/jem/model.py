@@ -41,8 +41,8 @@ class JointEmbeddingModel:
             # Embedding and LSTM layers for the textual explanation
             explanation_inputs = tf.keras.Input(shape=(max_sent_len,))
             x = tf.keras.layers.Embedding(input_dim=vocab_size, output_dim=exp_embed, mask_zero=True)(explanation_inputs)
-            x = tf.keras.layers.LSTM(units=output_exp_embed)(x)
-            explanation_final = tf.keras.layers.ReLU(name='final_explanation')(x)
+            out_pack, ht, ct = tf.keras.layers.LSTM(units=output_exp_embed, return_sequences=True, return_state=True)(x)
+            explanation_final = tf.keras.layers.ReLU(name='final_explanation')(ht)
 
             # Concatenate the two embeddings and create the model
             self.model = tf.keras.Model(inputs=[board_inputs, explanation_inputs], 
@@ -63,12 +63,10 @@ class JointEmbeddingModel:
             
             @tf.function
             def loss_fn(y, state_embed, concept_embed):
-                # Split the concatinated pred tensor into state_embed and concept_embed
                 batch_size = tf.shape(state_embed)[0]
                 difference = state_embed - concept_embed 
                 l2_norm = tf.norm(difference, axis=1, ord=2)
-                #l2_norm = tf.reduce_sum(((state_embed * concept_embed)) ** 2, 1).sqrt()
-                loss = tf.reduce_sum((l2_norm - y) ** 2, 0) / tf.cast(batch_size, dtype=tf.float32)
+                loss = tf.reduce_sum((l2_norm - y) ** 2) / tf.cast(batch_size, dtype=tf.float32)
                 return loss
 
             @tf.function
