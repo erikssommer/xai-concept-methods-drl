@@ -253,7 +253,7 @@ def generate_static_concept_datasets(cases_to_sample, agents, board_size, concep
     if binary:
         positive_bar = tqdm(total=cases_to_sample, desc=f"Positive cases for concept '{concept_function.__name__}'")
     else:
-        positive_bar = tqdm(total=cases_to_sample, desc=f"Continues cases for concept '{concept_function.__name__}'")
+        positive_bar = tqdm(total=cases_to_sample, desc=f"Continuous cases for concept '{concept_function.__name__}'")
 
     while len(positive_cases) < cases_to_sample or len(negative_cases) < cases_to_sample:
         for i in range(len(agents)):
