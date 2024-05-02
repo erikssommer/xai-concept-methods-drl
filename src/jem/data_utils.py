@@ -31,31 +31,23 @@ def get_explanation_from_index(index: int):
     """
     Get the explination from the index
     """
-    if index == len(concept_functions_to_use()):
-        return 'leads to a win', 1
-    else:
-        return concept_functions_to_use()[index]()
+    return concept_functions_to_use()[index]()
 
 def get_number_of_concepts():
     """
     Get the number of concepts
     """
-    return len(concept_functions_to_use()) + 1 # Pluss one for the outcome (concept: leads to win)
+    return len(concept_functions_to_use())
 
-def binary_encode_concepts(game_state: np.ndarray, outcome) -> np.ndarray:
+def binary_encode_concepts(game_state: np.ndarray) -> np.ndarray:
     """
     Binary encode the concepts
     """
-    # Pluss one for the outcome (concept: leads to win)
-    binary_encoded_concepts = np.zeros(len(concept_functions_to_use()) + 1, dtype=np.int32)
+    binary_encoded_concepts = np.zeros(len(concept_functions_to_use()), dtype=np.int32)
     
     for i, concept_function in enumerate(concept_functions_to_use()):
         if concept_function(game_state):
             binary_encoded_concepts[i] = 1
-    
-    # Add the outcome as the last element
-    if outcome == 1:
-        binary_encoded_concepts[-1] = 1
 
     return binary_encoded_concepts
 
@@ -92,8 +84,6 @@ def concept_functions_to_dict():
 
     for concept_function in concept_functions_to_use():
         concept_dict[concept_function.__name__] = 0
-
-    concept_dict['win'] = 0
     
     return concept_dict
 
@@ -101,10 +91,7 @@ def concept_idx_to_name(concept_idx):
     """
     Convert the concept index to the name
     """
-    if concept_idx == len(concept_functions_to_use()):
-        return 'win'
-    else:
-        return concept_functions_to_use()[concept_idx].__name__
+    return concept_functions_to_use()[concept_idx].__name__
 
 
 def generate_binary_concept_encodings(agents, cases_to_sample, board_size) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
