@@ -108,9 +108,9 @@ def two_eyes(game_state) -> bool:
         
     return False
 
-def tsumego(game_state) -> bool:
+def game_over(game_state) -> bool:
     """
-    In the game of Go, tsumego is a situation where one player has no legal moves remaining and has lost the game.
+    In the game of Go, game over is a situation where one player has no legal moves remaining and has lost the game.
     This is an equivalent concept to checkmate in chess.
     """
     # Check if the current player has any legal moves remaining
