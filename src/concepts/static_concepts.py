@@ -327,11 +327,11 @@ def number_of_legal_moves(game_state) -> int:
     """
     return np.sum(gogame.valid_moves(game_state))
 
-def territory_score(game_state) -> int:
+def area_score(game_state) -> int:
     """
     Continuous concept (non-binary)
-    In the game of Go, territory score is a concept that describes the number of points that a player has surrounded.
-    Territory score is important because it is used to determine the winner of the game.
+    In the game of Go, area score is a concept that describes the number of points that a player has surrounded.
+    Area score is important because it is used to determine the winner of the game.
     """
     black_area, _ = gogame.areas(game_state)
 
