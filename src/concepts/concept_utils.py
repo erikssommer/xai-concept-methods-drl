@@ -71,7 +71,7 @@ def play_match(agents, board_size, concept_function, sample_ratio, binary=True, 
     
     return positive_cases, negative_cases
 
-def play_match_binary_concepts(agents, board_size, binary_encode_concepts):
+def play_match_binary_concepts(agents, board_size, concept_function, binary_encode_concepts):
     states = []
     binary_concepts = []
 
@@ -118,9 +118,12 @@ def play_match_binary_concepts(agents, board_size, binary_encode_concepts):
 
         state_to_sample = np.array([state_after_action[1], state[0], state_after_action[0], state[1], np.full((board_size, board_size), current_player)])
 
-        tmp_states.append(state_copy)
-        tmp_states_after_action.append(state_to_sample)
-        tmp_turn.append(player_turn)
+        pos = concept_function(state_to_sample)
+
+        if pos:
+            tmp_states.append(state_copy)
+            tmp_states_after_action.append(state_to_sample)
+            tmp_turn.append(player_turn)
             
         moves += 1
 
@@ -131,25 +134,12 @@ def play_match_binary_concepts(agents, board_size, binary_encode_concepts):
         prev_turn_state = temp_prev_turn_state
         prev_opposing_state = state[0]
         temp_prev_turn_state = prev_opposing_state
-
-    winner = go_env.winner()
     
-    for (state, state_after_action, turn) in zip(tmp_states, tmp_states_after_action, tmp_turn):
-        if turn == govars.BLACK and winner == 1:
-            outcome = 1
-        elif turn == govars.WHITE and winner == -1:
-            outcome = 1
-        elif turn == govars.BLACK and winner == -1:
-            outcome = -1
-        elif turn == govars.WHITE and winner == 1:
-            outcome = -1
-        else:
-            AssertionError("Invalid winner")
-
+    for (state, state_after_action, _) in zip(tmp_states, tmp_states_after_action, tmp_turn):
         states.append(state)
             
         # Target for the concept bottleneck outputlayer
-        binary_concept = binary_encode_concepts(state_after_action, outcome)
+        binary_concept = binary_encode_concepts(state_after_action)
         binary_concepts.append(binary_concept)
 
     return states, binary_concepts
@@ -219,25 +209,13 @@ def play_match_binary_concepts_distribution(mcts_agent, board_size, simulations,
         prev_turn_state = temp_prev_turn_state
         prev_opposing_state = state[0]
         temp_prev_turn_state = prev_opposing_state
-
-    winner = go_env.winner()
     
-    for (state, state_after_action, turn, distribution) in zip(tmp_states, tmp_states_after_action, tmp_turn, tmp_distributions):
-        if turn == govars.BLACK and winner == 1:
-            outcome = 1
-        elif turn == govars.WHITE and winner == -1:
-            outcome = 1
-        elif turn == govars.BLACK and winner == -1:
-            outcome = -1
-        elif turn == govars.WHITE and winner == 1:
-            outcome = -1
-        else:
-            AssertionError("Invalid winner")
+    for (state, state_after_action, _, distribution) in zip(tmp_states, tmp_states_after_action, tmp_turn, tmp_distributions):
 
         states.append(state)
             
         # Target for the concept bottleneck outputlayer
-        binary_concept = binary_encode_concepts(state_after_action, outcome)
+        binary_concept = binary_encode_concepts(state_after_action)
         binary_concepts.append(binary_concept)
 
         distributions.append(distribution)
@@ -268,16 +246,16 @@ def generate_static_concept_datasets(cases_to_sample, agents, board_size, concep
 
     return positive_cases, negative_cases
 
-def generate_binary_concept_dataset(cases_to_sample, agents, board_size, binary_encode_concepts):
+def generate_binary_concept_dataset(cases_to_sample, agents, board_size, concept_function, binary_encode_concepts):
     board_states = []
     binary_concepts = []
 
-    bar = tqdm(total=cases_to_sample, desc="Generating concept datasets")
+    bar = tqdm(total=cases_to_sample, desc="Generating concept datasets for concept: " + concept_function.__name__)
 
     while len(board_states) < cases_to_sample:
         for i in range(len(agents)):
             for j in range(i + 1, len(agents)):
-                s, c, = play_match_binary_concepts([agents[i], agents[j]], board_size, binary_encode_concepts)
+                s, c, = play_match_binary_concepts([agents[i], agents[j]], board_size, concept_function, binary_encode_concepts)
                 board_states.extend(s)
                 binary_concepts.extend(c)
                 bar.update(len(s))
