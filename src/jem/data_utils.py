@@ -100,12 +100,18 @@ def generate_binary_concept_encodings(agents, cases_to_sample, board_size) -> Tu
     """
     print(f'Generating binary encodings for board size {board_size}')
 
-    board_states, binary_concepts = generate_binary_concept_dataset(cases_to_sample, agents, board_size, binary_encode_concepts)
+    board_states_list, binary_concepts_list = [], []
 
-    board_states = np.array(board_states)
-    binary_concepts = np.array(binary_concepts)
+    for concept_function in concept_functions_to_use():
+        # Update the description of the progress bar
+        board_states, binary_concepts = generate_binary_concept_dataset(cases_to_sample, agents, board_size, concept_function, binary_encode_concepts)
+        board_states_list.extend(board_states)
+        binary_concepts_list.extend(binary_concepts)
 
-    return board_states, binary_concepts
+    board_states_list = np.array(board_states_list)
+    binary_concepts_list = np.array(binary_concepts_list)
+
+    return board_states_list, binary_concepts_list
 
 def generate_binary_concept_encodings_and_distribution(cases_to_sample, agents, board_size, simulations) -> Tuple[np.ndarray, np.ndarray, np.ndarray, dict]:
     """
@@ -255,3 +261,34 @@ def save_datasets_to_pickle(states, explanations, labels, max_sent_len, vocab, b
         pickle.dump(max_sent_len, f)
     with open(f'../datasets/jem/board_size_{board_size}/vocab.pkl', 'wb') as f:
         pickle.dump(vocab, f)
+
+def save_cbm_dataset(states, concepts):
+    path = f'../datasets/cbm/'
+
+    # Create the directories if they don't exist
+    os.makedirs(path, exist_ok=True)
+
+    print(f'Saving dataset for CBM')
+
+    with open(f'{path}states.pkl', 'wb') as f:
+        pickle.dump(states, f)
+
+    with open(f'{path}concepts.pkl', 'wb') as f:
+        pickle.dump(concepts, f)
+
+def load_cbm_dataset():
+    path = f'../datasets/cbm/'
+
+    # Test if the folder exists
+    if not os.path.exists(path):
+        raise FileNotFoundError(f'No dataset found for CBM')
+
+    print(f'Loading dataset for CBM')
+
+    with open(f'{path}states.pkl', 'rb') as f:
+        states = pickle.load(f)
+
+    with open(f'{path}concepts.pkl', 'rb') as f:
+        concepts = pickle.load(f)
+
+    return states, concepts
