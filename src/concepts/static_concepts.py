@@ -1,4 +1,5 @@
 import numpy as np
+from scipy import ndimage
 from env import gogame, govars
 from .concept_utils import convolve_filter
 
@@ -345,14 +346,29 @@ def atari(game_state):
     concept because it can be used to force the opponent to defend their stones, or to create a ko
     situation in which the opponent is not allowed to recapture the group immediately.
     """
-    pass
+    surround_struct = np.array([[0, 1, 0],
+                            [1, 0, 1],
+                            [0, 1, 0]])
+    
+    # Identify all groups of stones for the given player
+    all_own_groups, num_own_groups = ndimage.label(game_state[0])
+    expanded_own_groups = np.zeros((num_own_groups, *game_state.shape[1:]))
 
+    # Expand the groups such that each group is in its own channel
+    for i in range(num_own_groups):
+        expanded_own_groups[i] = all_own_groups == (i + 1)
 
-def ko():
-    """
-    In the game of Go, ko is a situation in which a group of stones can be captured, but the opponent
-    is not allowed to recapture the group immediately. Ko is an important concept because it can be
-    used to force the opponent to defend their stones, or to create a ko situation in which the
-    opponent is not allowed to recapture the group immediately.
-    """
-    pass
+    # All pieces and empty spaces
+    all_pieces = np.sum(game_state[[govars.BLACK, govars.WHITE]], axis=0)
+    empties = 1 - all_pieces
+
+    # Get all liberties in the expanded form
+    all_own_liberties = empties[np.newaxis] * ndimage.binary_dilation(expanded_own_groups, surround_struct[np.newaxis])
+
+    own_liberty_counts = np.sum(all_own_liberties, axis=(1, 2))
+
+    # Check if any group has exactly one liberty
+    if np.any(own_liberty_counts == 1):
+        return True
+
+    return False
