@@ -270,6 +270,13 @@ def save_cbm_dataset(states, concepts):
 
     print(f'Saving dataset for CBM')
 
+    # Delete the old files
+    if os.path.exists(f'{path}states.pkl'):
+        os.remove(f'{path}states.pkl')
+        
+    if os.path.exists(f'{path}concepts.pkl'):
+        os.remove(f'{path}concepts.pkl')
+
     with open(f'{path}states.pkl', 'wb') as f:
         pickle.dump(states, f)
 
