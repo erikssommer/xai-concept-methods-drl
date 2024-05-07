@@ -187,13 +187,13 @@ class Topp:
              'Player': ['Black']*len(x) + ['White']*len(x) + ['Total']*len(x)}
         df = pd.DataFrame(data=d)
         # Set a larger width
-        plt.figure(figsize=(12, 8))
+        plt.figure(figsize=(15, 10))
         sns.barplot(x='Training steps', y='Wins', hue='Player', data=df)
-        plt.xticks(fontsize=12)
-        plt.yticks(fontsize=12)
-        plt.xlabel('Training steps', fontsize=14)
-        plt.ylabel('Wins', fontsize=14)
-        plt.legend(fontsize=12)
+        plt.xticks(fontsize=20)
+        plt.yticks(fontsize=20)
+        plt.xlabel('Training steps', fontsize=20)
+        plt.ylabel('Wins', fontsize=20)
+        plt.legend(fontsize=20)
         # plt.title('Training Progress')
         plt.show()
 
@@ -201,19 +201,18 @@ class Topp:
         # x is agent name
         x = [int(agent.name.split('_')[-1].split('.')[0]) for agent in self.agents]
         # y is win percentage
-        y = [(agent.win / (agent.win + agent.loss + agent.draw)) * 100 for agent in self.agents]
+        y = [(agent.win / (agent.win + agent.loss + agent.draw)) for agent in self.agents]
 
-        plt.figure(figsize=(12, 8))
+        plt.figure(figsize=(15, 10))
         plt.plot(x, y, marker='o')
-        plt.xticks(fontsize=12)
-        plt.yticks(fontsize=12)
-        plt.xlabel('Training steps', fontsize=14)
-        plt.ylabel('Win percentage', fontsize=14)
-        plt.ylim(0, 100)
+        plt.xticks(fontsize=20)
+        plt.yticks(fontsize=20)
+        plt.xlabel('Training steps', fontsize=20)
+        plt.ylabel('Win percentage', fontsize=20)
+        plt.yticks(np.arange(0, 1.1, step=0.1))
         # plt.title('Win percentage over training steps', fontsize=16)
         plt.grid(True)
         plt.show()
-
 
     def get_results(self) -> None:
         agents_result = sorted(self.agents, key=lambda x: x.win, reverse=True)
