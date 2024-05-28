@@ -183,7 +183,7 @@ mdoels/pre_trained
 models/saved_sessions
 models/play_against
 
-concept_presences/
+#concept_presences/
 notebooks/plots/
 notebooks/visualization/
 
