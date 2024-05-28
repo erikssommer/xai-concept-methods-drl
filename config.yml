@@ -1,7 +1,7 @@
 # MCTS config
 episodes: 10000 # Single process
 episodes_per_epoch: 2 # Multi process
-simulations: 300 # m
+simulations: 500 # m
 c: 1.4 # Exploration constant
 non_det_moves: 6 # Number of plies to use for non-deterministic playouts
 epochs: 1000
@@ -9,8 +9,8 @@ epoch_skip: 0
 
 # Neural Network config
 model_type: resnet # resnet, convnet, conceptnet
-reward_function: jem # zero_sum, concept_fn or jem
-resnet_filters: 256 # f
+reward_function: zero_sum # zero_sum, concept_fn or jem
+resnet_filters: 128 # f
 convnet_filters: 64 # f
 save_intervals: [1, 2, 3, 5, 7, 10, 13, 15, 20, 30, 40, 60, 80, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
 learning_rate: 0.001
