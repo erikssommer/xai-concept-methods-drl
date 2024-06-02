@@ -1,15 +1,15 @@
-# From Static to Dynamic Concepts in Sequential Decision Making: Improving Reward Functions Using Explainable AI
+# From Static to Dynamic Concepts in Sequential Decision-Making: Improving Reward Functions Using Explainable AI
 
-Codebase for master thesis project in computer science specializing in artificial intelligence at the Norwegian University of Science and Technology (NTNU).
+Codebase for master's thesis project in computer science specializing in artificial intelligence at the Norwegian University of Science and Technology (NTNU).
 
 ## Description
 This project aims to discover the aquisition of static and dynamic concepts in the policy of an agent trained using deep reinforcement learning. The project is based on the AlphaGo Zero algorithm by Google DeepMind, and the agent is trained in the game of Go. The project uses Concept Activation Vectors (CAVs) to find static and dynamic concepts in the agent's policy. The project also uses the Monte Carlo Tree Search (MCTS) algorithm to unsupervisedly generate datasets for dynamic concepts. The project uses a joint embedding model to learn the relationship between state-action pairs and conceptual explanations. The project uses the joint embedding model and concept functions to improve the reward function of the agent. The project also trains a concept bottleneck model to learn concepts in the agent's policy.
 
 The codebase contains:
 *   the deep reinforcmemt training loop, similar to the one outlined in the AlphaGo Zero paper by Google DeepMind
-*   concept detection using Concept Activation Vectors (CAVs) to find static and dynamic concepts in the agent's policy
+*   concept detection using CAVs to find static and dynamic concepts in the agent's policy
 *   concept functions for static concepts
-*   algorithm using the monte carlo tree search (MCTS) to unsupervisedly generate datasets for dynamic concepts
+*   algorithm using MCTS to unsupervisedly generate datasets for dynamic concepts
 *   joint embedding model to learn the relationship between state-action pairs and conceptual explanations
 *   using the joint embedding model and concept functions to improve the reward function of the agent
 *   Training a concept bottleneck model to learn concepts in the agent's policy
