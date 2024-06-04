@@ -1,4 +1,4 @@
-# From Static to Dynamic Concepts in Sequential Decision-Making: Improving Reward Functions Using Explainable AI
+# XAI Concpet Methods in DRL
 
 Codebase for master's thesis project in computer science specializing in artificial intelligence at the Norwegian University of Science and Technology (NTNU).
 
